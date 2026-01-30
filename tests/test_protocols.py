@@ -7,7 +7,7 @@ import warnings
 
 import pytest
 
-from kronos.protocols import (
+from krons.protocols import (
     Allowable,
     Containable,
     Deserializable,
@@ -220,7 +220,7 @@ class TestGetSignatureParams:
 
     def test_property_returns_none(self):
         """Property methods should return None (not introspectable)."""
-        from kronos.protocols import _get_signature_params
+        from krons.protocols import _get_signature_params
 
         class MyClass:
             @property
@@ -233,7 +233,7 @@ class TestGetSignatureParams:
 
     def test_non_callable_returns_none(self):
         """Non-callable objects should return None."""
-        from kronos.protocols import _get_signature_params
+        from krons.protocols import _get_signature_params
 
         assert _get_signature_params("not a function") is None
         assert _get_signature_params(123) is None
@@ -241,7 +241,7 @@ class TestGetSignatureParams:
 
     def test_classmethod_unpacking(self):
         """Classmethod functions should be unwrapped properly."""
-        from kronos.protocols import _get_signature_params
+        from krons.protocols import _get_signature_params
 
         class MyClass:
             @classmethod
@@ -255,7 +255,7 @@ class TestGetSignatureParams:
 
     def test_staticmethod_unpacking(self):
         """Staticmethod functions should be unwrapped properly."""
-        from kronos.protocols import _get_signature_params
+        from krons.protocols import _get_signature_params
 
         class MyClass:
             @staticmethod
@@ -270,7 +270,7 @@ class TestGetSignatureParams:
 
     def test_builtin_value_error(self):
         """Builtins that can't be introspected should return None."""
-        from kronos.protocols import _get_signature_params
+        from krons.protocols import _get_signature_params
 
         # Some builtins may raise ValueError/TypeError for signature
         result = _get_signature_params(len)

@@ -19,7 +19,7 @@ pip install krons
 ## Quick Start
 
 ```python
-from kronos.specs import Spec, Operable
+from krons.specs import Spec, Operable
 
 # Define specs
 name_spec = Spec(str, name="name")

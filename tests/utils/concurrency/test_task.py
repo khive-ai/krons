@@ -3,7 +3,7 @@
 
 import pytest
 
-from kronos.utils.concurrency import TaskGroup, create_task_group
+from krons.utils.concurrency import TaskGroup, create_task_group
 
 
 @pytest.mark.anyio

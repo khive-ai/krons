@@ -3,7 +3,7 @@
 
 import pytest
 
-from kronos.utils.fuzzy._fuzzy_json import fuzzy_json
+from krons.utils.fuzzy._fuzzy_json import fuzzy_json
 
 # ============================================================================
 # Test fuzzy_json main function

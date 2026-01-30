@@ -8,9 +8,9 @@ Tests Operation event with real Session objects.
 
 import pytest
 
-from kronos.operations.node import Operation, create_operation
-from kronos.session import Session
-from kronos.types import Undefined
+from krons.operations.node import Operation, create_operation
+from krons.session import Session
+from krons.types import Undefined
 
 
 class TestOperationWithRealSession:

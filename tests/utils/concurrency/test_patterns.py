@@ -6,7 +6,7 @@ import time
 import anyio
 import pytest
 
-from kronos.utils.concurrency import bounded_map, fail_after, gather, race, retry
+from krons.utils.concurrency import bounded_map, fail_after, gather, race, retry
 
 # Optional hypothesis import for property-based testing
 try:

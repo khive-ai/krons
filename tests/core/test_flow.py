@@ -5,8 +5,8 @@
 
 import pytest
 
-from kronos.core import Element, Flow, Pile, Progression
-from kronos.errors import ExistsError, NotFoundError
+from krons.core import Element, Flow, Pile, Progression
+from krons.errors import ExistsError, NotFoundError
 
 
 class TestFlowCreation:

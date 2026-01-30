@@ -13,9 +13,9 @@ Key behaviors:
 import pytest
 from pydantic import BaseModel
 
-from kronos.specs import Operable, Spec, get_adapter
-from kronos.specs.adapters.pydantic_adapter import PydanticSpecAdapter
-from kronos.types import Unset
+from krons.specs import Operable, Spec, get_adapter
+from krons.specs.adapters.pydantic_adapter import PydanticSpecAdapter
+from krons.types import Unset
 
 
 class TestOperable:

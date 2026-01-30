@@ -11,7 +11,7 @@ This file covers edge cases only.
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from uuid import uuid4
 
-from kronos.core import Element, Progression
+from krons.core import Element, Progression
 
 # =============================================================================
 # Insert Negative Indices (unique - behavior at -1)

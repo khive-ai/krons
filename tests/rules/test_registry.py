@@ -10,8 +10,8 @@ from typing import Generic, TypeVar, Union
 
 import pytest
 
-from kronos.enforcement.common import StringRule
-from kronos.enforcement.registry import (
+from krons.enforcement.common import StringRule
+from krons.enforcement.registry import (
     RuleRegistry,
     get_default_registry,
     reset_default_registry,

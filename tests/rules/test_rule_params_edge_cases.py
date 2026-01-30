@@ -8,7 +8,7 @@ Migrated from lionpride to kron.
 
 import pytest
 
-from kronos.enforcement.rule import RuleParams, RuleQualifier
+from krons.enforcement.rule import RuleParams, RuleQualifier
 
 
 class TestRuleQualifierFromStr:

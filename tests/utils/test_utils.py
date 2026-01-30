@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from kronos.utils import (
+from krons.utils import (
     create_path,
     get_bins,
     import_module,

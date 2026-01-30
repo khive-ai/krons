@@ -3,7 +3,7 @@
 
 import pytest
 
-from kronos.utils._to_num import to_num
+from krons.utils._to_num import to_num
 
 
 class TestToNumBasic:

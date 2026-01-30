@@ -4,13 +4,13 @@
 import anyio
 import pytest
 
-from kronos.utils.concurrency import (
+from krons.utils.concurrency import (
     fail_after,
     get_cancelled_exc_class,
     is_cancelled,
     shield,
 )
-from kronos.utils.concurrency._errors import split_cancellation
+from krons.utils.concurrency._errors import split_cancellation
 
 
 @pytest.mark.anyio

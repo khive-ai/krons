@@ -5,9 +5,9 @@
 
 import pytest
 
-from kronos.enforcement.common import NumberRule, StringRule
-from kronos.enforcement.rule import ValidationError
-from kronos.enforcement.validator import Validator
+from krons.enforcement.common import NumberRule, StringRule
+from krons.enforcement.rule import ValidationError
+from krons.enforcement.validator import Validator
 
 
 class MockRuleRegistry:

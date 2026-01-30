@@ -13,8 +13,8 @@ from typing import Any, ClassVar
 
 import pytest
 
-from kronos.specs import Spec
-from kronos.types import DataClass, HashableModel, ModelConfig, Params, Unset
+from krons.specs import Spec
+from krons.types import DataClass, HashableModel, ModelConfig, Params, Unset
 
 __all__ = (
     "create_spec",

@@ -16,7 +16,7 @@ import pickle
 
 import pytest
 
-from kronos.types import (
+from krons.types import (
     Undefined,
     UndefinedType,
     Unset,

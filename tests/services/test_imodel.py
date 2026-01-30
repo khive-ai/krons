@@ -11,11 +11,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from pydantic import BaseModel
 
-from kronos.core import EventStatus, Executor
-from kronos.services import APICalling, Endpoint, EndpointConfig, NormalizedResponse
-from kronos.services.hook import HookRegistry
-from kronos.services.imodel import iModel
-from kronos.services.utilities.rate_limiter import RateLimitConfig, TokenBucket
+from krons.core import EventStatus, Executor
+from krons.services import APICalling, Endpoint, EndpointConfig, NormalizedResponse
+from krons.services.hook import HookRegistry
+from krons.services.imodel import iModel
+from krons.services.utilities.rate_limiter import RateLimitConfig, TokenBucket
 
 # =============================================================================
 # Test Request Models

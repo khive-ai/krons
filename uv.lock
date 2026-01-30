@@ -168,8 +168,8 @@ wheels = [
 ]
 
 [[package]]
-name = "kronos"
-version = "0.1.3"
+name = "krons"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },

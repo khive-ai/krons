@@ -23,7 +23,7 @@ from typing import Any
 import pytest
 from pydantic import BaseModel
 
-from kronos.core import (
+from krons.core import (
     Edge,
     Element,
     Event,
@@ -34,7 +34,7 @@ from kronos.core import (
     Processor,
     Progression,
 )
-from kronos.core.event import EventStatus
+from krons.core.event import EventStatus
 
 # Add tests/ directory to sys.path
 _tests_dir = Path(__file__).parent
@@ -50,7 +50,7 @@ if str(_tests_dir) not in sys.path:
 @pytest.fixture(autouse=True, scope="session")
 def register_test_type_prefixes():
     """Register test module prefixes for dynamic type loading (session-scoped)."""
-    from kronos.utils._utils import _ALLOWED_MODULE_PREFIXES
+    from krons.utils._utils import _ALLOWED_MODULE_PREFIXES
 
     test_prefixes = {"test_", "tests.", "conftest."}
     for prefix in test_prefixes:

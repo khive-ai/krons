@@ -14,8 +14,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from conftest import TestElement
 
-from kronos.core import Flow, Node, Progression
-from kronos.errors import ExistsError
+from krons.core import Flow, Node, Progression
+from krons.errors import ExistsError
 
 # =============================================================================
 # Progression Name Conflicts (unique - None names, name reuse after removal)

@@ -13,9 +13,9 @@ import httpx
 import pytest
 from pydantic import BaseModel, SecretStr, ValidationError
 
-from kronos.errors import KronConnectionError
-from kronos.services import APICalling, Endpoint, EndpointConfig
-from kronos.services.utilities.resilience import CircuitBreaker, RetryConfig
+from krons.errors import KronConnectionError
+from krons.services import APICalling, Endpoint, EndpointConfig
+from krons.services.utilities.resilience import CircuitBreaker, RetryConfig
 
 # =============================================================================
 # Test Request Models

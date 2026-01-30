@@ -5,7 +5,7 @@
 
 import pytest
 
-from kronos.utils.concurrency import alcall
+from krons.utils.concurrency import alcall
 
 
 class TestAlcall:

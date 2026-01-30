@@ -12,7 +12,7 @@ from uuid import UUID
 import orjson
 import pytest
 
-from kronos.utils._json_dump import (
+from krons.utils._json_dump import (
     get_orjson_default,
     json_dump,
     json_dumpb,

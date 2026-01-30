@@ -6,7 +6,7 @@
 import pytest
 from pydantic import SecretStr
 
-from kronos.services.utilities.header_factory import AUTH_TYPES, HeaderFactory
+from krons.services.utilities.header_factory import AUTH_TYPES, HeaderFactory
 
 
 class TestHeaderFactory:

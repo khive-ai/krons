@@ -5,9 +5,9 @@
 
 import pytest
 
-from kronos.core import Event
-from kronos.core.event import EventStatus, Execution
-from kronos.types import is_unset
+from krons.core import Event
+from krons.core.event import EventStatus, Execution
+from krons.types import is_unset
 
 
 class TestEventCreation:

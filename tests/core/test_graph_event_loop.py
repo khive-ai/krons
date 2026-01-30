@@ -40,7 +40,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kronos.core import Edge, EdgeCondition, Graph, Node
+from krons.core import Edge, EdgeCondition, Graph, Node
 
 
 class CountingCondition(EdgeCondition):

@@ -7,7 +7,7 @@ from enum import Enum
 
 import pytest
 
-from kronos.utils.fuzzy._to_dict import to_dict
+from krons.utils.fuzzy._to_dict import to_dict
 
 # ============================================================================
 # Mock Classes for Testing

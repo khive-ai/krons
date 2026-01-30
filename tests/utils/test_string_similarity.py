@@ -3,7 +3,7 @@
 
 import pytest
 
-from kronos.utils.fuzzy._string_similarity import SimilarityAlgo, string_similarity
+from krons.utils.fuzzy._string_similarity import SimilarityAlgo, string_similarity
 
 # ============================================================================
 # Test SimilarityAlgo static methods

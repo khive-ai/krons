@@ -5,8 +5,8 @@
 
 import pytest
 
-from kronos.errors import ValidationError
-from kronos.utils.sql._sql_validation import (
+from krons.errors import ValidationError
+from krons.utils.sql._sql_validation import (
     MAX_IDENTIFIER_LENGTH,
     SAFE_IDENTIFIER_PATTERN,
     sanitize_order_by,

@@ -7,8 +7,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from kronos.core import Progression
-from kronos.errors import NotFoundError
+from krons.core import Progression
+from krons.errors import NotFoundError
 
 
 class TestProgressionCreation:

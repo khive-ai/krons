@@ -38,8 +38,8 @@ from pydantic import BaseModel, Field, ValidationError
 from pydantic_core import PydanticUndefined
 from tests.types.conftest import create_spec, get_sample_validators
 
-from kronos.specs import Operable, Spec, SpecAdapter
-from kronos.specs.adapters.pydantic_adapter import PydanticSpecAdapter
+from krons.specs import Operable, Spec, SpecAdapter
+from krons.specs.adapters.pydantic_adapter import PydanticSpecAdapter
 
 # -- Pydantic model creation / validation / dump / update --------------------
 

@@ -23,8 +23,8 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import BaseModel
 
-from kronos.core import Element, Flow, Node, Pile, Progression
-from kronos.core.node import NODE_REGISTRY, create_node
+from krons.core import Element, Flow, Node, Pile, Progression
+from krons.core.node import NODE_REGISTRY, create_node
 
 # =============================================================================
 # Module-level Node classes with embedding support

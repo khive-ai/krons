@@ -6,7 +6,7 @@ import time
 import anyio
 import pytest
 
-from kronos.utils.concurrency import (
+from krons.utils.concurrency import (
     CancelScope,
     effective_deadline,
     fail_after,

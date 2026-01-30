@@ -10,8 +10,8 @@ import asyncio
 
 import pytest
 
-from kronos.errors import KronConnectionError
-from kronos.services.utilities.resilience import (
+from krons.errors import KronConnectionError
+from krons.services.utilities.resilience import (
     CircuitBreaker,
     CircuitBreakerOpenError,
     CircuitState,

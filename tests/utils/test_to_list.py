@@ -7,7 +7,7 @@ from enum import Enum
 import pytest
 from pydantic import BaseModel
 
-from kronos.utils._to_list import to_list
+from krons.utils._to_list import to_list
 
 
 # Enum for testing

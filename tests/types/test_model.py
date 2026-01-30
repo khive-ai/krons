@@ -18,7 +18,7 @@ Test Architecture:
 
 from pydantic import BaseModel
 
-from kronos.types import HashableModel
+from krons.types import HashableModel
 
 
 class SimpleConfig(HashableModel):

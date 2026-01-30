@@ -12,9 +12,9 @@ Tests the extracted schema spec dataclasses:
 
 import pytest
 
-from kronos.errors import ValidationError
-from kronos.specs import Operable, Spec
-from kronos.specs.adapters.sql_ddl import (
+from krons.errors import ValidationError
+from krons.specs import Operable, Spec
+from krons.specs.adapters.sql_ddl import (
     FK,
     CheckConstraintSpec,
     ColumnSpec,
@@ -431,7 +431,7 @@ class TestSQLSpecAdapterIntegration:
         from typing import Annotated
         from uuid import UUID
 
-        from kronos.specs.adapters.sql_ddl import FKMeta
+        from krons.specs.adapters.sql_ddl import FKMeta
 
         # Create spec with deferrable FK
         deferrable_fk = Annotated[UUID, FKMeta("Parent", deferrable=True)]

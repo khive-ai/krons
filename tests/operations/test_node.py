@@ -6,8 +6,8 @@
 import pytest
 from pydantic import ValidationError
 
-from kronos.operations.node import Operation, create_operation
-from kronos.types import Undefined
+from krons.operations.node import Operation, create_operation
+from krons.types import Undefined
 
 
 class TestOperationCreation:

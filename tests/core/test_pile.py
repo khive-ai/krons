@@ -5,8 +5,8 @@
 
 import pytest
 
-from kronos.core import Element, Pile
-from kronos.errors import ExistsError, NotFoundError
+from krons.core import Element, Pile
+from krons.errors import ExistsError, NotFoundError
 
 
 class TestPileCreation:

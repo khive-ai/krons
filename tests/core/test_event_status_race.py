@@ -18,8 +18,8 @@ from typing import Any
 import pytest
 from pydantic import Field
 
-from kronos.core.event import Event, EventStatus
-from kronos.types import Unset
+from krons.core.event import Event, EventStatus
+from krons.types import Unset
 
 
 @dataclass

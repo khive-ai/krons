@@ -7,7 +7,7 @@ from functools import partial
 import anyio
 import pytest
 
-from kronos.utils.concurrency import (
+from krons.utils.concurrency import (
     current_time,
     is_coro_func,
     move_on_after,

@@ -5,10 +5,10 @@
 
 import pytest
 
-from kronos.core.event import Event, EventStatus
-from kronos.core.pile import Pile
-from kronos.core.processor import Executor, Processor
-from kronos.errors import QueueFullError
+from krons.core.event import Event, EventStatus
+from krons.core.pile import Pile
+from krons.core.processor import Executor, Processor
+from krons.errors import QueueFullError
 
 
 class SecTestEvent(Event):
@@ -792,7 +792,7 @@ async def test_executor_update_progression_missing_status():
     The KeyError handler may be unreachable due to semantic
     exception migration (NotFoundError replaced KeyError in Pile).
     """
-    from kronos.errors import NotFoundError
+    from krons.errors import NotFoundError
 
     class TestExecutor(Executor):
         processor_type = SecTestProcessor

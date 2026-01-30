@@ -12,7 +12,7 @@ import threading
 
 from conftest import TestElement, create_test_elements
 
-from kronos.core import Node, Pile
+from krons.core import Node, Pile
 
 # =============================================================================
 # Single-Item Edge Cases (unique - tests boundary of 1 item)

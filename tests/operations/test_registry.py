@@ -5,7 +5,7 @@
 
 import pytest
 
-from kronos.operations.registry import OperationRegistry
+from krons.operations.registry import OperationRegistry
 
 
 class TestOperationRegistry:

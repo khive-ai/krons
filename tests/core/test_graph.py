@@ -5,8 +5,8 @@
 
 import pytest
 
-from kronos.core import Edge, Graph, Node
-from kronos.errors import ExistsError, NotFoundError
+from krons.core import Edge, Graph, Node
+from krons.errors import ExistsError, NotFoundError
 
 
 class TestGraphCreation:

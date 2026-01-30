@@ -5,14 +5,14 @@
 
 import pytest
 
-from kronos.core import Edge, Graph, Node
-from kronos.operations.flow import (
+from krons.core import Edge, Graph, Node
+from krons.operations.flow import (
     DependencyAwareExecutor,
     OperationResult,
     flow,
     flow_stream,
 )
-from kronos.operations.node import Operation
+from krons.operations.node import Operation
 
 
 class TestOperationResult:
@@ -509,7 +509,7 @@ class TestFlowVerbose:
         graph = Graph()
         graph.add_node(op)
 
-        with caplog.at_level(logging.DEBUG, logger="kronos.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         # Should have logged execution messages

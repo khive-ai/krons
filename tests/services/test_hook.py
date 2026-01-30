@@ -17,8 +17,8 @@ from __future__ import annotations
 import pytest
 from tests.conftest import SimpleTestEvent
 
-from kronos.core import EventStatus
-from kronos.services.hook import (
+from krons.core import EventStatus
+from krons.services.hook import (
     HookBroadcaster,
     HookEvent,
     HookPhase,
@@ -665,7 +665,7 @@ async def test_hook_event_invoke_when_success_then_completed():
 @pytest.mark.asyncio
 async def test_hook_event_invoke_when_hook_returns_tuple_with_exception():
     """Test HookEvent.invoke() when hook returns (Undefined, exception) tuple."""
-    from kronos.types import Undefined
+    from krons.types import Undefined
 
     async def hook(event_type, **kw):
         # Simulate exception return from _call
@@ -690,7 +690,7 @@ async def test_hook_event_invoke_when_hook_returns_tuple_with_exception():
 @pytest.mark.asyncio
 async def test_hook_event_invoke_when_hook_returns_exception():
     """Test HookEvent.invoke() when hook returns Exception directly."""
-    from kronos.types import Unset
+    from krons.types import Unset
 
     async def hook(event_type, **kw):
         return ValueError("Direct exception")
@@ -894,7 +894,7 @@ async def test_registry_pre_invocation_when_cancelled_then_returns_tuple():
     """
     import asyncio
 
-    from kronos.types import Undefined
+    from krons.types import Undefined
 
     async def cancelling_hook(evt, **kw):
         """Hook that raises CancelledError."""
@@ -922,7 +922,7 @@ async def test_registry_post_invocation_when_cancelled_then_returns_tuple():
     """
     import asyncio
 
-    from kronos.types import Undefined
+    from krons.types import Undefined
 
     async def cancelling_hook(evt, **kw):
         """Hook that raises CancelledError."""
@@ -950,7 +950,7 @@ async def test_registry_handle_streaming_chunk_when_cancelled_then_returns_tuple
     """
     import asyncio
 
-    from kronos.types import Undefined
+    from krons.types import Undefined
 
     async def cancelling_handler(evt, chunk_type, chunk, **kw):
         """Handler that raises CancelledError."""
@@ -977,7 +977,7 @@ async def test_registry_pre_event_create_when_cancelled_then_returns_tuple():
     """
     import asyncio
 
-    from kronos.types import Undefined
+    from krons.types import Undefined
 
     async def cancelling_hook(event_type, **kw):
         """Hook that raises CancelledError."""

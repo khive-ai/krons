@@ -10,8 +10,8 @@ hierarchy itself - base class behavior, retryable semantics, serialization.
 
 import pytest
 
-from kronos.core import Element
-from kronos.errors import (
+from krons.core import Element
+from krons.errors import (
     ConfigurationError,
     ExecutionError,
     ExistsError,

@@ -7,8 +7,8 @@ from uuid import uuid4
 
 import pytest
 
-from kronos.core import Edge
-from kronos.operations.builder import Builder, OperationGraphBuilder, _resolve_branch_ref
+from krons.core import Edge
+from krons.operations.builder import Builder, OperationGraphBuilder, _resolve_branch_ref
 
 
 class TestResolveBranchRef:

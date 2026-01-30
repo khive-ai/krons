@@ -6,7 +6,7 @@
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-from kronos.utils._lazy_init import LazyInit
+from krons.utils._lazy_init import LazyInit
 
 
 class TestLazyInit:

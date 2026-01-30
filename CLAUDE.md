@@ -1,8 +1,8 @@
-# kronos - Spec-Based Composable Framework
+# krons - Spec-Based Composable Framework
 
 ## Overview
 
-**kronos** is a Python framework for building spec-based, composable systems. It provides:
+**krons** is a Python framework for building spec-based, composable systems. It provides:
 
 - **Spec/Operable**: Type-safe field definitions with validation, defaults, and DB metadata
 - **Node**: Polymorphic content containers with DB serialization
@@ -12,7 +12,7 @@
 ## Architecture
 
 ```
-kronos/
+krons/
 ├── core/           # Foundation: Element, Node, Event, Flow, Graph, Pile
 ├── specs/          # Spec definitions, Operable composition, adapters
 │   ├── catalog/    # Pre-built specs (Content, Audit, Common, Enforcement)
@@ -32,8 +32,8 @@ kronos/
 **Spec** defines a single field with type, name, default, validation, and DB metadata:
 
 ```python
-from kronos.specs import Spec, Operable
-from kronos.types.db_types import FK, VectorMeta
+from krons.specs import Spec, Operable
+from krons.types.db_types import FK, VectorMeta
 
 # Basic specs
 name_spec = Spec(str, name="name")
@@ -66,7 +66,7 @@ specs_list = operable.get_specs()
 Pre-built specs use BaseModel for field definitions:
 
 ```python
-from kronos.specs.catalog import ContentSpecs, AuditSpecs, CommonSpecs
+from krons.specs.catalog import ContentSpecs, AuditSpecs, CommonSpecs
 
 # Get specs with customization
 content_specs = ContentSpecs.get_specs(dim=1536)  # With vector dimension
@@ -95,8 +95,8 @@ class MySpecs(BaseModel):
 **Node** stores polymorphic content with DB serialization:
 
 ```python
-from kronos.core import Node
-from kronos.core.node import create_node, NodeConfig
+from krons.core import Node
+from krons.core.node import create_node, NodeConfig
 
 # Basic usage
 node = Node(content={"key": "value"})
@@ -129,7 +129,7 @@ restored = JobNode.from_dict(db_data, from_row=True)  # Reconstructs content
 **iModel** - Unified service interface with rate limiting:
 
 ```python
-from kronos.services import Endpoint, EndpointConfig, iModel
+from krons.services import Endpoint, EndpointConfig, iModel
 
 config = EndpointConfig(
     name="gpt-4",
@@ -147,7 +147,7 @@ response = await model.invoke({"messages": [...]})
 **KronService** - Action handlers with policy evaluation:
 
 ```python
-from kronos.enforcement import KronService, KronConfig, action, RequestContext
+from krons.enforcement import KronService, KronConfig, action, RequestContext
 
 class MyService(KronService):
     @property
@@ -167,7 +167,7 @@ result = await service.call("user.create", {"name": "John"}, RequestContext(name
 Runtime-checkable protocols with signature validation:
 
 ```python
-from kronos.protocols import implements, Serializable, SignatureMismatchError
+from krons.protocols import implements, Serializable, SignatureMismatchError
 
 @implements(Serializable, signature_check="error")  # "error", "warn", "skip"
 class MyClass:
@@ -180,7 +180,7 @@ class MyClass:
 Foreign keys and vector embeddings for SQL DDL:
 
 ```python
-from kronos.types.db_types import FK, Vector, FKMeta, VectorMeta, extract_kron_db_meta
+from krons.types.db_types import FK, Vector, FKMeta, VectorMeta, extract_kron_db_meta
 
 # In type annotations
 class Post(BaseModel):
@@ -235,11 +235,11 @@ class MockPolicyEngine:
 1. **Circular imports in catalog**: Use direct imports from submodules:
    ```python
    # Wrong
-   from kronos.specs import Operable, Spec
+   from krons.specs import Operable, Spec
 
    # Right (in catalog files)
-   from kronos.specs.operable import Operable
-   from kronos.specs.spec import Spec
+   from krons.specs.operable import Operable
+   from krons.specs.spec import Spec
    ```
 
 2. **PolicyEngine/PolicyResolver are Protocols**: Can't instantiate directly, create mock classes.
@@ -254,13 +254,13 @@ class MockPolicyEngine:
 ## Running Tests
 
 ```bash
-cd libs/kronos
+cd libs/krons
 
 # All tests
 uv run pytest tests/ -q
 
 # With coverage
-uv run pytest tests/ --cov=kronos --cov-report=term-missing
+uv run pytest tests/ --cov=krons --cov-report=term-missing
 
 # Specific module
 uv run pytest tests/specs/test_catalog.py -v

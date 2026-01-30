@@ -3,7 +3,7 @@
 
 import pytest
 
-from kronos.utils.fuzzy._extract_json import extract_json
+from krons.utils.fuzzy._extract_json import extract_json
 
 # ============================================================================
 # Test extract_json basic functionality

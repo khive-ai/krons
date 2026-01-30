@@ -3,8 +3,8 @@
 
 import pytest
 
-from kronos.utils.fuzzy._fuzzy_match import HandleUnmatched, fuzzy_match_keys
-from kronos.utils.fuzzy._string_similarity import SimilarityAlgo
+from krons.utils.fuzzy._fuzzy_match import HandleUnmatched, fuzzy_match_keys
+from krons.utils.fuzzy._string_similarity import SimilarityAlgo
 
 # ============================================================================
 # Input Validation Tests

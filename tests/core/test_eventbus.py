@@ -46,7 +46,7 @@ import asyncio
 
 import pytest
 
-from kronos.core import EventBus
+from krons.core import EventBus
 
 
 class TestEventBusBasics:

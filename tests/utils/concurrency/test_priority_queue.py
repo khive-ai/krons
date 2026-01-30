@@ -75,7 +75,7 @@ Each test runs against both asyncio and trio backends (24 total test executions)
 
 import pytest
 
-from kronos.utils.concurrency import PriorityQueue, QueueEmpty, QueueFull
+from krons.utils.concurrency import PriorityQueue, QueueEmpty, QueueFull
 
 
 @pytest.mark.anyio

@@ -10,7 +10,7 @@ from uuid import uuid4
 
 import pytest
 
-from kronos.core import Element, Flow, Pile, Progression
+from krons.core import Element, Flow, Pile, Progression
 
 
 class SampleElement(Element):

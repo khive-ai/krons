@@ -8,9 +8,9 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from kronos.core import EventStatus
-from kronos.services import Calling, NormalizedResponse, ServiceBackend, ServiceConfig
-from kronos.types import Unset, is_sentinel
+from krons.core import EventStatus
+from krons.services import Calling, NormalizedResponse, ServiceBackend, ServiceConfig
+from krons.types import Unset, is_sentinel
 
 # =============================================================================
 # Mock Components

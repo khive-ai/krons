@@ -27,7 +27,7 @@ import asyncio
 
 import pytest
 
-from kronos.utils.concurrency import run_async
+from krons.utils.concurrency import run_async
 
 
 # Test coroutines with various return types

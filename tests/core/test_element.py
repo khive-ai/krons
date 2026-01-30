@@ -8,7 +8,7 @@ from uuid import UUID
 
 import pytest
 
-from kronos.core import Element
+from krons.core import Element
 
 
 class TestElementCreation:
