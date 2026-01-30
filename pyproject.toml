@@ -1,6 +1,6 @@
 [project]
 name = "kronos"
-version = "0.1.0"
+version = "0.1.1"
 description = "Spec-based composable framework for building type-safe systems"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,10 +20,6 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-[project.urls]
-Homepage = "https://github.com/khive-ai/kronos"
-Repository = "https://github.com/khive-ai/kronos"
-Issues = "https://github.com/khive-ai/kronos/issues"
 dependencies = [
     "anyio>=4.10.0",
     "httpx>=0.26.0",
@@ -31,6 +27,11 @@ dependencies = [
     "pydantic>=2.10.0",
     "rapidfuzz>=3.10.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/khive-ai/kronos"
+Repository = "https://github.com/khive-ai/kronos"
+Issues = "https://github.com/khive-ai/kronos/issues"
 
 [dependency-groups]
 dev = [
