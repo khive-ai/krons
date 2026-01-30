@@ -1,11 +1,11 @@
-# kronos
+# krons
 
 Spec-based composable framework for building type-safe systems.
 
 ## Installation
 
 ```bash
-pip install kronos
+pip install krons
 ```
 
 ## Features
