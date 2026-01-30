@@ -4,6 +4,26 @@ version = "0.1.0"
 description = "Spec-based composable framework for building type-safe systems"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [
+    { name = "HaiyangLi", email = "quantocean.li@gmail.com" }
+]
+keywords = ["spec", "composable", "framework", "type-safe", "pydantic", "validation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/khive-ai/kronos"
+Repository = "https://github.com/khive-ai/kronos"
+Issues = "https://github.com/khive-ai/kronos/issues"
 dependencies = [
     "anyio>=4.10.0",
     "httpx>=0.26.0",
