@@ -1,6 +1,6 @@
 [project]
 name = "kronos"
-version = "0.1.2"
+version = "0.1.3"
 description = "Spec-based composable framework for building type-safe systems"
 readme = "README.md"
 requires-python = ">=3.11"
