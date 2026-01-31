@@ -194,6 +194,9 @@ class KronService(ResourceBackend):
     def _register_actions(self) -> None:
         """Scan for @action decorated methods and register them."""
         for name in dir(self):
+            # Skip dunder attributes to avoid Pydantic deprecation warnings
+            if name.startswith("__"):
+                continue
             if name.startswith("_"):
                 method = getattr(self, name, None)
                 if method and callable(method):

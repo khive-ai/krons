@@ -217,7 +217,7 @@ class Instruction(MessageContent):
     ) -> "Instruction":
         # Validate image URLs to prevent security vulnerabilities
         if images is not None:
-            from krons_agent.utils.validators import validate_image_url
+            from krons.utils.validators import validate_image_url
 
             for url in images:
                 validate_image_url(url)

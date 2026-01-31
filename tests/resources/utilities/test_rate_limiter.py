@@ -171,7 +171,7 @@ class TestTokenBucket:
             return mock_time[0]
 
         with patch(
-            "krons.services.utilities.rate_limiter.current_time",
+            "krons.resources.utilities.rate_limiter.current_time",
             side_effect=get_mock_time,
         ):
             config = RateLimitConfig(capacity=10, refill_rate=10.0, initial_tokens=0)
@@ -196,7 +196,7 @@ class TestTokenBucket:
             return mock_time[0]
 
         with patch(
-            "krons.services.utilities.rate_limiter.current_time",
+            "krons.resources.utilities.rate_limiter.current_time",
             side_effect=get_mock_time,
         ):
             config = RateLimitConfig(capacity=10, refill_rate=100.0, initial_tokens=8)
@@ -335,7 +335,7 @@ class TestTokenBucket:
             return mock_time[0]
 
         with patch(
-            "krons.services.utilities.rate_limiter.current_time",
+            "krons.resources.utilities.rate_limiter.current_time",
             side_effect=get_mock_time,
         ):
             config = RateLimitConfig(capacity=10, refill_rate=1.0, initial_tokens=5)

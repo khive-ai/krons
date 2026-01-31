@@ -139,7 +139,7 @@ class TestFlowErrorHandlingWithRealSession:
         builder.add("task2", "simple_op", {"instruction": "Test2"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "Pre-allocated branches for 2 operations" in caplog.text
@@ -189,7 +189,7 @@ class TestFlowStopConditions:
         builder.add("task1", "failing_verbose", {})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True, stop_on_error=True)
 
         assert "Test error for logging" in caplog.text or "failed" in caplog.text
@@ -210,7 +210,7 @@ class TestFlowStopConditions:
         builder.add("task2", "simple_op", {"instruction": "Second"}, depends_on=["task1"])
 
         graph = builder.build()
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "waiting for" in caplog.text
@@ -304,7 +304,7 @@ class TestFlowResultProcessing:
         builder.add("task1", "simple_op", {"instruction": "Test"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "Executing operation:" in caplog.text
@@ -342,7 +342,7 @@ class TestFlowResultProcessing:
         builder.add("task1", "status_fail", {})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True, stop_on_error=False)
 
         assert "failed" in caplog.text
@@ -362,7 +362,7 @@ class TestFlowResultProcessing:
         builder.add("task1", "simple_op", {"instruction": "Test"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "Completed operation:" in caplog.text
@@ -511,7 +511,7 @@ class TestFlowExceptionPaths:
         builder.add("task2", "success_op", {"instruction": "Should run"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True, stop_on_error=False)
 
         # Verify verbose error logging
@@ -552,7 +552,7 @@ class TestFlowExceptionPaths:
         builder.add("task1", "fail_full", {})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             results = await flow(session, graph, branch=branch, verbose=True, stop_on_error=True)
 
         # Verify verbose logging executed
@@ -598,7 +598,7 @@ class TestFlowExceptionPaths:
             raise ValueError("Direct executor exception test")
 
         with (
-            caplog.at_level(logging.DEBUG, logger="krons.operations.flow"),
+            caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"),
             patch.object(executor, "_invoke_operation", side_effect=mock_invoke_raise),
         ):
             # Execute - exception propagates through CompletionStream's TaskGroup
@@ -643,7 +643,7 @@ class TestFlowExceptionPaths:
             raise RuntimeError("Dependency wait failed")
 
         with (
-            caplog.at_level(logging.DEBUG, logger="krons.operations.flow"),
+            caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"),
             patch.object(executor, "_wait_for_dependencies", side_effect=mock_wait_deps),
         ):
             await executor.execute()

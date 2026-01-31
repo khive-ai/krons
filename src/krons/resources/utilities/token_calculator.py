@@ -7,13 +7,16 @@ from typing import cast
 
 import tiktoken
 
+from krons.errors import KronsError
+
 logger = logging.getLogger(__name__)
 
 
-class TokenCalculationError(Exception):
+class TokenCalculationError(KronsError):
     """Raised when token calculation fails due to encoding/model errors."""
 
-    pass
+    default_message = "Token calculation failed"
+    default_retryable = False
 
 
 def get_encoding_name(value: str | None) -> str:

@@ -11,6 +11,7 @@ from typing import Any
 
 import orjson
 
+from krons.errors import KronsError
 from krons.utils.concurrency import Lock
 
 __all__ = (
@@ -130,14 +131,15 @@ def filter_mcp_environment(
     return filtered
 
 
-class CommandNotAllowedError(Exception):
+class CommandNotAllowedError(KronsError):
     """Raised when a command is not in the allowlist.
 
     This exception is raised when strict_mode is enabled (default) and
     a command is attempted that is not in the configured allowlist.
     """
 
-    pass
+    default_message = "Command not allowed"
+    default_retryable = False
 
 
 # Default safe commands for MCP servers
