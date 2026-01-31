@@ -39,11 +39,67 @@ Core concepts:
 - WorkerEngine: Execution driver
 """
 
-from .engine import WorkerEngine, WorkerTask
-from .form import Form, ParsedAssignment, parse_assignment, parse_full_assignment
-from .phrase import CrudOperation, CrudPattern, Phrase, phrase
-from .report import Report
-from .worker import Worker, WorkConfig, WorkLink, work, worklink
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+# Lazy import mapping
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    # engine
+    "WorkerEngine": ("krons.work.engine", "WorkerEngine"),
+    "WorkerTask": ("krons.work.engine", "WorkerTask"),
+    # form
+    "Form": ("krons.work.form", "Form"),
+    "ParsedAssignment": ("krons.work.form", "ParsedAssignment"),
+    "parse_assignment": ("krons.work.form", "parse_assignment"),
+    "parse_full_assignment": ("krons.work.form", "parse_full_assignment"),
+    # phrase
+    "CrudOperation": ("krons.work.phrase", "CrudOperation"),
+    "CrudPattern": ("krons.work.phrase", "CrudPattern"),
+    "Phrase": ("krons.work.phrase", "Phrase"),
+    "phrase": ("krons.work.phrase", "phrase"),
+    # report
+    "Report": ("krons.work.report", "Report"),
+    # worker
+    "Worker": ("krons.work.worker", "Worker"),
+    "WorkConfig": ("krons.work.worker", "WorkConfig"),
+    "WorkLink": ("krons.work.worker", "WorkLink"),
+    "work": ("krons.work.worker", "work"),
+    "worklink": ("krons.work.worker", "worklink"),
+}
+
+_LOADED: dict[str, object] = {}
+
+
+def __getattr__(name: str) -> object:
+    """Lazy import attributes on first access."""
+    if name in _LOADED:
+        return _LOADED[name]
+
+    if name in _LAZY_IMPORTS:
+        from importlib import import_module
+
+        module_name, attr_name = _LAZY_IMPORTS[name]
+        module = import_module(module_name)
+        value = getattr(module, attr_name)
+        _LOADED[name] = value
+        return value
+
+    raise AttributeError(f"module 'krons.work' has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    """Return all available attributes for autocomplete."""
+    return list(__all__)
+
+
+# TYPE_CHECKING block for static analysis
+if TYPE_CHECKING:
+    from krons.work.engine import WorkerEngine, WorkerTask
+    from krons.work.form import Form, ParsedAssignment, parse_assignment, parse_full_assignment
+    from krons.work.phrase import CrudOperation, CrudPattern, Phrase, phrase
+    from krons.work.report import Report
+    from krons.work.worker import Worker, WorkConfig, WorkLink, work, worklink
 
 __all__ = (
     "CrudOperation",

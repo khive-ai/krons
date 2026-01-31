@@ -28,7 +28,7 @@ from .types import (
 )
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
 
 __all__ = (
     "ReactResult",

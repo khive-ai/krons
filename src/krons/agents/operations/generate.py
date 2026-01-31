@@ -17,7 +17,7 @@ from .constraints import (
 from .types import GenerateParams, ReturnAs
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
     from krons.resources.backend import Calling
 
 __all__ = ("_handle_return", "generate")
@@ -71,7 +71,7 @@ def _handle_return(calling: Calling, return_as: ReturnAs) -> Any:
             return response
         case "message":
             from krons.agents.message import AssistantResponseContent
-            from krons.core.session import Message
+            from krons.session import Message
             from krons.errors import ValidationError
 
             metadata_dict: dict[str, Any] = {"raw_response": response.raw_response}

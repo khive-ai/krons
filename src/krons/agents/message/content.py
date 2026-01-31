@@ -223,7 +223,7 @@ class Instruction(MessageContent):
                 validate_image_url(url)
 
         return cls(
-            instruction=Unset if instruction is None else instruction,
+            primary=Unset if instruction is None else instruction,
             context=Unset if context is None else context,
             tool_schemas=Unset if tool_schemas is None else tool_schemas,
             request_model=Unset if request_model is None else request_model,

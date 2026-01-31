@@ -23,7 +23,7 @@ from krons.utils.concurrency import CapacityLimiter, CompletionStream
 from .node import Operation
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
 
 logger = logging.getLogger(__name__)
 

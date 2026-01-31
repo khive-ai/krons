@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from krons.agents.message import InstructionContent
-from krons.core.session import Message
+from krons.session import Message
 from krons.core.types import ModelConfig, Params
 from pydantic import BaseModel
 

@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from krons.agents.message import ActionRequestContent, ActionResponseContent
-from krons.core.session import Message
+from krons.session import Message
 from krons.utils.concurrency import alcall
 
 from .constraints import (
@@ -16,7 +16,7 @@ from .constraints import (
 from .types import ActionRequest, ActionResponse
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
 
 __all__ = ("act", "execute_tools", "has_action_requests")
 

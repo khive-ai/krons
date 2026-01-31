@@ -19,7 +19,7 @@ from krons.utils._utils import to_uuid
 from .node import Operation
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch
+    from krons.session import Branch
 
 __all__ = ("Builder", "OperationGraphBuilder")
 

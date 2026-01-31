@@ -8,7 +8,7 @@ from uuid import UUID
 import pytest
 
 from krons.errors import AccessError, NotFoundError
-from krons.core.session import (
+from krons.session import (
     Message,
     Session,
     SessionConfig,

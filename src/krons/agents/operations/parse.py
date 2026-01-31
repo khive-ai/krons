@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from krons.agents.message import InstructionContent
-from krons.core.session import Message
+from krons.session import Message
 from krons.core.types import is_sentinel
 from krons.errors import ConfigurationError, ExecutionError, KronsError, ValidationError
 from krons.utils.fuzzy import extract_json, fuzzy_validate_mapping
@@ -14,7 +14,7 @@ from krons.utils.fuzzy import extract_json, fuzzy_validate_mapping
 from .types import CustomParser, GenerateParams, HandleUnmatched, ParseParams
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
 
 __all__ = ("parse",)
 

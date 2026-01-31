@@ -16,7 +16,7 @@ from krons.core import Edge, Graph, Node
 from krons.work.operations import Builder, flow
 from krons.work.operations.flow import DependencyAwareExecutor, OperationResult, flow_stream
 from krons.work.operations.node import Operation
-from krons.core.session import Session
+from krons.session import Session
 
 # -------------------------------------------------------------------------
 # Fixtures for Real Session

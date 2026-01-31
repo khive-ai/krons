@@ -15,7 +15,7 @@ from krons.core.types.base import DataClass
 from krons.core.types.identity import ID
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
 
 __all__ = ("QueryFn", "RequestContext")
 
@@ -134,7 +134,7 @@ class RequestContext(DataClass):
         Returns None if session_id is not set.
         Raises ValueError if session_id is not found.
         """
-        from krons.core.session.registry import get_session
+        from krons.session.registry import get_session
 
         if self.session_id is None:
             return None

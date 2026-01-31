@@ -13,7 +13,7 @@ from .constraints import resource_must_be_accessible_by_branch
 from .types import GenerateParams, InterpretParams
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
 
 __all__ = ("interpret",)
 

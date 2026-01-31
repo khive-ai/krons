@@ -7,7 +7,7 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from krons.agents.message import AssistantResponseContent
-from krons.core.session import Message
+from krons.session import Message
 from krons.errors import ValidationError
 from krons.work.rules import Validator
 
@@ -22,7 +22,7 @@ from .parse import parse
 from .types import CommunicateParams, GenerateParams
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
     from krons.core.specs import Operable
     from krons.resources.backend import Calling, NormalizedResponse
 

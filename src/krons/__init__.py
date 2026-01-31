@@ -6,8 +6,11 @@
 Top-level re-exports for convenient imports:
 - krons.types -> krons.core.types
 - krons.specs -> krons.core.specs
-- krons.session -> krons.core.session
+- krons.session -> krons.session (top-level module)
 - krons.operations -> krons.work.operations
+- krons.agents -> krons.agents
+- krons.resources -> krons.resources
+- krons.work -> krons.work
 """
 
 from __future__ import annotations
@@ -18,8 +21,11 @@ from typing import TYPE_CHECKING
 _MODULE_ALIASES: dict[str, str] = {
     "types": "krons.core.types",
     "specs": "krons.core.specs",
-    "session": "krons.core.session",
+    "session": "krons.session",
     "operations": "krons.work.operations",
+    "agents": "krons.agents",
+    "resources": "krons.resources",
+    "work": "krons.work",
 }
 
 _LOADED_MODULES: dict[str, object] = {}
@@ -48,5 +54,8 @@ def __dir__() -> list[str]:
 if TYPE_CHECKING:
     from krons.core import types as types
     from krons.core import specs as specs
-    from krons.core import session as session
+    from krons import session as session
     from krons.work import operations as operations
+    from krons import agents as agents
+    from krons import resources as resources
+    from krons import work as work

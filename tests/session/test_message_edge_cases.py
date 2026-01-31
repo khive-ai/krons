@@ -20,7 +20,7 @@ import pytest
 from pydantic import BaseModel
 
 from krons.core import Element
-from krons.core.session import Message
+from krons.session import Message
 
 
 class TestMessageUUIDValidation:

@@ -9,7 +9,7 @@ Tests Operation event with real Session objects.
 import pytest
 
 from krons.work.operations.node import Operation
-from krons.core.session import Session
+from krons.session import Session
 
 
 class TestOperationWithRealSession:

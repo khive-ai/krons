@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from krons.core.session import Exchange, Message
+from krons.session import Exchange, Message
 
 
 class TestExchangeCreation:

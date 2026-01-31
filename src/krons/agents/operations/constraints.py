@@ -15,7 +15,7 @@ from krons.errors import ConfigurationError, ValidationError
 
 if TYPE_CHECKING:
     from krons.resources.backend import Calling, NormalizedResponse
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
     from krons.core.specs import Operable
 
 __all__ = (

@@ -10,7 +10,7 @@ from krons.core import Event, Node
 from krons.core.types import Undefined, UndefinedType, is_sentinel
 
 if TYPE_CHECKING:
-    from krons.core.session import Branch, Session
+    from krons.session import Branch, Session
 
 __all__ = ("Operation",)
 

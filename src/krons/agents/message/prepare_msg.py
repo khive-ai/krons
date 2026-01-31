@@ -12,7 +12,7 @@ from krons.core.types import not_sentinel
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
-from krons.core.session import Message
+from krons.session import Message
 
 from .content import (
     ActionResponse as ActionResponseContent,

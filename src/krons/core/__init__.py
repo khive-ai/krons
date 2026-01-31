@@ -6,7 +6,8 @@
 Re-exports base classes from core/base/ and exposes submodules:
 - types: Sentinels, base types, DB types
 - specs: Spec definitions, Operable, adapters
-- session: Message, Branch, Session, Exchange
+
+Note: Session (Message, Branch, Session, Exchange) is now at krons.session
 """
 
 from __future__ import annotations

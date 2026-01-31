@@ -21,7 +21,7 @@ from uuid import uuid4
 import pytest
 
 from krons.errors import AccessError, NotFoundError
-from krons.core.session import (
+from krons.session import (
     Branch,
     Message,
     Session,
