@@ -27,7 +27,9 @@ class Message(Node):
     content: Any
     sender: UUID | None = None
     recipient: UUID | None = None
-    channel: str | None = Field(None, description="Optional namespace for message grouping")
+    channel: str | None = Field(
+        None, description="Optional namespace for message grouping"
+    )
 
     @property
     def is_broadcast(self) -> bool:

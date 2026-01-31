@@ -111,7 +111,9 @@ async def act(
             else ActionResponse(
                 function=action_requests[i].function,
                 arguments=action_requests[i].arguments,
-                output=(f"{type(r).__name__}: {r}" if isinstance(r, Exception) else str(r)),
+                output=(
+                    f"{type(r).__name__}: {r}" if isinstance(r, Exception) else str(r)
+                ),
             )
         )
         for i, r in enumerate(responses)
@@ -154,7 +156,9 @@ async def execute_tools(
 
     # Update response with action_responses
     if hasattr(parsed_response, "model_copy"):
-        updated = parsed_response.model_copy(update={"action_responses": action_responses})
+        updated = parsed_response.model_copy(
+            update={"action_responses": action_responses}
+        )
     else:
         data = parsed_response.model_dump()
         data["action_responses"] = action_responses

@@ -14,13 +14,11 @@ if TYPE_CHECKING:
 
 from krons.session import Message
 
-from .content import (
-    ActionResponse as ActionResponseContent,
-    Assistant as AssistantResponseContent,
-    Instruction as InstructionContent,
-    MessageContent,
-    System as SystemContent,
-)
+from .content import ActionResponse as ActionResponseContent
+from .content import Assistant as AssistantResponseContent
+from .content import Instruction as InstructionContent
+from .content import MessageContent
+from .content import System as SystemContent
 
 __all__ = ("prepare_messages_for_chat",)
 
@@ -31,7 +29,9 @@ def _get_text(content: MessageContent, attr: str) -> str:
     return "" if content._is_sentinel(val) else val
 
 
-def _build_context(content: InstructionContent, action_outputs: list[str]) -> list[JsonValue]:
+def _build_context(
+    content: InstructionContent, action_outputs: list[str]
+) -> list[JsonValue]:
     """Build context list by appending action outputs to existing context."""
     existing = content.context
     if content._is_sentinel(existing):
@@ -130,7 +130,9 @@ def prepare_messages_for_chat(
             ):
                 prev = _get_text(merged[-1], "assistant_response")
                 curr = _get_text(content, "assistant_response")
-                merged[-1] = AssistantResponseContent.create(assistant_response=f"{prev}\n\n{curr}")
+                merged[-1] = AssistantResponseContent.create(
+                    assistant_response=f"{prev}\n\n{curr}"
+                )
             else:
                 merged.append(content)
         _use_msgs = merged
@@ -141,27 +143,37 @@ def prepare_messages_for_chat(
             # No history: embed into new_instruction
             if isinstance(new_instruction.content, InstructionContent):
                 curr = _get_text(new_instruction.content, "instruction")
-                system_updates: dict[str, Any] = {"instruction": f"{system_text}\n\n{curr}"}
+                system_updates: dict[str, Any] = {
+                    "instruction": f"{system_text}\n\n{curr}"
+                }
                 if pending_actions:
                     system_updates["context"] = _build_context(
                         new_instruction.content, pending_actions
                     )
                     pending_actions = []
                 _use_msgs.append(
-                    new_instruction.content.with_updates(copy_containers="deep", **system_updates)
+                    new_instruction.content.with_updates(
+                        copy_containers="deep", **system_updates
+                    )
                 )
                 new_instruction = None
         elif _use_msgs and isinstance(_use_msgs[0], InstructionContent):
             curr = _get_text(_use_msgs[0], "instruction")
-            _use_msgs[0] = _use_msgs[0].with_updates(instruction=f"{system_text}\n\n{curr}")
+            _use_msgs[0] = _use_msgs[0].with_updates(
+                instruction=f"{system_text}\n\n{curr}"
+            )
 
     # Phase 5: Append new_instruction (with any remaining action outputs)
     if new_instruction:
         final_updates: dict[str, Any] = {}
         if pending_actions and isinstance(new_instruction.content, InstructionContent):
-            final_updates["context"] = _build_context(new_instruction.content, pending_actions)
+            final_updates["context"] = _build_context(
+                new_instruction.content, pending_actions
+            )
         _use_msgs.append(
-            new_instruction.content.with_updates(copy_containers="deep", **final_updates)
+            new_instruction.content.with_updates(
+                copy_containers="deep", **final_updates
+            )
         )
 
     if to_chat:

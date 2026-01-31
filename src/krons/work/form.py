@@ -231,7 +231,11 @@ class Form(Element):
         Returns:
             Dict of input field values
         """
-        return {f: self.available_data[f] for f in self.input_fields if f in self.available_data}
+        return {
+            f: self.available_data[f]
+            for f in self.input_fields
+            if f in self.available_data
+        }
 
     def fill(self, **data: Any) -> None:
         """Add data to available_data.
@@ -294,6 +298,8 @@ class Form(Element):
         return result
 
     def __repr__(self) -> str:
-        status = "filled" if self.filled else ("ready" if self.is_workable() else "pending")
+        status = (
+            "filled" if self.filled else ("ready" if self.is_workable() else "pending")
+        )
         phrase_info = f", phrase={self._phrase.name}" if self._phrase else ""
         return f"Form('{self.assignment}', {status}{phrase_info})"

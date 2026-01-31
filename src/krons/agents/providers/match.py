@@ -53,7 +53,10 @@ def match_endpoint(
 
         return GeminiCodeEndpoint(None, **kwargs)
 
-    if provider in ("openai", "groq", "openrouter", "nvidia_nim") and "chat" in endpoint:
+    if (
+        provider in ("openai", "groq", "openrouter", "nvidia_nim")
+        and "chat" in endpoint
+    ):
         from .oai_chat import OAIChatEndpoint
 
         return OAIChatEndpoint(None, provider=provider, endpoint=endpoint, **kwargs)

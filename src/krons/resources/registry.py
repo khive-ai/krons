@@ -67,7 +67,9 @@ class ResourceRegistry:
         uid = self._name_index.pop(name)
         return self._pile.remove(uid)
 
-    def get(self, name: str | UUID | iModel, default: Any | UndefinedType = Undefined) -> iModel:
+    def get(
+        self, name: str | UUID | iModel, default: Any | UndefinedType = Undefined
+    ) -> iModel:
         """Get resource by name, UUID, or return iModel passthrough. Raises KeyError if not found."""
         if isinstance(name, UUID):
             return self._pile[name]

@@ -179,7 +179,9 @@ def _check_signature_compatibility(
     # If protocol accepts **kwargs, implementation must also accept them
     # Otherwise callers passing kwargs (allowed by protocol) will fail
     if proto_has_var_keyword and not impl_has_var_keyword:
-        errors.append("  - 'kwargs': protocol accepts **kwargs but implementation doesn't")
+        errors.append(
+            "  - 'kwargs': protocol accepts **kwargs but implementation doesn't"
+        )
 
     # If protocol accepts *args, implementation must also accept them
     if proto_has_var_positional and not impl_has_var_positional:
@@ -277,10 +279,12 @@ def _check_signature_compatibility(
             if param_name not in protocol_params:
                 # Check if protocol has *args or **kwargs that could provide it
                 proto_has_var_positional = any(
-                    p.kind == inspect.Parameter.VAR_POSITIONAL for p in protocol_params.values()
+                    p.kind == inspect.Parameter.VAR_POSITIONAL
+                    for p in protocol_params.values()
                 )
                 proto_has_var_keyword = any(
-                    p.kind == inspect.Parameter.VAR_KEYWORD for p in protocol_params.values()
+                    p.kind == inspect.Parameter.VAR_KEYWORD
+                    for p in protocol_params.values()
                 )
 
                 can_satisfy = False
@@ -396,7 +400,8 @@ def implements(
                         if errors:
                             error_msg = (
                                 f"{cls.__name__}.{member_name} signature incompatible "
-                                f"with {protocol.__name__}.{member_name}:\n" + "\n".join(errors)
+                                f"with {protocol.__name__}.{member_name}:\n"
+                                + "\n".join(errors)
                             )
                             all_signature_errors.append(error_msg)
 

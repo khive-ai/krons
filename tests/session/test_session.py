@@ -37,7 +37,9 @@ class TestSessionConfig:
         assert len(session_auto.branches) == 1
 
         # False - no default branch created
-        session_no_auto = Session(config=SessionConfig(auto_create_default_branch=False))
+        session_no_auto = Session(
+            config=SessionConfig(auto_create_default_branch=False)
+        )
         assert session_no_auto.default_branch is None
         assert len(session_no_auto.branches) == 0
 
@@ -120,7 +122,9 @@ class TestBranchManagement:
         """Session.create_branch() should accept resources."""
         session = Session(config=SessionConfig(auto_create_default_branch=False))
 
-        branch = session.create_branch(name="resource-branch", resources={"service1", "service2"})
+        branch = session.create_branch(
+            name="resource-branch", resources={"service1", "service2"}
+        )
 
         assert branch.resources == {"service1", "service2"}
 
@@ -298,7 +302,9 @@ class TestBranch:
     def test_branch_capabilities(self):
         """Branch should have capabilities set."""
         session = Session()
-        branch = session.create_branch(name="capable", capabilities={"tool1", "tool2", "tool3"})
+        branch = session.create_branch(
+            name="capable", capabilities={"tool1", "tool2", "tool3"}
+        )
 
         assert "tool1" in branch.capabilities
         assert "tool2" in branch.capabilities
@@ -308,7 +314,9 @@ class TestBranch:
     def test_branch_resources(self):
         """Branch should have resources set."""
         session = Session()
-        branch = session.create_branch(name="resourceful", resources={"service1", "service2"})
+        branch = session.create_branch(
+            name="resourceful", resources={"service1", "service2"}
+        )
 
         assert "service1" in branch.resources
         assert "service2" in branch.resources

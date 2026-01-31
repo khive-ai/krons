@@ -11,10 +11,8 @@ import json  # Required for JSONDecoder.raw_decode() (streaming JSON parsing)
 import logging
 import shutil
 from collections.abc import AsyncIterator, Callable
-from dataclasses import (
-    dataclass,
-    field as datafield,
-)
+from dataclasses import dataclass
+from dataclasses import field as datafield
 from pathlib import Path
 from textwrap import shorten
 from typing import Any, Literal
@@ -141,7 +139,9 @@ class ClaudeCodeRequest(BaseModel):
                 if message["role"] != "system":
                     content = message["content"]
                     prompts.append(
-                        json_dump(content) if isinstance(content, (dict, list)) else content
+                        json_dump(content)
+                        if isinstance(content, (dict, list))
+                        else content
                     )
 
             prompt = "\n".join(prompts)
@@ -173,10 +173,14 @@ class ClaudeCodeRequest(BaseModel):
 
         # Check for absolute paths or directory traversal attempts
         if ws_path.is_absolute():
-            raise ValueError(f"Workspace path must be relative, got absolute: {self.ws}")
+            raise ValueError(
+                f"Workspace path must be relative, got absolute: {self.ws}"
+            )
 
         if ".." in ws_path.parts:
-            raise ValueError(f"Directory traversal detected in workspace path: {self.ws}")
+            raise ValueError(
+                f"Directory traversal detected in workspace path: {self.ws}"
+            )
 
         # Resolve paths to handle symlinks and normalize
         repo_resolved = self.repo.resolve()
@@ -360,7 +364,9 @@ def _extract_summary(session: ClaudeSession) -> dict[str, Any]:
 
     # Deduplicate key actions
     key_actions = (
-        list(dict.fromkeys(key_actions)) if key_actions else ["No specific actions detected"]
+        list(dict.fromkeys(key_actions))
+        if key_actions
+        else ["No specific actions detected"]
     )
 
     # Deduplicate file paths
@@ -368,7 +374,9 @@ def _extract_summary(session: ClaudeSession) -> dict[str, Any]:
         file_operations[op_type] = list(dict.fromkeys(file_operations[op_type]))
 
     # Extract result summary (first 200 chars)
-    result_summary = (session.result[:200] + "...") if len(session.result) > 200 else session.result
+    result_summary = (
+        (session.result[:200] + "...") if len(session.result) > 200 else session.result
+    )
 
     return {
         "tool_counts": tool_counts,
@@ -398,7 +406,9 @@ async def _ndjson_from_cli(request: ClaudeCodeRequest):
     from krons.utils.fuzzy import fuzzy_json
 
     if CLAUDE_CLI is None:
-        raise RuntimeError("Claude CLI not found. Please install @anthropic-ai/claude-code")
+        raise RuntimeError(
+            "Claude CLI not found. Please install @anthropic-ai/claude-code"
+        )
 
     workspace = request.cwd()
     workspace.mkdir(parents=True, exist_ok=True)
@@ -452,7 +462,9 @@ async def _ndjson_from_cli(request: ClaudeCodeRequest):
                     # Use fuzzy JSON parser to handle malformed JSON
                     obj = fuzzy_json(buffer)
                     yield obj
-                    log.warning("Repaired malformed JSON fragment at stream end using fuzzy parser")
+                    log.warning(
+                        "Repaired malformed JSON fragment at stream end using fuzzy parser"
+                    )
                 except Exception:
                     log.error("Skipped unrecoverable JSON tail: %.120s…", buffer)
 
@@ -472,7 +484,9 @@ async def _ndjson_from_cli(request: ClaudeCodeRequest):
 # --------------------------------------------------------------------------- SSE route
 async def stream_cc_cli_events(request: ClaudeCodeRequest):
     if not CLAUDE_CLI:
-        raise RuntimeError("Claude CLI binary not found (npm i -g @anthropic-ai/claude-code)")
+        raise RuntimeError(
+            "Claude CLI binary not found (npm i -g @anthropic-ai/claude-code)"
+        )
     async for obj in _ndjson_from_cli(request):
         yield obj
     yield {"type": "done"}
@@ -514,7 +528,9 @@ def _pp_tool_use(tu: dict[str, Any], theme) -> None:
 def _pp_tool_result(tr: dict[str, Any], theme) -> None:
     body_preview = shorten(str(tr["content"]).replace("\n", " "), 130)
     status = "ERR" if tr.get("is_error") else "OK"
-    body = f"- 📄 Tool Result({tr['tool_use_id']}) - {status}\n\n\tcontent: {body_preview}"
+    body = (
+        f"- 📄 Tool Result({tr['tool_use_id']}) - {status}\n\n\tcontent: {body_preview}"
+    )
     print(body)
 
 

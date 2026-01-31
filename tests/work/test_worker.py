@@ -10,14 +10,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from krons.work.form import Form
-from krons.work.worker import (
-    Worker,
-    WorkConfig,
-    WorkLink,
-    work,
-    worklink,
-)
-
+from krons.work.worker import WorkConfig, Worker, WorkLink, work, worklink
 
 # =============================================================================
 # Tests: WorkConfig

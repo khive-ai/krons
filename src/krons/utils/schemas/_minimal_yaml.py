@@ -72,17 +72,23 @@ def _prune(x: Any, *, _depth: int = 0, _max_depth: int = MAX_PRUNE_DEPTH) -> Any
         return {k: v for k, v in pruned.items() if not _is_empty(v)}
     if isinstance(x, list):
         pruned_list = [
-            _prune(v, _depth=_depth + 1, _max_depth=_max_depth) for v in x if not _is_empty(v)
+            _prune(v, _depth=_depth + 1, _max_depth=_max_depth)
+            for v in x
+            if not _is_empty(v)
         ]
         return [v for v in pruned_list if not _is_empty(v)]
     if isinstance(x, tuple):
         pruned_list = [
-            _prune(v, _depth=_depth + 1, _max_depth=_max_depth) for v in x if not _is_empty(v)
+            _prune(v, _depth=_depth + 1, _max_depth=_max_depth)
+            for v in x
+            if not _is_empty(v)
         ]
         return tuple(v for v in pruned_list if not _is_empty(v))
     if isinstance(x, set):
         pruned_set = {
-            _prune(v, _depth=_depth + 1, _max_depth=_max_depth) for v in x if not _is_empty(v)
+            _prune(v, _depth=_depth + 1, _max_depth=_max_depth)
+            for v in x
+            if not _is_empty(v)
         }
         return {v for v in pruned_set if not _is_empty(v)}
     return x

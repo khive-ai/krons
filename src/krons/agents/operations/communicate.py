@@ -7,8 +7,8 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from krons.agents.message import AssistantResponseContent
-from krons.session import Message
 from krons.errors import ValidationError
+from krons.session import Message
 from krons.work.rules import Validator
 
 from .constraints import (
@@ -22,9 +22,9 @@ from .parse import parse
 from .types import CommunicateParams, GenerateParams
 
 if TYPE_CHECKING:
-    from krons.session import Branch, Session
     from krons.core.specs import Operable
     from krons.resources.backend import Calling, NormalizedResponse
+    from krons.session import Branch, Session
 
 __all__ = ("communicate",)
 
@@ -119,7 +119,9 @@ async def _communicate_with_operable(
     """
     # 1. Validate capabilities (security gate)
     if params._is_sentinel(params.capabilities):
-        raise ValidationError("capabilities must be declared when using structured output")
+        raise ValidationError(
+            "capabilities must be declared when using structured output"
+        )
 
     # At this point capabilities is known to be not None/sentinel
     assert params.capabilities is not None

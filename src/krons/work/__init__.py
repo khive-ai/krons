@@ -96,10 +96,15 @@ def __dir__() -> list[str]:
 # TYPE_CHECKING block for static analysis
 if TYPE_CHECKING:
     from krons.work.engine import WorkerEngine, WorkerTask
-    from krons.work.form import Form, ParsedAssignment, parse_assignment, parse_full_assignment
+    from krons.work.form import (
+        Form,
+        ParsedAssignment,
+        parse_assignment,
+        parse_full_assignment,
+    )
     from krons.work.phrase import CrudOperation, CrudPattern, Phrase, phrase
     from krons.work.report import Report
-    from krons.work.worker import Worker, WorkConfig, WorkLink, work, worklink
+    from krons.work.worker import WorkConfig, Worker, WorkLink, work, worklink
 
 __all__ = (
     "CrudOperation",

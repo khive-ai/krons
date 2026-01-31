@@ -48,9 +48,7 @@ from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 from types import MappingProxyType
-from typing import Any
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from krons.core.specs.operable import Operable
 from krons.core.types import Unset, is_unset
@@ -115,18 +113,31 @@ class CrudPattern:
             object.__setattr__(self, "lookup", frozenset(self.lookup))
         # Normalize None mappings to immutable empty maps; freeze mutable dicts
         object.__setattr__(
-            self, "filters",
-            _EMPTY_MAP if self.filters is None else MappingProxyType(dict(self.filters)),
+            self,
+            "filters",
+            (
+                _EMPTY_MAP
+                if self.filters is None
+                else MappingProxyType(dict(self.filters))
+            ),
         )
         object.__setattr__(
-            self, "set_fields",
-            _EMPTY_MAP if self.set_fields is None
-            else MappingProxyType(dict(self.set_fields)),
+            self,
+            "set_fields",
+            (
+                _EMPTY_MAP
+                if self.set_fields is None
+                else MappingProxyType(dict(self.set_fields))
+            ),
         )
         object.__setattr__(
-            self, "defaults",
-            _EMPTY_MAP if self.defaults is None
-            else MappingProxyType(dict(self.defaults)),
+            self,
+            "defaults",
+            (
+                _EMPTY_MAP
+                if self.defaults is None
+                else MappingProxyType(dict(self.defaults))
+            ),
         )
 
 
@@ -282,7 +293,7 @@ class Phrase:
         # Otherwise validate/construct from dict
         if not isinstance(options, self.options_type):
             options = self.operable.validate_instance(self.options_type, options)
-        result = await self.handler(options, ctx)        
+        result = await self.handler(options, ctx)
         return self.operable.validate_instance(self.result_type, result)
 
     @property

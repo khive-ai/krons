@@ -12,7 +12,6 @@ import pytest
 from krons.work.form import Form
 from krons.work.report import Report
 
-
 # =============================================================================
 # Tests: Report Creation
 # =============================================================================

@@ -66,6 +66,4 @@ class Operation(Node, Event):
 
     def __repr__(self) -> str:
         bound = "bound" if self._session is not None else "unbound"
-        return (
-            f"Operation(type={self.operation_type}, status={self.execution.status.value}, {bound})"
-        )
+        return f"Operation(type={self.operation_type}, status={self.execution.status.value}, {bound})"

@@ -6,11 +6,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, ClassVar, Literal, Protocol, cast, runtime_checkable
 
-from krons.utils.schemas import is_pydantic_model, minimal_yaml
 from pydantic import BaseModel, JsonValue
 
 from krons.core.types import DataClass, Enum, MaybeUnset, ModelConfig, Unset
 from krons.utils import now_utc
+from krons.utils.schemas import is_pydantic_model, minimal_yaml
 
 from ._utils import _format_json_response_structure, _format_model_schema, _format_task
 
@@ -51,7 +51,9 @@ class CustomParser(Protocol):
         Dict mapping field names to extracted values
     """
 
-    def __call__(self, text: str, target_keys: list[str], **kwargs: Any) -> dict[str, Any]: ...
+    def __call__(
+        self, text: str, target_keys: list[str], **kwargs: Any
+    ) -> dict[str, Any]: ...
 
 
 @runtime_checkable
@@ -87,7 +89,9 @@ class MessageContent(DataClass):
         try:
             return {"role": self.role.value, "content": self.render(*args, **kwargs)}
         except Exception as e:
-            logger.debug(f"Failed to render message content for chat API: {type(e).__name__}: {e}")
+            logger.debug(
+                f"Failed to render message content for chat API: {type(e).__name__}: {e}"
+            )
             return None
 
     @classmethod
@@ -130,7 +134,9 @@ class System(MessageContent):
         system_datetime: str | Literal[True] | None = None,
         datetime_factory: Callable[[], str] | None = None,
     ) -> "System":
-        if not cls._is_sentinel(system_datetime) and not cls._is_sentinel(datetime_factory):
+        if not cls._is_sentinel(system_datetime) and not cls._is_sentinel(
+            datetime_factory
+        ):
             raise ValueError("Cannot set both system_datetime and datetime_factory")
         return cls(
             system_message=Unset if system_message is None else system_message,
@@ -141,7 +147,11 @@ class System(MessageContent):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "System":
         return cls.create(
-            **{k: v for k in cls.allowed() if (k in data and not cls._is_sentinel(v := data[k]))}
+            **{
+                k: v
+                for k in cls.allowed()
+                if (k in data and not cls._is_sentinel(v := data[k]))
+            }
         )
 
 
@@ -172,7 +182,9 @@ class Instruction(MessageContent):
         custom_renderer: CustomRenderer | None = None,
     ) -> str | list[dict[str, Any]]:
         text = self._format_text_content(structure_format, custom_renderer)
-        return text if self._is_sentinel(self.images) else self._format_image_content(text)
+        return (
+            text if self._is_sentinel(self.images) else self._format_image_content(text)
+        )
 
     def _format_text_content(
         self,
@@ -184,8 +196,12 @@ class Instruction(MessageContent):
             "Context": self.context,
             "Tools": self.tool_schemas,
         }
-        text = _format_task({k: v for k, v in task_data.items() if not self._is_sentinel(v)})
-        if not self._is_sentinel(self.request_model) and is_pydantic_model(self.request_model):
+        text = _format_task(
+            {k: v for k, v in task_data.items() if not self._is_sentinel(v)}
+        )
+        if not self._is_sentinel(self.request_model) and is_pydantic_model(
+            self.request_model
+        ):
             model = cast(type[BaseModel], self.request_model)
             text += _format_model_schema(model)
             if structure_format == "json":
@@ -197,18 +213,23 @@ class Instruction(MessageContent):
     def _format_image_content(self, text: str) -> list[dict[str, Any]]:
         content_blocks: list[dict[str, Any]] = [{"type": "text", "text": text}]
         detail: str = (
-            "auto" if self._is_sentinel(self.image_detail) else cast(str, self.image_detail)
+            "auto"
+            if self._is_sentinel(self.image_detail)
+            else cast(str, self.image_detail)
         )
-        images = cast(list[str], self.images)  # Safe: only called when images is not sentinel
+        images = cast(
+            list[str], self.images
+        )  # Safe: only called when images is not sentinel
         content_blocks.extend(
-            {"type": "image_url", "image_url": {"url": img, "detail": detail}} for img in images
+            {"type": "image_url", "image_url": {"url": img, "detail": detail}}
+            for img in images
         )
         return content_blocks
 
     @classmethod
     def create(
         cls,
-        instruction: JsonValue = None,
+        primary: JsonValue = None,
         context: list[Any] | None = None,
         tool_schemas: list[str] | None = None,
         request_model: type[BaseModel] | None = None,
@@ -223,7 +244,7 @@ class Instruction(MessageContent):
                 validate_image_url(url)
 
         return cls(
-            primary=Unset if instruction is None else instruction,
+            primary=Unset if primary is None else primary,
             context=Unset if context is None else context,
             tool_schemas=Unset if tool_schemas is None else tool_schemas,
             request_model=Unset if request_model is None else request_model,
@@ -234,7 +255,11 @@ class Instruction(MessageContent):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Instruction":
         return cls.create(
-            **{k: v for k in cls.allowed() if (k in data and not cls._is_sentinel(v := data[k]))}
+            **{
+                k: v
+                for k in cls.allowed()
+                if (k in data and not cls._is_sentinel(v := data[k]))
+            }
         )
 
 
@@ -248,12 +273,18 @@ class Assistant(MessageContent):
 
     def render(self, *_args, **_kwargs) -> str:
         return (
-            "" if self._is_sentinel(self.assistant_response) else cast(str, self.assistant_response)
+            ""
+            if self._is_sentinel(self.assistant_response)
+            else cast(str, self.assistant_response)
         )
 
     @classmethod
     def create(cls, assistant_response: str | None = None) -> "Assistant":
-        return cls(assistant_response=(Unset if assistant_response is None else assistant_response))
+        return cls(
+            assistant_response=(
+                Unset if assistant_response is None else assistant_response
+            )
+        )
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Assistant":
@@ -274,7 +305,9 @@ class ActionRequest(MessageContent):
         if not self._is_sentinel(self.function):
             doc["function"] = cast(str, self.function)
         doc["arguments"] = (
-            {} if self._is_sentinel(self.arguments) else cast(dict[str, Any], self.arguments)
+            {}
+            if self._is_sentinel(self.arguments)
+            else cast(dict[str, Any], self.arguments)
         )
         return minimal_yaml(doc)
 
@@ -289,7 +322,9 @@ class ActionRequest(MessageContent):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ActionRequest":
-        return cls.create(function=data.get("function"), arguments=data.get("arguments"))
+        return cls.create(
+            function=data.get("function"), arguments=data.get("arguments")
+        )
 
 
 @dataclass(slots=True)

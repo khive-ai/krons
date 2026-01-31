@@ -190,13 +190,17 @@ class MCPSecurityConfig:
         strict_mode: If True, only allowlisted commands can execute.
     """
 
-    allowed_commands: frozenset[str] = field(default_factory=lambda: DEFAULT_ALLOWED_COMMANDS)
+    allowed_commands: frozenset[str] = field(
+        default_factory=lambda: DEFAULT_ALLOWED_COMMANDS
+    )
     strict_mode: bool = True
 
     def __post_init__(self):
         """Ensure allowed_commands is a frozenset."""
         if not isinstance(self.allowed_commands, frozenset):
-            object.__setattr__(self, "allowed_commands", frozenset(self.allowed_commands))
+            object.__setattr__(
+                self, "allowed_commands", frozenset(self.allowed_commands)
+            )
 
     def with_commands(self, additional_commands: set[str]) -> "MCPSecurityConfig":
         """Create a new config with additional allowed commands.
@@ -365,7 +369,9 @@ class MCPConnectionPoolInstance:
             raise ValueError("Config must be a dictionary")
 
         if not any(config.get(k) is not None for k in ["url", "command"]):
-            raise ValueError("Config must have either 'url' or 'command' with non-None value")
+            raise ValueError(
+                "Config must have either 'url' or 'command' with non-None value"
+            )
 
         try:
             from fastmcp import Client as FastMCPClient
@@ -383,7 +389,8 @@ class MCPConnectionPoolInstance:
                 raise ValueError("Config 'args' must be a list")
 
             debug_mode = (
-                config.get("debug", False) or os.environ.get("MCP_DEBUG", "").lower() == "true"
+                config.get("debug", False)
+                or os.environ.get("MCP_DEBUG", "").lower() == "true"
             )
 
             env = filter_mcp_environment(debug=debug_mode)
@@ -450,7 +457,9 @@ def create_mcp_pool(
     else:
         base_commands = frozenset(allowed_commands)
 
-    security = MCPSecurityConfig(allowed_commands=base_commands, strict_mode=strict_mode)
+    security = MCPSecurityConfig(
+        allowed_commands=base_commands, strict_mode=strict_mode
+    )
     return MCPConnectionPoolInstance(security_config=security, configs=configs)
 
 
@@ -707,7 +716,9 @@ class MCPConnectionPool:
 
         # Check that at least one of url or command has a non-None value
         if not any(config.get(k) is not None for k in ["url", "command"]):
-            raise ValueError("Config must have either 'url' or 'command' with non-None value")
+            raise ValueError(
+                "Config must have either 'url' or 'command' with non-None value"
+            )
 
         try:
             from fastmcp import Client as FastMCPClient
@@ -732,7 +743,8 @@ class MCPConnectionPool:
 
             # Check debug mode
             debug_mode = (
-                config.get("debug", False) or os.environ.get("MCP_DEBUG", "").lower() == "true"
+                config.get("debug", False)
+                or os.environ.get("MCP_DEBUG", "").lower() == "true"
             )
 
             # SECURITY: Filter environment variables to prevent leaking secrets

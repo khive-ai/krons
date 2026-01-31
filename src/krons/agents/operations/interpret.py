@@ -5,11 +5,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from krons.resources import iModel
 from krons.core.types import is_sentinel
+from krons.resources import iModel
 
-from .generate import generate
 from .constraints import resource_must_be_accessible_by_branch
+from .generate import generate
 from .types import GenerateParams, InterpretParams
 
 if TYPE_CHECKING:
@@ -49,7 +49,9 @@ async def interpret(
         raise ValidationError("interpret requires 'imodel' parameter")
 
     # Resource access check
-    model_name = params.imodel.name if isinstance(params.imodel, iModel) else params.imodel
+    model_name = (
+        params.imodel.name if isinstance(params.imodel, iModel) else params.imodel
+    )
     resource_must_be_accessible_by_branch(branch, model_name)
 
     # Build interpretation prompt

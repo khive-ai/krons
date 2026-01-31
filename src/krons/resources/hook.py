@@ -84,7 +84,11 @@ class HookEvent(Event):
         )
 
         # Unpack the result - hook_phase returns tuple of (inner_tuple, meta)
-        if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
+        if (
+            isinstance(result, tuple)
+            and len(result) == 2
+            and isinstance(result[1], dict)
+        ):
             inner_tuple, meta = result
             res, se, _ = inner_tuple
         else:
@@ -93,7 +97,9 @@ class HookEvent(Event):
             meta = {}
 
         # Build associated event info from meta dict
-        event_info: AssociatedEventInfo = {"kron_class": str(meta.get("kron_class", ""))}
+        event_info: AssociatedEventInfo = {
+            "kron_class": str(meta.get("kron_class", ""))
+        }
         if "event_id" in meta:
             event_info["event_id"] = str(meta["event_id"])
         if "event_created_at" in meta:
@@ -180,7 +186,9 @@ def validate_stream_handlers(kw: dict[Any, Any]) -> None:
 
     for k, v in kw.items():
         if not isinstance(k, str | type):
-            raise ValueError(f"Stream handler key must be a string or type, got {type(k)}")
+            raise ValueError(
+                f"Stream handler key must be a string or type, got {type(k)}"
+            )
 
         if not callable(v):
             raise ValueError(f"Stream handler for {k} must be callable, got {type(v)}")
@@ -402,7 +410,8 @@ class HookRegistry:
         exit: bool = False,
         **kw: Any,
     ) -> (
-        tuple[tuple[Any, bool, EventStatus], dict[str, Any]] | tuple[Any, bool, EventStatus | None]
+        tuple[tuple[Any, bool, EventStatus], dict[str, Any]]
+        | tuple[Any, bool, EventStatus | None]
     ):
         """Call a hook or stream handler.
 
@@ -437,7 +446,9 @@ class HookRegistry:
                             await self.pre_invocation(event_like, exit=exit, **kw),
                             meta,
                         )
-                    raise TypeError("PreInvocation requires an Event instance, not a type")
+                    raise TypeError(
+                        "PreInvocation requires an Event instance, not a type"
+                    )
                 case HookPhase.PostInvocation | HookPhase.PostInvocation.value:
                     # For post_invocation, event_like should be an instance
                     if isinstance(event_like, Event):
@@ -447,7 +458,9 @@ class HookRegistry:
                             await self.post_invocation(event_like, exit=exit, **kw),
                             meta,
                         )
-                    raise TypeError("PostInvocation requires an Event instance, not a type")
+                    raise TypeError(
+                        "PostInvocation requires an Event instance, not a type"
+                    )
         return await self.handle_streaming_chunk(chunk_type, chunk, exit=exit, **kw)
 
     def _can_handle(

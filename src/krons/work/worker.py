@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import functools
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Awaitable
+from typing import TYPE_CHECKING, Any, Awaitable, Callable
 from uuid import UUID
 
 if TYPE_CHECKING:

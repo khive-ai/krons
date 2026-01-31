@@ -147,5 +147,3 @@ class TestOperationRepr:
         assert "generate" in repr_str
         assert "bound" in repr_str
         assert "pending" in repr_str  # Default status
-
-

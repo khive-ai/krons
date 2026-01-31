@@ -45,7 +45,8 @@ class TestPileConcurrentAdd:
 
             with ThreadPoolExecutor(max_workers=num_threads) as executor:
                 futures = [
-                    executor.submit(add_batch, i * items_per_thread) for i in range(num_threads)
+                    executor.submit(add_batch, i * items_per_thread)
+                    for i in range(num_threads)
                 ]
                 for future in as_completed(futures):
                     future.result()
@@ -211,7 +212,8 @@ class TestFlowConcurrentAddItem:
 
             with ThreadPoolExecutor(max_workers=num_threads) as executor:
                 futures = [
-                    executor.submit(add_batch, i * items_per_thread) for i in range(num_threads)
+                    executor.submit(add_batch, i * items_per_thread)
+                    for i in range(num_threads)
                 ]
                 for future in as_completed(futures):
                     future.result()

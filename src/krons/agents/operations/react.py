@@ -75,7 +75,9 @@ class ReactResult(BaseModel):
 
     steps: list[ReactStep] = Field(default_factory=list, description="Execution steps")
     total_steps: int = Field(default=0, description="Total steps executed")
-    completed: bool = Field(default=False, description="Whether loop completed normally")
+    completed: bool = Field(
+        default=False, description="Whether loop completed normally"
+    )
     reason_stopped: str = Field(default="", description="Why loop stopped")
 
 
@@ -152,7 +154,9 @@ def build_step_operable(
             nullable=intermediate_nullable,
         )
         IntermediateModel = intermediate_operable.create_model()
-        specs.append(Spec(IntermediateModel, name="intermediate_response_options").as_optional())
+        specs.append(
+            Spec(IntermediateModel, name="intermediate_response_options").as_optional()
+        )
 
     return Operable(specs=tuple(specs), name="ReactStepResponse")
 
@@ -221,7 +225,9 @@ async def react_stream(
     capabilities_must_be_subset_of_branch(b_, required_capabilities)
 
     # 5. Prepare step kwargs
-    step_kwargs = {k: v for k, v in imodel_kwargs.items() if k not in ("model_name", "model")}
+    step_kwargs = {
+        k: v for k, v in imodel_kwargs.items() if k not in ("model_name", "model")
+    }
     verbose = params.return_trace
     max_steps = params.max_steps
 
@@ -234,7 +240,9 @@ async def react_stream(
         is_last_step = steps_remaining == 0
 
         if verbose:
-            logger.info(f"ReAct Step {step_num}/{max_steps} ({steps_remaining} remaining)")
+            logger.info(
+                f"ReAct Step {step_num}/{max_steps} ({steps_remaining} remaining)"
+            )
 
         step = ReactStep(step=step_num)
 
@@ -244,7 +252,9 @@ async def react_stream(
         elif is_last_step:
             step_instruction = REACT_FINAL_PROMPT
         else:
-            step_instruction = REACT_CONTINUE_PROMPT.format(steps_remaining=steps_remaining)
+            step_instruction = REACT_CONTINUE_PROMPT.format(
+                steps_remaining=steps_remaining
+            )
 
         try:
             # Build OperateParams for this step (flat inheritance)
@@ -275,14 +285,22 @@ async def react_stream(
                 if verbose and step.reasoning:
                     logger.info(f"Reasoning: {step.reasoning[:200]}...")
 
-            if hasattr(operate_result, "action_requests") and operate_result.action_requests:
+            if (
+                hasattr(operate_result, "action_requests")
+                and operate_result.action_requests
+            ):
                 step.actions_requested = operate_result.action_requests
 
-            if hasattr(operate_result, "action_responses") and operate_result.action_responses:
+            if (
+                hasattr(operate_result, "action_responses")
+                and operate_result.action_responses
+            ):
                 step.actions_executed = operate_result.action_responses
                 if verbose:
                     for resp in step.actions_executed:
-                        logger.info(f"Tool {resp.function}: {str(resp.output)[:100]}...")
+                        logger.info(
+                            f"Tool {resp.function}: {str(resp.output)[:100]}..."
+                        )
 
             # Extract intermediate options if present
             if hasattr(operate_result, "intermediate_response_options"):
@@ -291,7 +309,9 @@ async def react_stream(
                     if hasattr(iro, "model_dump"):
                         step.intermediate_options = iro.model_dump(exclude_none=True)
                     elif isinstance(iro, dict):
-                        step.intermediate_options = {k: v for k, v in iro.items() if v is not None}
+                        step.intermediate_options = {
+                            k: v for k, v in iro.items() if v is not None
+                        }
                     if verbose and step.intermediate_options:
                         logger.info(
                             f"Intermediate options: {list(step.intermediate_options.keys())}"

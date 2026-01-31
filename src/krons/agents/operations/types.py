@@ -6,14 +6,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
-from krons.agents.message import InstructionContent
-from krons.session import Message
-from krons.core.types import ModelConfig, Params
 from pydantic import BaseModel
 
+from krons.agents.message import InstructionContent
+from krons.core.types import ModelConfig, Params
+from krons.session import Message
+
 if TYPE_CHECKING:
-    from krons.resources import iModel
     from krons.core.specs import Operable
+    from krons.resources import iModel
 
 __all__ = (
     "ActionRequest",
@@ -49,7 +50,9 @@ class CustomParser(Protocol):
     Implementations extract structured data from LLM text responses.
     """
 
-    def __call__(self, text: str, target_keys: list[str], **kwargs: Any) -> dict[str, Any]: ...
+    def __call__(
+        self, text: str, target_keys: list[str], **kwargs: Any
+    ) -> dict[str, Any]: ...
 
 
 @runtime_checkable
@@ -103,18 +106,6 @@ class Reason(BaseModel):
 
     confidence: float | None = None
     """Confidence level (0-1) in the reasoning."""
-
-
-# =============================================================================
-# Custom Parser/Renderer Protocols
-# =============================================================================
-
-
-
-
-# =============================================================================
-# Standalone Params (no inheritance)
-# =============================================================================
 
 
 @dataclass(frozen=True, slots=True)

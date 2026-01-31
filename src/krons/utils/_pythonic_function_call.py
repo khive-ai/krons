@@ -30,7 +30,9 @@ RESERVED_KEYWORDS = {
 
 # Regex to match keyword arguments with reserved names
 # Matches: from="value" or from='value' at word boundary
-_RESERVED_KWARG_PATTERN = re.compile(r"\b(" + "|".join(RESERVED_KEYWORDS) + r")\s*=", re.MULTILINE)
+_RESERVED_KWARG_PATTERN = re.compile(
+    r"\b(" + "|".join(RESERVED_KEYWORDS) + r")\s*=", re.MULTILINE
+)
 
 __all__ = (
     "parse_function_call",
@@ -76,7 +78,9 @@ def _ast_to_value(node: ast.AST) -> Any:
 
     # Handle dict nodes: {key1: val1, key2: val2, ...}
     if isinstance(node, ast.Dict):
-        return {_ast_to_value(k): _ast_to_value(v) for k, v in zip(node.keys, node.values)}
+        return {
+            _ast_to_value(k): _ast_to_value(v) for k, v in zip(node.keys, node.values)
+        }
 
     # Handle list nodes: [elem1, elem2, ...]
     if isinstance(node, ast.List):
@@ -230,7 +234,9 @@ def parse_batch_function_calls(batch_str: str) -> list[dict[str, Any]]:
         results = []
         for element in tree.body.elts:
             if not isinstance(element, ast.Call):
-                raise ValueError(f"List element is not a function call: {ast.dump(element)}")
+                raise ValueError(
+                    f"List element is not a function call: {ast.dump(element)}"
+                )
 
             # Convert the Call node back to source code and parse it
             call_str = ast.unparse(element)

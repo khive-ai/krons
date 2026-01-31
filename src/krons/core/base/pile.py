@@ -12,9 +12,9 @@ from uuid import UUID
 from pydantic import Field, PrivateAttr, field_serializer, field_validator
 from typing_extensions import override
 
+from krons.core.types import Unset, UnsetType, is_unset
 from krons.errors import ExistsError, NotFoundError
 from krons.protocols import Containable, Deserializable, Serializable, implements
-from krons.core.types import Unset, UnsetType, is_unset
 from krons.utils import extract_types, load_type_from_string, synchronized
 from krons.utils.concurrency import Lock as AsyncLock
 
@@ -59,7 +59,9 @@ class Pile(Element, Generic[T]):
     @property
     def progression(self) -> Progression:
         """Read-only copy of progression order."""
-        return Progression(order=list(self._progression.order), name=self._progression.name)
+        return Progression(
+            order=list(self._progression.order), name=self._progression.name
+        )
 
     item_type: set[type] | None = Field(
         default=None,
@@ -104,7 +106,9 @@ class Pile(Element, Generic[T]):
             NotFoundError: If order contains UUID not in items
             TypeError: If item type validation fails
         """
-        super().__init__(**{"item_type": item_type, "strict_type": strict_type, **kwargs})
+        super().__init__(
+            **{"item_type": item_type, "strict_type": strict_type, **kwargs}
+        )
 
         if items:
             for item in items:
@@ -128,10 +132,14 @@ class Pile(Element, Generic[T]):
     def to_dict(
         self,
         mode: Literal["python", "json", "db"] = "python",
-        created_at_format: (Literal["datetime", "isoformat", "timestamp"] | UnsetType) = Unset,
+        created_at_format: (
+            Literal["datetime", "isoformat", "timestamp"] | UnsetType
+        ) = Unset,
         meta_key: str | UnsetType = Unset,
         item_meta_key: str | UnsetType = Unset,
-        item_created_at_format: (Literal["datetime", "isoformat", "timestamp"] | UnsetType) = Unset,
+        item_created_at_format: (
+            Literal["datetime", "isoformat", "timestamp"] | UnsetType
+        ) = Unset,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Serialize pile with items in progression order.
@@ -350,7 +358,9 @@ class Pile(Element, Generic[T]):
                 raise TypeError("Cannot mix int and UUID in list/tuple indexing")
             items = [self.get(uid) for uid in keys]
         else:
-            raise TypeError(f"list/tuple must contain only int or UUID, got {type(first)}")
+            raise TypeError(
+                f"list/tuple must contain only int or UUID, got {type(first)}"
+            )
 
         return Pile(
             items=items,
@@ -530,7 +540,9 @@ class Pile(Element, Generic[T]):
                 and item_type_data
                 and isinstance(item_type_data[0], str)
             ):
-                allowed_types = {load_type_from_string(type_str) for type_str in item_type_data}
+                allowed_types = {
+                    load_type_from_string(type_str) for type_str in item_type_data
+                }
             else:
                 allowed_types = extract_types(item_type_data)
 
@@ -549,7 +561,9 @@ class Pile(Element, Generic[T]):
                                 "(strict_type=True)"
                             )
                     else:
-                        if not any(issubclass(item_type_actual, t) for t in allowed_types):
+                        if not any(
+                            issubclass(item_type_actual, t) for t in allowed_types
+                        ):
                             raise TypeError(
                                 f"Item type {kron_class} is not a subclass of any allowed type {allowed_types}"
                             )

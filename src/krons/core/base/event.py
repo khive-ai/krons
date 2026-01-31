@@ -11,9 +11,16 @@ from typing import Any, final
 import orjson
 from pydantic import Field, field_serializer, field_validator
 
+from krons.core.types import (
+    Enum,
+    MaybeSentinel,
+    MaybeUnset,
+    Unset,
+    is_sentinel,
+    is_unset,
+)
 from krons.errors import KronsError, KronTimeoutError
 from krons.protocols import Invocable, Serializable, implements
-from krons.core.types import Enum, MaybeSentinel, MaybeUnset, Unset, is_sentinel, is_unset
 from krons.utils import async_synchronized, concurrency, json_dumpb
 
 from .element import LN_ELEMENT_FIELDS, Element
@@ -142,7 +149,9 @@ class Execution:
                 if isinstance(exc, Serializable):
                     exceptions.append(exc.to_dict())
                 elif isinstance(exc, ExceptionGroup):
-                    exceptions.append(self._serialize_exception_group(exc, depth + 1, _seen))
+                    exceptions.append(
+                        self._serialize_exception_group(exc, depth + 1, _seen)
+                    )
                 else:
                     exceptions.append(
                         {
@@ -262,11 +271,14 @@ class Event(Element):
         except Exception as e:
             if isinstance(e, ExceptionGroup):
                 retryable = all(
-                    not isinstance(exc, KronsError) or exc.retryable for exc in e.exceptions
+                    not isinstance(exc, KronsError) or exc.retryable
+                    for exc in e.exceptions
                 )
                 self.execution.retryable = retryable
             else:
-                self.execution.retryable = e.retryable if isinstance(e, KronsError) else True
+                self.execution.retryable = (
+                    e.retryable if isinstance(e, KronsError) else True
+                )
 
             self.execution.response = Unset
             self.execution.error = e
@@ -286,7 +298,9 @@ class Event(Element):
 
     async def stream(self) -> Any:
         """Stream execution results. Override if streaming=True."""
-        raise NotImplementedError("Subclasses must implement stream() if streaming=True")
+        raise NotImplementedError(
+            "Subclasses must implement stream() if streaming=True"
+        )
 
     def as_fresh_event(self, copy_meta: bool = False) -> Event:
         """Clone with reset execution state (new ID, PENDING status).

@@ -49,7 +49,12 @@ class TestClaudeCodeEndpoint:
         """Test a simple query to Claude Code CLI."""
         response = await endpoint.call(
             request={
-                "messages": [{"role": "user", "content": "What is 2 + 2? Reply with just the number."}],
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "What is 2 + 2? Reply with just the number.",
+                    }
+                ],
                 "max_turns": 1,
                 "model": "haiku",  # Use haiku for cost efficiency
             }
@@ -107,7 +112,9 @@ class TestClaudeCodeEndpoint:
         assert response.status == "success"
         assert response.metadata is not None
         # Should have usage info
-        assert "usage" in response.metadata or response.metadata.get("usage") is not None
+        assert (
+            "usage" in response.metadata or response.metadata.get("usage") is not None
+        )
 
 
 class TestGeminiCodeEndpoint:
@@ -129,7 +136,12 @@ class TestGeminiCodeEndpoint:
         """Test a simple query to Gemini Code CLI."""
         response = await endpoint.call(
             request={
-                "messages": [{"role": "user", "content": "What is 3 + 3? Reply with just the number."}],
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "What is 3 + 3? Reply with just the number.",
+                    }
+                ],
                 "max_turns": 1,
             }
         )
@@ -166,12 +178,12 @@ class TestClaudeCodeStructuredOutput:
             age: int
             occupation: str
 
-        prompt = '''Return a JSON object representing a person with these exact fields:
+        prompt = """Return a JSON object representing a person with these exact fields:
 - name: string (use "Alice")
 - age: integer (use 30)
 - occupation: string (use "Engineer")
 
-Return ONLY the JSON object, no markdown code blocks, no explanation.'''
+Return ONLY the JSON object, no markdown code blocks, no explanation."""
 
         response = await endpoint.call(
             request={
@@ -185,6 +197,7 @@ Return ONLY the JSON object, no markdown code blocks, no explanation.'''
 
         # Extract and validate JSON
         from krons.utils.fuzzy import extract_json
+
         data = extract_json(response.data)
 
         assert data is not None, f"Failed to extract JSON from: {response.data}"
@@ -208,11 +221,11 @@ Return ONLY the JSON object, no markdown code blocks, no explanation.'''
     )
     async def test_structured_list_output(self, endpoint):
         """Test getting structured list output from Claude Code."""
-        prompt = '''Return a JSON array with exactly 3 objects, each having:
+        prompt = """Return a JSON array with exactly 3 objects, each having:
 - id: integer (1, 2, 3)
 - name: string ("item_1", "item_2", "item_3")
 
-Return ONLY the JSON array, no markdown, no explanation.'''
+Return ONLY the JSON array, no markdown, no explanation."""
 
         response = await endpoint.call(
             request={
@@ -225,6 +238,7 @@ Return ONLY the JSON array, no markdown, no explanation.'''
         assert response.status == "success"
 
         from krons.utils.fuzzy import extract_json
+
         data = extract_json(response.data)
 
         assert data is not None
@@ -246,7 +260,10 @@ Return ONLY the JSON array, no markdown, no explanation.'''
         response1 = await endpoint.call(
             request={
                 "messages": [
-                    {"role": "user", "content": "Remember this number: 42. Just say 'OK, noted.'"}
+                    {
+                        "role": "user",
+                        "content": "Remember this number: 42. Just say 'OK, noted.'",
+                    }
                 ],
                 "max_turns": 1,
                 "model": "haiku",
@@ -305,11 +322,15 @@ if __name__ == "__main__":
                 print(f"\nExtracted JSON: {data}")
                 try:
                     output = TestOutput(**data)
-                    print(f"Validated output: result={output.result}, explanation={output.explanation}")
+                    print(
+                        f"Validated output: result={output.result}, explanation={output.explanation}"
+                    )
                     print("\nStructured output test PASSED!")
                 except Exception as e:
                     print(f"Validation warning: {e}")
-                    print("\nBasic test PASSED (JSON extracted but validation flexible)")
+                    print(
+                        "\nBasic test PASSED (JSON extracted but validation flexible)"
+                    )
             else:
                 print("\nTest PASSED (response received, JSON extraction optional)")
         else:

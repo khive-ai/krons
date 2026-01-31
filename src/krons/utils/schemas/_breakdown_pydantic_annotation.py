@@ -111,7 +111,11 @@ def _breakdown_pydantic_annotation(
         elif origin is list:
             args = get_args(v)
             if args and is_pydantic_model(args[0]):
-                out[k] = [_breakdown_pydantic_annotation(args[0], max_depth, current_depth + 1)]
+                out[k] = [
+                    _breakdown_pydantic_annotation(
+                        args[0], max_depth, current_depth + 1
+                    )
+                ]
             else:
                 out[k] = [args[0] if args else Any]
         else:

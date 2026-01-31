@@ -144,7 +144,10 @@ class TestImplementsDecorator:
 
             # Should have warned about missing kwargs
             assert len(w) >= 1
-            assert "kwargs" in str(w[0].message).lower() or "signature" in str(w[0].message).lower()
+            assert (
+                "kwargs" in str(w[0].message).lower()
+                or "signature" in str(w[0].message).lower()
+            )
 
     def test_implements_signature_check_error(self):
         """Test signature_check='error' raises on mismatch."""

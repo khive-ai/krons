@@ -19,7 +19,14 @@ import json
 import pickle
 from typing import assert_never
 
-from krons.core.types import Enum, Undefined, UndefinedType, Unset, UnsetType, not_sentinel
+from krons.core.types import (
+    Enum,
+    Undefined,
+    UndefinedType,
+    Unset,
+    UnsetType,
+    not_sentinel,
+)
 
 # ---------------------------------------------------------------------------
 # StrEnum behavior + allowed()

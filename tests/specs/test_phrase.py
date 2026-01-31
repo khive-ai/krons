@@ -9,9 +9,9 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from krons.work.operations.context import RequestContext
-from krons.errors import ValidationError
 from krons.core.specs import Operable, Spec
+from krons.errors import ValidationError
+from krons.work.operations.context import RequestContext
 from krons.work.phrase import CrudOperation, CrudPattern, Phrase, _to_pascal, phrase
 
 

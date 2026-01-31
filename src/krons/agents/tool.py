@@ -34,7 +34,12 @@ from typing import Any, get_type_hints
 
 from pydantic import BaseModel, Field
 
-from krons.resources.backend import Calling, NormalizedResponse, ResourceBackend, ResourceConfig
+from krons.resources.backend import (
+    Calling,
+    NormalizedResponse,
+    ResourceBackend,
+    ResourceConfig,
+)
 
 logger = logging.getLogger(__name__)
 

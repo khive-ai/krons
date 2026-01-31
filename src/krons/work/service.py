@@ -13,7 +13,6 @@ from typing import Any
 from pydantic import Field, PrivateAttr
 
 from krons.resources import ResourceBackend, ResourceConfig
-
 from krons.work.operations.context import RequestContext
 
 from .policy import EnforcementLevel, PolicyEngine, PolicyResolver
@@ -169,7 +168,9 @@ class KronService(ResourceBackend):
     config: KronConfig = Field(default_factory=KronConfig)
     _policy_engine: PolicyEngine | None = PrivateAttr(default=None)
     _policy_resolver: PolicyResolver | None = PrivateAttr(default=None)
-    _action_registry: dict[str, tuple[Callable, ActionMeta]] = PrivateAttr(default_factory=dict)
+    _action_registry: dict[str, tuple[Callable, ActionMeta]] = PrivateAttr(
+        default_factory=dict
+    )
 
     def __init__(
         self,
@@ -291,7 +292,9 @@ class KronService(ResourceBackend):
 
         # Validate options if we have typed options_type
         if meta._options_type and self.config.operable:
-            options = self.config.operable.validate_instance(meta._options_type, options)
+            options = self.config.operable.validate_instance(
+                meta._options_type, options
+            )
 
         # Execute handler
         result = await handler(options, ctx)
@@ -353,7 +356,9 @@ class KronService(ResourceBackend):
 
             for result in results:
                 if EnforcementLevel.is_blocking(result):
-                    raise PermissionError(f"Policy {result.policy_id} blocked: {result.message}")
+                    raise PermissionError(
+                        f"Policy {result.policy_id} blocked: {result.message}"
+                    )
 
         except PermissionError:
             raise

@@ -13,7 +13,6 @@ from krons.core.specs import Operable, Spec
 from krons.work.form import Form, parse_assignment
 from krons.work.phrase import Phrase
 
-
 # =============================================================================
 # Tests: parse_assignment
 # =============================================================================
@@ -81,7 +80,9 @@ class TestParseAssignment:
 
     def test_underscored_field_names(self):
         """Parse assignment with underscore field names."""
-        inputs, outputs = parse_assignment("user_id, consent_scope -> has_consent, token_id")
+        inputs, outputs = parse_assignment(
+            "user_id, consent_scope -> has_consent, token_id"
+        )
         assert inputs == ["user_id", "consent_scope"]
         assert outputs == ["has_consent", "token_id"]
 

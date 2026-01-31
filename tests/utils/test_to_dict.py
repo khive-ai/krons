@@ -184,7 +184,9 @@ def test_to_dict_recursive_basic():
     result = to_dict(data, recursive=True)
     # orjson.loads() now properly parses nested JSON strings
     assert isinstance(result, dict)
-    assert result["a"] == {"nested": True}  # String IS parsed in recursive mode with orjson
+    assert result["a"] == {
+        "nested": True
+    }  # String IS parsed in recursive mode with orjson
     assert result["b"] == [1, 2, 3]
 
 

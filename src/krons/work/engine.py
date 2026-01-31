@@ -35,7 +35,7 @@ from krons.utils import concurrency
 
 if TYPE_CHECKING:
     from .form import Form
-    from .worker import Worker, WorkConfig, WorkLink
+    from .worker import WorkConfig, Worker, WorkLink
 
 __all__ = ("WorkerEngine", "WorkerTask")
 
@@ -182,7 +182,9 @@ class WorkerEngine:
         # Collect tasks to process this cycle
         tasks_to_process: list[UUID] = []
 
-        while not self._task_queue.empty() and len(tasks_to_process) < self.max_concurrent:
+        while (
+            not self._task_queue.empty() and len(tasks_to_process) < self.max_concurrent
+        ):
             try:
                 task_id = self._task_queue.get_nowait()
                 tasks_to_process.append(task_id)
@@ -225,7 +227,9 @@ class WorkerEngine:
                         # Bind input fields from form to kwargs
                         for input_field in form.input_fields:
                             if input_field in form.available_data:
-                                call_kwargs[input_field] = form.available_data[input_field]
+                                call_kwargs[input_field] = form.available_data[
+                                    input_field
+                                ]
 
                 # Execute with optional timeout
                 if config.timeout:

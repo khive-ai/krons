@@ -9,16 +9,9 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from krons.errors import ValidationError
 from krons.core.specs import Operable, Spec
-from krons.work.phrase import (
-    CrudOperation,
-    CrudPattern,
-    Phrase,
-    _to_pascal,
-    phrase,
-)
-
+from krons.errors import ValidationError
+from krons.work.phrase import CrudOperation, CrudPattern, Phrase, _to_pascal, phrase
 
 # =============================================================================
 # Helper: Mock Context
@@ -44,7 +37,9 @@ class MockContext:
             raise AttributeError(name)
         if name in self.metadata:
             return self.metadata[name]
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
 
 
 # =============================================================================

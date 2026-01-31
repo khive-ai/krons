@@ -13,9 +13,9 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
-from krons.work.operations.context import RequestContext
 from krons.core.specs.catalog._enforcement import EnforcementLevel
 from krons.core.types.base import DataClass
+from krons.work.operations.context import RequestContext
 
 __all__ = (
     "EnforcementLevel",

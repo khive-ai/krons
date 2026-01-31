@@ -85,7 +85,9 @@ class EventBus:
         if topic not in self._subs:
             return
         if handlers := self._cleanup_dead_refs(topic):
-            await gather(*(h(*args, **kwargs) for h in handlers), return_exceptions=True)
+            await gather(
+                *(h(*args, **kwargs) for h in handlers), return_exceptions=True
+            )
 
     def clear(self, topic: str | None = None) -> None:
         """Clear subscriptions.

@@ -6,9 +6,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from krons.agents.message import InstructionContent
-from krons.session import Message
 from krons.core.types import is_sentinel
 from krons.errors import ConfigurationError, ExecutionError, KronsError, ValidationError
+from krons.session import Message
 from krons.utils.fuzzy import extract_json, fuzzy_validate_mapping
 
 from .types import CustomParser, GenerateParams, HandleUnmatched, ParseParams
@@ -57,7 +57,9 @@ async def parse(
         )
 
     if params.max_retries > 5:
-        raise ValidationError("'max_retries' for parse cannot exceed 5 to avoid long delays")
+        raise ValidationError(
+            "'max_retries' for parse cannot exceed 5 to avoid long delays"
+        )
 
     for _ in range(params.max_retries):
         try:
@@ -107,7 +109,9 @@ def _direct_parse(
 
     # JSON parser path
     if structure_format != "json":
-        raise ValidationError(f"Unsupported structure_format '{structure_format}' in parse")
+        raise ValidationError(
+            f"Unsupported structure_format '{structure_format}' in parse"
+        )
 
     extracted = None
     try:

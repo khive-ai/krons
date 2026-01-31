@@ -21,7 +21,13 @@ from .constraints import (
     resolve_generate_params,
     resolve_parse_params,
 )
-from .types import ActionRequest, ActionResponse, CommunicateParams, OperateParams, Reason
+from .types import (
+    ActionRequest,
+    ActionResponse,
+    CommunicateParams,
+    OperateParams,
+    Reason,
+)
 
 if TYPE_CHECKING:
     from krons.session import Branch, Session
@@ -182,7 +188,9 @@ def _build_operable(
 
     # Add response model as a field (lowercase name convention)
     if response_model:
-        if not isinstance(response_model, type) or not issubclass(response_model, BaseModel):
+        if not isinstance(response_model, type) or not issubclass(
+            response_model, BaseModel
+        ):
             raise ValidationError(
                 f"response_model must be a Pydantic BaseModel subclass, got {response_model}"
             )
@@ -194,8 +202,12 @@ def _build_operable(
 
     # Add action specs (default to empty list)
     if actions:
-        specs.append(Spec(list[ActionRequest], name="action_requests", default_factory=list))
-        specs.append(Spec(list[ActionResponse], name="action_responses", default_factory=list))
+        specs.append(
+            Spec(list[ActionRequest], name="action_requests", default_factory=list)
+        )
+        specs.append(
+            Spec(list[ActionResponse], name="action_responses", default_factory=list)
+        )
 
     # Create operable
     name = response_model.__name__ if response_model else "OperateResponse"

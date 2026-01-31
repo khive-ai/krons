@@ -22,7 +22,13 @@ from pydantic_core._pydantic_core import PydanticUndefinedType
 
 from krons.core.specs.protocol import SpecAdapter
 from krons.core.specs.spec import Spec
-from krons.core.types._sentinel import Unset, UnsetType, is_sentinel, is_unset, not_sentinel
+from krons.core.types._sentinel import (
+    Unset,
+    UnsetType,
+    is_sentinel,
+    is_unset,
+    not_sentinel,
+)
 from krons.core.types.db_types import FKMeta, VectorMeta
 
 from ._utils import resolve_annotation_to_base_types

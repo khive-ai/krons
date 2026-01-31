@@ -52,10 +52,10 @@ def __dir__() -> list[str]:
 
 
 if TYPE_CHECKING:
-    from krons.core import types as types
-    from krons.core import specs as specs
-    from krons import session as session
-    from krons.work import operations as operations
     from krons import agents as agents
     from krons import resources as resources
+    from krons import session as session
     from krons import work as work
+    from krons.core import specs as specs
+    from krons.core import types as types
+    from krons.work import operations as operations

@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from enum import IntEnum, auto
 from typing import Any
 
-from krons.errors import ValidationError
 from krons.core.types import Params
+from krons.errors import ValidationError
 
 __all__ = ("Rule", "RuleParams", "RuleQualifier", "ValidationError")
 

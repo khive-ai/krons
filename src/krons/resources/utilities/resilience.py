@@ -199,7 +199,9 @@ class CircuitBreaker:
                 if now - self.last_failure_time >= self.recovery_time:
                     await self._change_state(CircuitState.HALF_OPEN)
                 else:
-                    recovery_remaining = self.recovery_time - (now - self.last_failure_time)
+                    recovery_remaining = self.recovery_time - (
+                        now - self.last_failure_time
+                    )
                     self._metrics["rejected_count"] += 1
 
                     logger.warning(
@@ -223,7 +225,9 @@ class CircuitBreaker:
 
             return True, 0.0
 
-    async def execute(self, func: Callable[..., Awaitable[T]], *args: Any, **kwargs: Any) -> T:
+    async def execute(
+        self, func: Callable[..., Awaitable[T]], *args: Any, **kwargs: Any
+    ) -> T:
         """Execute async function with circuit breaker protection.
 
         Args:
@@ -259,7 +263,9 @@ class CircuitBreaker:
             return result
 
         except Exception as e:
-            is_excluded = any(isinstance(e, exc_type) for exc_type in self.excluded_exceptions)
+            is_excluded = any(
+                isinstance(e, exc_type) for exc_type in self.excluded_exceptions
+            )
 
             if not is_excluded:
                 async with self._lock:
@@ -322,7 +328,9 @@ class RetryConfig:
         Returns:
             Delay in seconds before next retry
         """
-        delay = min(self.initial_delay * (self.exponential_base**attempt), self.max_delay)
+        delay = min(
+            self.initial_delay * (self.exponential_base**attempt), self.max_delay
+        )
         if self.jitter:
             delay = delay * (0.5 + random.random() * 0.5)
         return delay
@@ -394,7 +402,9 @@ async def retry_with_backoff(
             last_exception = e
 
             if attempt >= max_retries:
-                logger.error(f"All {max_retries} retry attempts exhausted for {func.__name__}: {e}")
+                logger.error(
+                    f"All {max_retries} retry attempts exhausted for {func.__name__}: {e}"
+                )
                 raise
 
             delay = min(initial_delay * (exponential_base**attempt), max_delay)

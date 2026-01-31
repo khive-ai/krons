@@ -24,11 +24,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ToolConfig": ("krons.agents.tool", "ToolConfig"),
     "tool": ("krons.agents.tool", "tool"),
     # providers
-    "AnthropicMessagesEndpoint": ("krons.agents.providers", "AnthropicMessagesEndpoint"),
+    "AnthropicMessagesEndpoint": (
+        "krons.agents.providers",
+        "AnthropicMessagesEndpoint",
+    ),
     "GeminiCodeEndpoint": ("krons.agents.providers", "GeminiCodeEndpoint"),
     "OAIChatEndpoint": ("krons.agents.providers", "OAIChatEndpoint"),
     "create_anthropic_config": ("krons.agents.providers", "create_anthropic_config"),
-    "create_gemini_code_config": ("krons.agents.providers", "create_gemini_code_config"),
+    "create_gemini_code_config": (
+        "krons.agents.providers",
+        "create_gemini_code_config",
+    ),
     "create_oai_chat": ("krons.agents.providers", "create_oai_chat"),
     "match_endpoint": ("krons.agents.providers", "match_endpoint"),
     # message
@@ -76,15 +82,13 @@ def __dir__() -> list[str]:
 
 # TYPE_CHECKING block for static analysis
 if TYPE_CHECKING:
-    from krons.agents.tool import Tool, ToolCalling, ToolConfig, tool
-    from krons.agents.providers import (
-        AnthropicMessagesEndpoint,
-        GeminiCodeEndpoint,
-        OAIChatEndpoint,
-        create_anthropic_config,
-        create_gemini_code_config,
-        create_oai_chat,
-        match_endpoint,
+    from krons.agents.mcps import (
+        DEFAULT_ALLOWED_COMMANDS,
+        CommandNotAllowedError,
+        MCPConnectionPool,
+        create_mcp_callable,
+        load_mcp_config,
+        load_mcp_tools,
     )
     from krons.agents.message import (
         ActionRequest,
@@ -96,14 +100,16 @@ if TYPE_CHECKING:
         System,
         prepare_messages_for_chat,
     )
-    from krons.agents.mcps import (
-        CommandNotAllowedError,
-        DEFAULT_ALLOWED_COMMANDS,
-        MCPConnectionPool,
-        create_mcp_callable,
-        load_mcp_config,
-        load_mcp_tools,
+    from krons.agents.providers import (
+        AnthropicMessagesEndpoint,
+        GeminiCodeEndpoint,
+        OAIChatEndpoint,
+        create_anthropic_config,
+        create_gemini_code_config,
+        create_oai_chat,
+        match_endpoint,
     )
+    from krons.agents.tool import Tool, ToolCalling, ToolConfig, tool
 
 __all__ = [
     # tool

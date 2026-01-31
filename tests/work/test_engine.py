@@ -13,7 +13,6 @@ from krons.work.engine import WorkerEngine, WorkerTask
 from krons.work.form import Form
 from krons.work.worker import Worker, work, worklink
 
-
 # =============================================================================
 # Tests: WorkerTask
 # =============================================================================

@@ -13,10 +13,14 @@ from unittest.mock import patch
 import pytest
 
 from krons.core import Edge, Graph, Node
-from krons.work.operations import Builder, flow
-from krons.work.operations.flow import DependencyAwareExecutor, OperationResult, flow_stream
-from krons.work.operations.node import Operation
 from krons.session import Session
+from krons.work.operations import Builder, flow
+from krons.work.operations.flow import (
+    DependencyAwareExecutor,
+    OperationResult,
+    flow_stream,
+)
+from krons.work.operations.node import Operation
 
 # -------------------------------------------------------------------------
 # Fixtures for Real Session
@@ -207,7 +211,9 @@ class TestFlowStopConditions:
 
         builder = Builder()
         builder.add("task1", "simple_op", {"instruction": "First"})
-        builder.add("task2", "simple_op", {"instruction": "Second"}, depends_on=["task1"])
+        builder.add(
+            "task2", "simple_op", {"instruction": "Second"}, depends_on=["task1"]
+        )
 
         graph = builder.build()
         with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
@@ -322,7 +328,9 @@ class TestFlowResultProcessing:
         graph = Graph()
         graph.add_node(op)
 
-        executor = DependencyAwareExecutor(session=session, graph=graph, default_branch=None)
+        executor = DependencyAwareExecutor(
+            session=session, graph=graph, default_branch=None
+        )
 
         with pytest.raises(ValueError, match="No branch allocated"):
             await executor._invoke_operation(op)
@@ -392,7 +400,9 @@ class TestFlowIntegration:
         builder.add("task1", "generate", {"instruction": "Root"})
         builder.add("task2", "generate", {"instruction": "Left"}, depends_on=["task1"])
         builder.add("task3", "generate", {"instruction": "Right"}, depends_on=["task1"])
-        builder.add("task4", "generate", {"instruction": "Merge"}, depends_on=["task2", "task3"])
+        builder.add(
+            "task4", "generate", {"instruction": "Merge"}, depends_on=["task2", "task3"]
+        )
 
         graph = builder.build()
         results = await flow(session, graph, branch=branch)
@@ -465,7 +475,9 @@ class TestFlowExceptionPaths:
     """Direct tests for exception handling in _execute_operation."""
 
     @pytest.mark.anyio
-    async def test_exception_in_execute_operation_no_verbose_no_stop(self, session_with_ops):
+    async def test_exception_in_execute_operation_no_verbose_no_stop(
+        self, session_with_ops
+    ):
         """Test exception caught, stored, execution continues."""
         session = session_with_ops
         branch = session.create_branch(name="test")
@@ -485,7 +497,9 @@ class TestFlowExceptionPaths:
         graph = builder.build()
 
         # Execute with stop_on_error=False, verbose=False
-        results = await flow(session, graph, branch=branch, stop_on_error=False, verbose=False)
+        results = await flow(
+            session, graph, branch=branch, stop_on_error=False, verbose=False
+        )
 
         # task1 should fail, task2 should succeed
         assert "task1" not in results
@@ -532,7 +546,9 @@ class TestFlowExceptionPaths:
         builder.add("task1", "fail_stop", {})
         graph = builder.build()
 
-        results = await flow(session, graph, branch=branch, stop_on_error=True, verbose=False)
+        results = await flow(
+            session, graph, branch=branch, stop_on_error=True, verbose=False
+        )
 
         # Task failed, no result
         assert "task1" not in results
@@ -553,7 +569,9 @@ class TestFlowExceptionPaths:
         graph = builder.build()
 
         with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
-            results = await flow(session, graph, branch=branch, verbose=True, stop_on_error=True)
+            results = await flow(
+                session, graph, branch=branch, verbose=True, stop_on_error=True
+            )
 
         # Verify verbose logging executed
         assert "failed" in caplog.text
@@ -563,7 +581,9 @@ class TestFlowExceptionPaths:
         assert "task1" not in results
 
     @pytest.mark.anyio
-    async def test_direct_executor_exception_verbose_stop(self, session_with_ops, caplog):
+    async def test_direct_executor_exception_verbose_stop(
+        self, session_with_ops, caplog
+    ):
         """Test exception path directly via executor to ensure coverage."""
         session = session_with_ops
         branch = session.create_branch(name="test")
@@ -619,7 +639,9 @@ class TestFlowExceptionPaths:
         assert isinstance(executor.errors[op.id], ValueError)
 
     @pytest.mark.anyio
-    async def test_exception_during_wait_for_dependencies(self, session_with_ops, caplog):
+    async def test_exception_during_wait_for_dependencies(
+        self, session_with_ops, caplog
+    ):
         """Test exception raised during _wait_for_dependencies."""
         session = session_with_ops
         branch = session.create_branch(name="test")
@@ -644,7 +666,9 @@ class TestFlowExceptionPaths:
 
         with (
             caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"),
-            patch.object(executor, "_wait_for_dependencies", side_effect=mock_wait_deps),
+            patch.object(
+                executor, "_wait_for_dependencies", side_effect=mock_wait_deps
+            ),
         ):
             await executor.execute()
 

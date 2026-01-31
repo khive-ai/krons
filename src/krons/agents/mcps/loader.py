@@ -142,7 +142,9 @@ async def load_mcp_tools(
                     }
             except Exception as schema_error:
                 # If schema extraction fails, Tool will auto-generate from callable signature
-                logger.warning(f"Could not extract schema for {tool.name}: {schema_error}")
+                logger.warning(
+                    f"Could not extract schema for {tool.name}: {schema_error}"
+                )
                 tool_schema = None
 
             try:
@@ -154,7 +156,9 @@ async def load_mcp_tools(
 
                 # Register as regular Tool with MCP-discovered schema
                 if registry.has(qualified_name) and not update:
-                    logger.warning(f"Tool '{qualified_name}' already registered. Skipping.")
+                    logger.warning(
+                        f"Tool '{qualified_name}' already registered. Skipping."
+                    )
                     continue
 
                 tool_obj = Tool(
@@ -271,7 +275,9 @@ async def load_mcp_config(
     for server_name in server_names:
         try:
             # Register using server reference
-            tools = await load_mcp_tools(registry, {"server": server_name}, update=update)
+            tools = await load_mcp_tools(
+                registry, {"server": server_name}, update=update
+            )
             all_tools[server_name] = tools
             logger.info(f"✅ Registered {len(tools)} tools from server '{server_name}'")
         except Exception as e:

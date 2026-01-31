@@ -4,7 +4,9 @@ from typing import Any, Union, get_args, get_origin
 from pydantic import BaseModel
 
 
-def map_positional_args(arguments: dict[str, Any], param_names: list[str]) -> dict[str, Any]:
+def map_positional_args(
+    arguments: dict[str, Any], param_names: list[str]
+) -> dict[str, Any]:
     """Map positional arguments (_pos_0, _pos_1, ...) to actual parameter names."""
     mapped = {}
     pos_count = 0
@@ -12,7 +14,9 @@ def map_positional_args(arguments: dict[str, Any], param_names: list[str]) -> di
     for key, value in arguments.items():
         if key.startswith("_pos_"):
             if pos_count >= len(param_names):
-                raise ValueError(f"Too many positional arguments (expected {len(param_names)})")
+                raise ValueError(
+                    f"Too many positional arguments (expected {len(param_names)})"
+                )
             mapped[param_names[pos_count]] = value
             pos_count += 1
         else:

@@ -111,7 +111,9 @@ class _SentinelMixin:
         """Return set of valid field names (excludes private/ClassVar)."""
         if cls._allowed_keys:
             return cls._allowed_keys
-        cls._allowed_keys = set(f.name for f in fields(cls) if not f.name.startswith("_"))
+        cls._allowed_keys = set(
+            f.name for f in fields(cls) if not f.name.startswith("_")
+        )
         return cls._allowed_keys
 
     @classmethod

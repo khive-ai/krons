@@ -124,7 +124,9 @@ class OAIChatEndpoint(Endpoint):
         elif isinstance(config, EndpointConfig):
             config = config.model_dump()
         if not isinstance(config, dict):
-            raise ValueError("Provided config must be a dict or EndpointConfig instance")
+            raise ValueError(
+                "Provided config must be a dict or EndpointConfig instance"
+            )
 
         if kwargs.get("request_options") is None:
             config = _ensure_request_options(config)

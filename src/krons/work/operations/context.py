@@ -150,4 +150,3 @@ class RequestContext(DataClass):
         if session is None or self.branch_id is None:
             return None
         return session.branches.get(self.branch_id)
-

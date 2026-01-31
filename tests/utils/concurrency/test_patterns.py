@@ -42,7 +42,9 @@ async def test_gather_first_error_cancels_peers(anyio_backend):
         await gather(boom(), peer(), return_exceptions=False)
     dt = time.perf_counter() - t0
     # Verify the ExceptionGroup contains RuntimeError
-    assert any(isinstance(e, RuntimeError) and str(e) == "x" for e in exc_info.value.exceptions)
+    assert any(
+        isinstance(e, RuntimeError) and str(e) == "x" for e in exc_info.value.exceptions
+    )
     assert cancelled.is_set()
     assert dt < 0.5
 
@@ -68,7 +70,10 @@ async def test_bounded_map_raises_and_cancels_others(anyio_backend):
     with pytest.raises(ExceptionGroup) as exc_info:
         await bounded_map(fn, range(6), limit=2)
     # Verify the ExceptionGroup contains ValueError
-    assert any(isinstance(e, ValueError) and str(e) == "boom" for e in exc_info.value.exceptions)
+    assert any(
+        isinstance(e, ValueError) and str(e) == "boom"
+        for e in exc_info.value.exceptions
+    )
     assert started >= 2  # at least limited concurrency started
     assert cancelled.is_set()
 
@@ -128,7 +133,9 @@ async def test_gather_return_exceptions_true(anyio_backend):
         raise ValueError(f"error_{x}")
 
     # Mix successes and failures
-    results = await gather(success(1), failure(2), success(3), failure(4), return_exceptions=True)
+    results = await gather(
+        success(1), failure(2), success(3), failure(4), return_exceptions=True
+    )
 
     assert len(results) == 4
     assert results[0] == "result_1"
@@ -373,7 +380,9 @@ async def test_retry_eventual_success(anyio_backend):
             raise ConnectionError(f"Attempt {attempts['count']} failed")
         return "success"
 
-    result = await retry(flaky, attempts=5, base_delay=0.001, retry_on=(ConnectionError,))
+    result = await retry(
+        flaky, attempts=5, base_delay=0.001, retry_on=(ConnectionError,)
+    )
 
     assert result == "success"
     assert attempts["count"] == 3  # Succeeded on third attempt
@@ -495,7 +504,9 @@ if HAS_HYPOTHESIS:
         values=st.lists(st.integers(), max_size=50),
         limit=st.integers(min_value=1, max_value=10),
     )
-    @settings(max_examples=20, deadline=None)  # deadline=None is crucial for async tests
+    @settings(
+        max_examples=20, deadline=None
+    )  # deadline=None is crucial for async tests
     async def test_bounded_map_preserves_order_property(anyio_backend, values, limit):
         """Property-based test that bounded_map preserves order."""
 

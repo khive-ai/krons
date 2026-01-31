@@ -34,7 +34,9 @@ class TestHeaderFactory:
 
     def test_get_header_none_auth_with_content_type(self):
         """Test get_header with no authentication and content type."""
-        result = HeaderFactory.get_header(auth_type="none", content_type="application/json")
+        result = HeaderFactory.get_header(
+            auth_type="none", content_type="application/json"
+        )
         assert result == {"Content-Type": "application/json"}
 
     def test_get_header_none_auth_without_content_type(self):

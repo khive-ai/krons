@@ -11,6 +11,7 @@ from uuid import UUID, uuid4
 import orjson
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from krons.core.types import MaybeSentinel, Unset, UnsetType, is_sentinel, is_unset
 from krons.protocols import (
     Deserializable,
     Hashable,
@@ -18,7 +19,6 @@ from krons.protocols import (
     Serializable,
     implements,
 )
-from krons.core.types import MaybeSentinel, Unset, UnsetType, is_sentinel, is_unset
 from krons.utils import (
     coerce_created_at,
     json_dump,
@@ -68,7 +68,9 @@ class Element(BaseModel):
 
     @field_validator("metadata", mode="before")
     @classmethod
-    def _validate_meta_integrity(cls, val: dict[str, Any] | MaybeSentinel) -> dict[str, Any]:
+    def _validate_meta_integrity(
+        cls, val: dict[str, Any] | MaybeSentinel
+    ) -> dict[str, Any]:
         """Validate and coerce metadata to dict. Raises ValueError if conversion fails."""
         if is_sentinel(val, {"none"}):
             return {}
@@ -108,7 +110,9 @@ class Element(BaseModel):
     def to_dict(
         self,
         mode: Literal["python", "json", "db"] = "python",
-        created_at_format: (Literal["datetime", "isoformat", "timestamp"] | UnsetType) = Unset,
+        created_at_format: (
+            Literal["datetime", "isoformat", "timestamp"] | UnsetType
+        ) = Unset,
         meta_key: str | UnsetType = Unset,
         **kwargs: Any,
     ) -> dict[str, Any]:
@@ -187,7 +191,9 @@ class Element(BaseModel):
             try:
                 target_cls = load_type_from_string(kron_class)
             except ValueError as e:
-                raise ValueError(f"Failed to deserialize class '{kron_class}': {e}") from e
+                raise ValueError(
+                    f"Failed to deserialize class '{kron_class}': {e}"
+                ) from e
 
             if not issubclass(target_cls, Element):
                 raise ValueError(
@@ -195,7 +201,9 @@ class Element(BaseModel):
                     f"Cannot deserialize into {cls.__name__}"
                 )
 
-            target_func = getattr(target_cls.from_dict, "__func__", target_cls.from_dict)
+            target_func = getattr(
+                target_cls.from_dict, "__func__", target_cls.from_dict
+            )
             cls_func = getattr(cls.from_dict, "__func__", cls.from_dict)
             if target_func is cls_func:
                 return target_cls.model_validate(data, **kwargs)

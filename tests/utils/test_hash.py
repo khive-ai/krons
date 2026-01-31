@@ -265,7 +265,9 @@ class TestHashObj:
 
         # Check that the initial strict hash is repeatable
         data_for_repeat = {"a": [1, 2]}
-        assert hash_obj(data_for_repeat, strict=True) == hash_obj({"a": [1, 2]}, strict=True)
+        assert hash_obj(data_for_repeat, strict=True) == hash_obj(
+            {"a": [1, 2]}, strict=True
+        )
 
     def test_unhashable_representation_raises_typeerror(self):
         # This requires _generate_hashable_representation to return something unhashable.

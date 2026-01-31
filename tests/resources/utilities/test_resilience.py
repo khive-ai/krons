@@ -158,7 +158,9 @@ class TestCircuitBreaker:
     @pytest.mark.asyncio
     async def test_excluded_exceptions_dont_count(self):
         """Excluded exceptions don't increment failure count."""
-        cb = CircuitBreaker(failure_threshold=2, excluded_exceptions={KeyError}, name="test")
+        cb = CircuitBreaker(
+            failure_threshold=2, excluded_exceptions={KeyError}, name="test"
+        )
 
         async def excluded_error_func():
             raise KeyError("Excluded")
@@ -213,7 +215,9 @@ class TestRetryWithBackoff:
         async def success_func():
             return "success"
 
-        result = await retry_with_backoff(success_func, max_retries=3, initial_delay=0.01)
+        result = await retry_with_backoff(
+            success_func, max_retries=3, initial_delay=0.01
+        )
         assert result == "success"
 
     @pytest.mark.asyncio
@@ -433,7 +437,9 @@ class TestCircuitBreakerCoveragePush:
             tg.start_soon(call_with_tracking, 2)  # Second call should be rejected
 
         # One call should succeed, one should be rejected at capacity
-        assert len(errors) >= 1, f"Expected rejection. Results: {results}, Errors: {errors}"
+        assert len(errors) >= 1, (
+            f"Expected rejection. Results: {results}, Errors: {errors}"
+        )
         assert cb.metrics["rejected_count"] >= 1
 
 
@@ -612,7 +618,9 @@ class TestResilienceRegressions:
 
         # Should NOT retry TypeError with default retry_on
         with pytest.raises(TypeError):
-            await retry_with_backoff(raises_type_error, max_retries=3, initial_delay=0.01)
+            await retry_with_backoff(
+                raises_type_error, max_retries=3, initial_delay=0.01
+            )
 
         # Should have been called exactly once (no retries)
         assert call_count == 1
@@ -652,7 +660,9 @@ class TestResilienceRegressions:
             raise FileNotFoundError("File missing - not transient")
 
         with pytest.raises(FileNotFoundError):
-            await retry_with_backoff(raises_file_not_found, max_retries=3, initial_delay=0.01)
+            await retry_with_backoff(
+                raises_file_not_found, max_retries=3, initial_delay=0.01
+            )
 
         assert call_count_fnf == 1  # Should NOT retry
 
@@ -665,7 +675,9 @@ class TestResilienceRegressions:
             raise PermissionError("Access denied - not transient")
 
         with pytest.raises(PermissionError):
-            await retry_with_backoff(raises_permission_error, max_retries=3, initial_delay=0.01)
+            await retry_with_backoff(
+                raises_permission_error, max_retries=3, initial_delay=0.01
+            )
 
         assert call_count_perm == 1  # Should NOT retry
 
@@ -685,7 +697,9 @@ class TestResilienceRegressions:
                 raise exc_type(exc_msg)
 
             with pytest.raises(exc_type):
-                await retry_with_backoff(raises_error, max_retries=3, initial_delay=0.01)
+                await retry_with_backoff(
+                    raises_error, max_retries=3, initial_delay=0.01
+                )
 
             assert call_count == 1, f"{exc_type.__name__} should not be retried"
 

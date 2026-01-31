@@ -79,7 +79,9 @@ class GeminiCodeEndpoint(Endpoint):
         elif isinstance(config, EndpointConfig):
             config = config.model_dump()
         if not isinstance(config, dict):
-            raise ValueError("Provided config must be a dict or EndpointConfig instance")
+            raise ValueError(
+                "Provided config must be a dict or EndpointConfig instance"
+            )
 
         super().__init__(config=config, circuit_breaker=circuit_breaker, **kwargs)
 
@@ -148,7 +150,9 @@ class GeminiCodeEndpoint(Endpoint):
                 payload = request
             else:
                 # Assume it's a raw dict that needs to be converted
-                req_dict = request if isinstance(request, dict) else request.model_dump()
+                req_dict = (
+                    request if isinstance(request, dict) else request.model_dump()
+                )
                 payload = {"request": GeminiCodeRequest(**req_dict)}
         else:
             payload, _ = self.create_payload(request, extra_headers, **kwargs)

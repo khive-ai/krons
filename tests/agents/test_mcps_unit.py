@@ -15,10 +15,7 @@ from krons.agents.mcps import (
     CommandNotAllowedError,
     MCPConnectionPool,
 )
-from krons.agents.mcps.wrapper import (
-    MCP_ENV_ALLOWLIST,
-    filter_mcp_environment,
-)
+from krons.agents.mcps.wrapper import MCP_ENV_ALLOWLIST, filter_mcp_environment
 
 
 class TestFilterMCPEnvironment:

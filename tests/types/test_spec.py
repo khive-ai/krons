@@ -44,7 +44,9 @@ class TestCommonMeta:
     def test_validate_rejects_both_default_and_factory(self):
         """Validation rejects conflicting default + default_factory."""
         with pytest.raises(ExceptionGroup, match="Metadata validation failed"):
-            CommonMeta._validate_common_metas(default="value", default_factory=lambda: "value")
+            CommonMeta._validate_common_metas(
+                default="value", default_factory=lambda: "value"
+            )
 
     def test_validate_rejects_non_callable_factory(self):
         """Validation rejects non-callable default_factory."""

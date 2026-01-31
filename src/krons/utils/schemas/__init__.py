@@ -3,7 +3,10 @@
 
 """Schema utilities for YAML, TypeScript, and Pydantic processing."""
 
-from ._breakdown_pydantic_annotation import breakdown_pydantic_annotation, is_pydantic_model
+from ._breakdown_pydantic_annotation import (
+    breakdown_pydantic_annotation,
+    is_pydantic_model,
+)
 from ._minimal_yaml import minimal_yaml
 from ._typescript import typescript_schema
 

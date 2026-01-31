@@ -130,7 +130,9 @@ class TestPydanticSpecAdapterComposeStructure:
         spec3 = Spec(bool, name="field3")
         operable = Operable((spec1, spec2, spec3))
 
-        Model = PydanticSpecAdapter.compose_structure(operable, "FilteredModel", exclude={"field2"})
+        Model = PydanticSpecAdapter.compose_structure(
+            operable, "FilteredModel", exclude={"field2"}
+        )
 
         assert "field1" in Model.model_fields
         assert "field2" not in Model.model_fields
@@ -343,11 +345,15 @@ class TestPydanticSpecAdapterIntegration:
         operable = Operable(specs, name="ReconstructedModel")
 
         # Reassemble to Model
-        ReconstructedModel = PydanticSpecAdapter.compose_structure(operable, "ReconstructedModel")
+        ReconstructedModel = PydanticSpecAdapter.compose_structure(
+            operable, "ReconstructedModel"
+        )
 
         # Both should accept same data
         original = OriginalModel(name="Alice", age=30, tags=["dev"], nickname="Al")
-        reconstructed = ReconstructedModel(name="Alice", age=30, tags=["dev"], nickname="Al")
+        reconstructed = ReconstructedModel(
+            name="Alice", age=30, tags=["dev"], nickname="Al"
+        )
 
         assert original.name == reconstructed.name
         assert original.age == reconstructed.age
@@ -361,7 +367,9 @@ class TestPydanticSpecAdapterIntegration:
         operable = Operable((spec1, spec2))
         Model = PydanticSpecAdapter.compose_structure(operable, "TestModel")
 
-        result = PydanticSpecAdapter.validate_instance(Model, {"name": "Alice", "age": 25})
+        result = PydanticSpecAdapter.validate_instance(
+            Model, {"name": "Alice", "age": 25}
+        )
 
         assert result is not None
         assert result.name == "Alice"
