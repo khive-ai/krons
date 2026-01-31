@@ -155,8 +155,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from krons.core.broadcaster import Broadcaster
-from krons.core.event import Event
+from krons.core import Broadcaster, Event
 
 
 class SampleEvent(Event):

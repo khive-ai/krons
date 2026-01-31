@@ -11,7 +11,7 @@ Primary exports:
 from collections.abc import AsyncGenerator, Callable
 from typing import Any, ParamSpec, TypeVar
 
-from krons.types._sentinel import Unset, not_sentinel
+from krons.core.types._sentinel import Unset, not_sentinel
 from krons.utils._lazy_init import LazyInit
 from krons.utils._to_list import to_list
 

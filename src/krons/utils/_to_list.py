@@ -29,7 +29,7 @@ def _do_init() -> None:
     from pydantic import BaseModel
     from pydantic_core import PydanticUndefinedType
 
-    from krons.types import UndefinedType, UnsetType
+    from krons.core.types import UndefinedType, UnsetType
 
     global _MODEL_LIKE, _MAP_LIKE, _SINGLETONE_TYPES, _SKIP_TYPE, _SKIP_TUPLE_SET
     _MODEL_LIKE = (BaseModel,)

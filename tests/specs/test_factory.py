@@ -9,16 +9,16 @@ from uuid import UUID
 
 import pytest
 
-from krons.specs import Spec, get_adapter
-from krons.specs.adapters.factory import AdapterType
-from krons.specs.factory import (
+from krons.core.specs import Spec, get_adapter
+from krons.core.specs.adapters.factory import AdapterType
+from krons.core.specs.factory import (
     create_change_by_spec,
     create_content_spec,
     create_datetime_spec,
     create_embedding_spec,
     create_uuid_spec,
 )
-from krons.types import Unset
+from krons.core.types import Unset
 
 
 class TestCreateDatetimeSpec:
@@ -185,7 +185,7 @@ class TestCreateChangeBySpec:
 
     def test_string_has_no_validator(self):
         """String mode should have no validator."""
-        from krons.types._sentinel import is_undefined
+        from krons.core.types._sentinel import is_undefined
 
         spec = create_change_by_spec("actor", use_uuid=False)
         assert is_undefined(spec.get("validator"))
@@ -196,21 +196,21 @@ class TestGetAdapter:
 
     def test_pydantic_adapter(self):
         """get_adapter('pydantic') should return PydanticSpecAdapter."""
-        from krons.specs.adapters.pydantic_adapter import PydanticSpecAdapter
+        from krons.core.specs.adapters.pydantic_adapter import PydanticSpecAdapter
 
         adapter = get_adapter("pydantic")
         assert adapter is PydanticSpecAdapter
 
     def test_sql_adapter(self):
         """get_adapter('sql') should return SQLSpecAdapter."""
-        from krons.specs.adapters.sql_ddl import SQLSpecAdapter
+        from krons.core.specs.adapters.sql_ddl import SQLSpecAdapter
 
         adapter = get_adapter("sql")
         assert adapter is SQLSpecAdapter
 
     def test_dataclass_adapter(self):
         """get_adapter('dataclass') should return DataClassSpecAdapter."""
-        from krons.specs.adapters.dataclass_field import DataClassSpecAdapter
+        from krons.core.specs.adapters.dataclass_field import DataClassSpecAdapter
 
         adapter = get_adapter("dataclass")
         assert adapter is DataClassSpecAdapter

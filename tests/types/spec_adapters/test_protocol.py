@@ -27,7 +27,7 @@ from typing import Any
 
 import pytest
 
-from krons.specs import Operable, Spec, SpecAdapter
+from krons.core.specs import Operable, Spec, SpecAdapter
 
 
 class MinimalAdapter(SpecAdapter):

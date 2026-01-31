@@ -4,9 +4,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from krons.types import KeysLike
+    from krons.core.types import KeysLike
 
-from krons.types._sentinel import Unset
+from krons.core.types._sentinel import Unset
 
 from ._string_similarity import SimilarityAlgo, string_similarity
 

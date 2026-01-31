@@ -8,13 +8,12 @@ from uuid import UUID
 import pytest
 
 from krons.errors import AccessError, NotFoundError
-from krons.session import (
+from krons.core.session import (
     Message,
     Session,
     SessionConfig,
-    capabilities_must_be_subset_of_branch,
-    resolve_branch_exists_in_session,
-    resource_must_be_accessible_by_branch,
+    capabilities_must_be_granted,
+    resource_must_be_accessible,
 )
 
 
@@ -365,43 +364,43 @@ class TestSessionRepr:
 class TestAccessControl:
     """Test access control helper functions."""
 
-    def test_resource_must_be_accessible_by_branch(self):
-        """resource_must_be_accessible_by_branch should enforce access."""
+    def test_resource_must_be_accessible(self):
+        """resource_must_be_accessible should enforce access."""
         session = Session()
         branch = session.create_branch(name="limited", resources={"allowed_service"})
 
         # Should pass for allowed resource
-        resource_must_be_accessible_by_branch(branch, "allowed_service")
+        resource_must_be_accessible(branch, "allowed_service")
 
         # Should raise for disallowed resource
         with pytest.raises(AccessError):
-            resource_must_be_accessible_by_branch(branch, "forbidden_service")
+            resource_must_be_accessible(branch, "forbidden_service")
 
-    def test_capabilities_must_be_subset_of_branch(self):
-        """capabilities_must_be_subset_of_branch should enforce subset."""
+    def test_capabilities_must_be_granted(self):
+        """capabilities_must_be_granted should enforce subset."""
         session = Session()
         branch = session.create_branch(name="capable", capabilities={"cap1", "cap2"})
 
         # Should pass for subset
-        capabilities_must_be_subset_of_branch(branch, {"cap1"})
-        capabilities_must_be_subset_of_branch(branch, {"cap1", "cap2"})
+        capabilities_must_be_granted(branch, {"cap1"})
+        capabilities_must_be_granted(branch, {"cap1", "cap2"})
 
         # Should raise for superset
         with pytest.raises(AccessError):
-            capabilities_must_be_subset_of_branch(branch, {"cap1", "cap2", "cap3"})
+            capabilities_must_be_granted(branch, {"cap1", "cap2", "cap3"})
 
-    def test_resolve_branch_exists_in_session(self):
-        """resolve_branch_exists_in_session should validate branch."""
+    def test_get_branch_validates(self):
+        """session.get_branch should validate branch existence."""
         session = Session()
         branch = session.create_branch(name="existing")
 
         # Should return branch for valid
-        result = resolve_branch_exists_in_session(session, branch)
+        result = session.get_branch(branch)
         assert result is branch
 
-        result_by_name = resolve_branch_exists_in_session(session, "existing")
+        result_by_name = session.get_branch("existing")
         assert result_by_name.id == branch.id
 
         # Should raise for invalid
         with pytest.raises(NotFoundError):
-            resolve_branch_exists_in_session(session, "nonexistent")
+            session.get_branch("nonexistent")

@@ -27,6 +27,7 @@ from krons.core import (
     Edge,
     Element,
     Event,
+    EventStatus,
     Flow,
     Graph,
     Node,
@@ -34,7 +35,6 @@ from krons.core import (
     Processor,
     Progression,
 )
-from krons.core.event import EventStatus
 
 # Add tests/ directory to sys.path
 _tests_dir = Path(__file__).parent

@@ -5,7 +5,7 @@
 
 import pytest
 
-from krons.enforcement.rule import Rule, RuleParams, RuleQualifier, ValidationError
+from krons.work.rules.rule import Rule, RuleParams, RuleQualifier, ValidationError
 
 
 class TestRuleQualifier:

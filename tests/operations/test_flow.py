@@ -6,13 +6,13 @@
 import pytest
 
 from krons.core import Edge, Graph, Node
-from krons.operations.flow import (
+from krons.work.operations.flow import (
     DependencyAwareExecutor,
     OperationResult,
     flow,
     flow_stream,
 )
-from krons.operations.node import Operation
+from krons.work.operations.node import Operation
 
 
 class TestOperationResult:

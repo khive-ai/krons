@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 from pydantic import BaseModel
 
-from krons.enforcement.common import (
+from krons.work.rules.common import (
     BaseModelRule,
     BooleanRule,
     ChoiceRule,
@@ -20,8 +20,8 @@ from krons.enforcement.common import (
     NumberRule,
     StringRule,
 )
-from krons.enforcement.rule import Rule, RuleParams, RuleQualifier, ValidationError
-from krons.enforcement.validator import Validator
+from krons.work.rules.rule import Rule, RuleParams, RuleQualifier, ValidationError
+from krons.work.rules.validator import Validator
 
 
 class TestStringRule:

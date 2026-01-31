@@ -38,7 +38,7 @@ from typing import ClassVar
 
 import pytest
 
-from krons.types import (
+from krons.core.types import (
     DataClass,
     Enum,
     HashableModel,

@@ -9,7 +9,7 @@ from uuid import UUID
 import pytest
 from pydantic import BaseModel, Field
 
-from krons.types import FK, FKMeta, Unset, Vector, VectorMeta, extract_kron_db_meta
+from krons.core.types import FK, FKMeta, Unset, Vector, VectorMeta, extract_kron_db_meta
 
 
 class MockTenant:

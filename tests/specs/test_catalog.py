@@ -6,7 +6,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from krons.specs.catalog import (
+from krons.core.specs.catalog import (
     AuditSpecs,
     CommonSpecs,
     ContentSpecs,
@@ -159,7 +159,7 @@ class TestContentSpecs:
         specs = ContentSpecs.get_specs(dim=1536)
         by_name = {s.name: s for s in specs}
 
-        from krons.types.db_types import VectorMeta, extract_kron_db_meta
+        from krons.core.types.db_types import VectorMeta, extract_kron_db_meta
 
         embedding_spec = by_name["embedding"]
         vec_meta = extract_kron_db_meta(embedding_spec, metas="Vector")

@@ -15,8 +15,8 @@ Key behaviors:
 import pytest
 from pydantic import BaseModel, Field, ValidationError
 
-from krons.specs import Operable, Spec
-from krons.specs.adapters.pydantic_adapter import PydanticSpecAdapter
+from krons.core.specs import Operable, Spec
+from krons.core.specs.adapters.pydantic_adapter import PydanticSpecAdapter
 
 
 class TestPydanticSpecAdapterCreateField:

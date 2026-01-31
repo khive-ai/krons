@@ -5,7 +5,7 @@
 
 import pytest
 
-from krons.enforcement.common import (
+from krons.work.rules.common import (
     BooleanRule,
     ChoiceRule,
     MappingRule,

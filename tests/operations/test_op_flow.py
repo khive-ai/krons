@@ -13,10 +13,10 @@ from unittest.mock import patch
 import pytest
 
 from krons.core import Edge, Graph, Node
-from krons.operations import Builder, flow
-from krons.operations.flow import DependencyAwareExecutor, OperationResult, flow_stream
-from krons.operations.node import Operation, create_operation
-from krons.session import Session
+from krons.work.operations import Builder, flow
+from krons.work.operations.flow import DependencyAwareExecutor, OperationResult, flow_stream
+from krons.work.operations.node import Operation
+from krons.core.session import Session
 
 # -------------------------------------------------------------------------
 # Fixtures for Real Session
@@ -45,9 +45,9 @@ class TestFlowErrorHandlingWithRealSession:
         branch = session.create_branch(name="test")
 
         # Create cyclic graph manually
-        op1 = create_operation(operation_type="generate", parameters={"instruction": "First"})
+        op1 = Operation(operation_type="generate", parameters={"instruction": "First"})
         op1.metadata["name"] = "task1"
-        op2 = create_operation(operation_type="generate", parameters={"instruction": "Second"})
+        op2 = Operation(operation_type="generate", parameters={"instruction": "Second"})
         op2.metadata["name"] = "task2"
 
         graph = Graph()
@@ -314,7 +314,7 @@ class TestFlowResultProcessing:
         """Test missing branch allocation raises ValueError."""
         session = session_with_ops
 
-        op = create_operation(
+        op = Operation(
             operation_type="generate",
             parameters={"instruction": "Test"},
         )
@@ -624,7 +624,7 @@ class TestFlowExceptionPaths:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        op = create_operation(operation_type="generate", parameters={"instruction": "Test"})
+        op = Operation(operation_type="generate", parameters={"instruction": "Test"})
         op.metadata["name"] = "test_op"
 
         graph = Graph()
@@ -745,8 +745,8 @@ class TestFlowStreamExecute:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        op1 = create_operation(operation_type="generate", parameters={})
-        op2 = create_operation(operation_type="generate", parameters={})
+        op1 = Operation(operation_type="generate", parameters={})
+        op2 = Operation(operation_type="generate", parameters={})
 
         graph = Graph()
         graph.add_node(op1)
@@ -836,14 +836,14 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_branch", branch_tracker)
 
         # Create operations with explicit branch assignments
-        op1 = create_operation(
+        op1 = Operation(
             operation_type="track_branch",
             parameters={"_op_name": "task1"},
         )
         op1.metadata["name"] = "task1"
         op1.metadata["branch"] = "branch1"  # String name
 
-        op2 = create_operation(
+        op2 = Operation(
             operation_type="track_branch",
             parameters={"_op_name": "task2"},
         )
@@ -880,7 +880,7 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_uuid_branch", branch_tracker)
 
         # Create operation with UUID branch assignment
-        op = create_operation(
+        op = Operation(
             operation_type="track_uuid_branch",
             parameters={"_op_name": "uuid_task"},
         )
@@ -914,7 +914,7 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_default", branch_tracker)
 
         # Create operation WITHOUT branch metadata
-        op = create_operation(
+        op = Operation(
             operation_type="track_default",
             parameters={"_op_name": "no_branch_task"},
         )
@@ -946,7 +946,7 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_fallback", branch_tracker)
 
         # Create operation with non-existent branch name
-        op = create_operation(
+        op = Operation(
             operation_type="track_fallback",
             parameters={"_op_name": "fallback_task"},
         )

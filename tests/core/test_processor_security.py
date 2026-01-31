@@ -5,9 +5,7 @@
 
 import pytest
 
-from krons.core.event import Event, EventStatus
-from krons.core.pile import Pile
-from krons.core.processor import Executor, Processor
+from krons.core import Event, EventStatus, Executor, Pile, Processor
 from krons.errors import QueueFullError
 
 

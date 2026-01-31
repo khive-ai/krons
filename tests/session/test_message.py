@@ -8,7 +8,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from krons.core import Element
-from krons.session import Message
+from krons.core.session import Message
 
 
 class TestMessageCreation:

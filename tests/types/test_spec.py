@@ -14,9 +14,9 @@ Key behaviors:
 import pytest
 from pydantic import BaseModel, Field
 
-from krons.specs import Spec
-from krons.specs.spec import CommonMeta
-from krons.types import Undefined
+from krons.core.specs import Spec
+from krons.core.specs.spec import CommonMeta
+from krons.core.types import Undefined
 
 
 # Async fixtures for testing
@@ -435,7 +435,7 @@ class TestSpecForeignKey:
         """as_fk() on non-Observable base_type marks FK but fk_target is Undefined."""
         from uuid import UUID
 
-        from krons.types._sentinel import is_undefined
+        from krons.core.types._sentinel import is_undefined
 
         spec = Spec(UUID, name="ref_id").as_fk()
         assert spec.is_fk is True
@@ -470,7 +470,7 @@ class TestSpecForeignKey:
 
     def test_is_fk_false_by_default(self):
         """Spec without as_fk is not FK."""
-        from krons.types._sentinel import is_undefined
+        from krons.core.types._sentinel import is_undefined
 
         spec = Spec(str, name="field")
         assert spec.is_fk is False
@@ -481,7 +481,7 @@ class TestSpecForeignKey:
         from typing import get_args
         from uuid import UUID
 
-        from krons.types.db_types import FKMeta
+        from krons.core.types.db_types import FKMeta
 
         spec = Spec(str, name="user_id").as_fk("User")
         annotated = spec.annotated()
@@ -500,7 +500,7 @@ class TestSpecForeignKey:
         from typing import get_args
         from uuid import UUID
 
-        from krons.types.db_types import FKMeta
+        from krons.core.types.db_types import FKMeta
 
         # UUID is not Observable, so as_fk=True without target → no FKMeta
         spec = Spec(UUID, name="ref_id").as_fk()
@@ -515,7 +515,7 @@ class TestSpecForeignKey:
         from typing import get_args
         from uuid import UUID
 
-        from krons.types.db_types import FKMeta
+        from krons.core.types.db_types import FKMeta
 
         class Person:
             @property
@@ -537,7 +537,7 @@ class TestSpecForeignKey:
         from typing import get_args, get_origin
         from uuid import UUID
 
-        from krons.types.db_types import FKMeta
+        from krons.core.types.db_types import FKMeta
 
         spec = Spec(UUID, name="org_id").as_fk("Organization").as_nullable()
         annotated = spec.annotated()
@@ -576,7 +576,7 @@ class TestSpecForeignKey:
         from typing import get_args
         from uuid import UUID
 
-        from krons.types.db_types import FKMeta
+        from krons.core.types.db_types import FKMeta
 
         # Even with str base_type, FK resolves to UUID
         spec = Spec(str, name="user_id").as_fk("User")
@@ -593,7 +593,7 @@ class TestSpecForeignKey:
         from typing import get_args
         from uuid import UUID
 
-        from krons.types.db_types import FKMeta
+        from krons.core.types.db_types import FKMeta
 
         class Person:
             @property
@@ -614,7 +614,7 @@ class TestSpecForeignKey:
         from typing import get_args, get_origin
         from uuid import UUID
 
-        from krons.types.db_types import FKMeta
+        from krons.core.types.db_types import FKMeta
 
         spec = Spec(UUID, name="ids").as_fk("User").as_listable().as_nullable()
         ann = spec.annotation

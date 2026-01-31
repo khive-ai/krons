@@ -16,7 +16,7 @@ from krons.errors import (
     ExecutionError,
     ExistsError,
     KronConnectionError,
-    KronError,
+    KronsError,
     KronTimeoutError,
     NotFoundError,
     QueueFullError,
@@ -24,45 +24,45 @@ from krons.errors import (
 )
 
 # =============================================================================
-# KronError Base Class (unique - tests error class behavior)
+# KronsError Base Class (unique - tests error class behavior)
 # =============================================================================
 
 
-class TestKronErrorBase:
-    """Tests for KronError base class behavior."""
+class TestKronsErrorBase:
+    """Tests for KronsError base class behavior."""
 
     def test_default_message(self):
         """Default message is used when none provided."""
-        err = KronError()
+        err = KronsError()
         assert err.message == "kron error"
 
     def test_custom_message(self):
         """Custom message overrides default."""
-        err = KronError("custom error message")
+        err = KronsError("custom error message")
         assert err.message == "custom error message"
 
     def test_details_dict(self):
         """Details dict is stored and accessible."""
         details = {"key": "value", "count": 42}
-        err = KronError("test", details=details)
+        err = KronsError("test", details=details)
         assert err.details == details
 
     def test_retryable_default(self):
         """Default retryable flag from class attribute."""
-        err = KronError()
+        err = KronsError()
         assert err.retryable is True
 
     def test_cause_chaining(self):
         """Cause exception is preserved for traceback."""
         original = ValueError("original error")
-        err = KronError("wrapped error", cause=original)
+        err = KronsError("wrapped error", cause=original)
         assert err.__cause__ is original
 
     def test_to_dict_serialization(self):
         """Error serializes to dict with all fields."""
-        err = KronError("test message", details={"key": "value"}, retryable=False)
+        err = KronsError("test message", details={"key": "value"}, retryable=False)
         data = err.to_dict()
-        assert data["error"] == "KronError"
+        assert data["error"] == "KronsError"
         assert data["message"] == "test message"
         assert data["retryable"] is False
         assert data["details"] == {"key": "value"}
@@ -102,7 +102,7 @@ class TestSpecializedErrorsRetryable:
         assert err.retryable is True
 
     def test_inheritance_hierarchy(self):
-        """All specialized errors inherit from KronError."""
+        """All specialized errors inherit from KronsError."""
         errors = [
             ValidationError(),
             ConfigurationError(),
@@ -114,7 +114,7 @@ class TestSpecializedErrorsRetryable:
             QueueFullError(),
         ]
         for err in errors:
-            assert isinstance(err, KronError)
+            assert isinstance(err, KronsError)
 
 
 # =============================================================================
