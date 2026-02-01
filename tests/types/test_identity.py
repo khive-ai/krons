@@ -8,7 +8,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from krons.types import ID
+from krons.core.types import ID
 
 
 class MockUser:

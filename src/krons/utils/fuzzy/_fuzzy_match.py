@@ -4,9 +4,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from krons.types import KeysLike
+    from krons.core.types import KeysLike
 
-from krons.types._sentinel import Unset
+from krons.core.types._sentinel import Unset
 
 from ._string_similarity import SimilarityAlgo, string_similarity
 
@@ -114,7 +114,13 @@ def fuzzy_match_keys(
             )
 
             if matches:
-                match = matches if isinstance(matches, str) else matches[0] if matches else None
+                match = (
+                    matches
+                    if isinstance(matches, str)
+                    else matches[0]
+                    if matches
+                    else None
+                )
                 if match:
                     corrected_out[match] = d_[key]
                     matched_expected.add(match)
@@ -136,7 +142,9 @@ def fuzzy_match_keys(
     elif handle_unmatched in (HandleUnmatched.FILL, HandleUnmatched.FORCE):
         for key in unmatched_expected:
             corrected_out[key] = (
-                fill_mapping[key] if fill_mapping and key in fill_mapping else fill_value
+                fill_mapping[key]
+                if fill_mapping and key in fill_mapping
+                else fill_value
             )
 
         if handle_unmatched == HandleUnmatched.FILL:

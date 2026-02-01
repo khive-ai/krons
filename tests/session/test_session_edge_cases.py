@@ -26,9 +26,9 @@ from krons.session import (
     Message,
     Session,
     SessionConfig,
-    capabilities_must_be_subset_of_branch,
-    resource_must_be_accessible_by_branch,
-    resource_must_exist_in_session,
+    capabilities_must_be_granted,
+    resource_must_be_accessible,
+    resource_must_exist,
 )
 
 
@@ -55,7 +55,9 @@ class TestSessionNoDefaultBranch:
         """
         session = Session(config=SessionConfig(auto_create_default_branch=False))
 
-        with pytest.raises(RuntimeError, match="No branch provided and no default branch set"):
+        with pytest.raises(
+            RuntimeError, match="No branch provided and no default branch set"
+        ):
             await session.conduct("operate", branch=None)
 
     @pytest.mark.asyncio
@@ -117,7 +119,9 @@ class TestBranchForkInheritance:
         Edge case: Verify True means full copy, not just reference.
         """
         session = Session()
-        source = session.create_branch(name="source", capabilities={"cap1", "cap2", "cap3"})
+        source = session.create_branch(
+            name="source", capabilities={"cap1", "cap2", "cap3"}
+        )
 
         forked = session.fork(source, capabilities=True)
 
@@ -575,7 +579,7 @@ class TestBranchAccessControlHelpers:
         branch = session.create_branch(name="no_resources", resources=set())
 
         with pytest.raises(AccessError) as exc_info:
-            resource_must_be_accessible_by_branch(branch, "any_service")
+            resource_must_be_accessible(branch, "any_service")
 
         assert "has no access" in str(exc_info.value)
         assert exc_info.value.details["available"] == []
@@ -586,7 +590,7 @@ class TestBranchAccessControlHelpers:
         branch = session.create_branch(name="limited", capabilities={"cap1"})
 
         # Empty set is subset of any set
-        capabilities_must_be_subset_of_branch(branch, set())  # Should not raise
+        capabilities_must_be_granted(branch, set())  # Should not raise
 
     def test_capabilities_check_with_empty_branch_capabilities(self):
         """Branch with empty capabilities should reject any capability request."""
@@ -595,16 +599,16 @@ class TestBranchAccessControlHelpers:
 
         # Any non-empty set is NOT subset of empty set
         with pytest.raises(AccessError) as exc_info:
-            capabilities_must_be_subset_of_branch(branch, {"cap1"})
+            capabilities_must_be_granted(branch, {"cap1"})
 
         assert "missing capabilities" in str(exc_info.value)
         assert exc_info.value.details["available"] == []
 
-    def test_resource_must_exist_in_session_with_empty_services(self):
-        """resource_must_exist_in_session should fail when services empty."""
+    def test_resource_must_exist_with_empty_services(self):
+        """resource_must_exist should fail when services empty."""
         session = Session()
 
         with pytest.raises(NotFoundError) as exc_info:
-            resource_must_exist_in_session(session, "nonexistent_service")
+            resource_must_exist(session, "nonexistent_service")
 
         assert "not found in session services" in str(exc_info.value)

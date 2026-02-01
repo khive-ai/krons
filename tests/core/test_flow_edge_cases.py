@@ -138,7 +138,9 @@ class TestSerializationOrderPreservation:
         restored = Flow.from_dict(data)
 
         restored_prog = restored.get_progression("ordered")
-        assert list(restored_prog.order) == order, "Order not preserved through roundtrip"
+        assert list(restored_prog.order) == order, (
+            "Order not preserved through roundtrip"
+        )
 
     def test_roundtrip_items_in_multiple_progressions(self):
         """Same item can be in multiple progressions after roundtrip."""
@@ -149,8 +151,12 @@ class TestSerializationOrderPreservation:
             flow.items.add(item)
 
         # items[2] in both progressions
-        prog1 = Progression(name="stage1", order=[items[0].id, items[1].id, items[2].id])
-        prog2 = Progression(name="stage2", order=[items[2].id, items[3].id, items[4].id])
+        prog1 = Progression(
+            name="stage1", order=[items[0].id, items[1].id, items[2].id]
+        )
+        prog2 = Progression(
+            name="stage2", order=[items[2].id, items[3].id, items[4].id]
+        )
         flow.add_progression(prog1)
         flow.add_progression(prog2)
 

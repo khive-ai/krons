@@ -11,7 +11,7 @@ Primary exports:
 from collections.abc import AsyncGenerator, Callable
 from typing import Any, ParamSpec, TypeVar
 
-from krons.types._sentinel import Unset, not_sentinel
+from krons.core.types._sentinel import Unset, not_sentinel
 from krons.utils._lazy_init import LazyInit
 from krons.utils._to_list import to_list
 
@@ -66,7 +66,9 @@ def _validate_func(func: Any) -> Callable:
     try:
         func_list = list(func)
     except TypeError:
-        raise ValueError("func must be callable or an iterable containing one callable.")
+        raise ValueError(
+            "func must be callable or an iterable containing one callable."
+        )
 
     if len(func_list) != 1 or not callable(func_list[0]):
         raise ValueError("Only one callable function is allowed.")

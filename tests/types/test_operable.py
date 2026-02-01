@@ -13,9 +13,9 @@ Key behaviors:
 import pytest
 from pydantic import BaseModel
 
-from krons.specs import Operable, Spec, get_adapter
-from krons.specs.adapters.pydantic_adapter import PydanticSpecAdapter
-from krons.types import Unset
+from krons.core.specs import Operable, Spec, get_adapter
+from krons.core.specs.adapters.pydantic_adapter import PydanticSpecAdapter
+from krons.core.types import Unset
 
 
 class TestOperable:
@@ -320,7 +320,9 @@ class TestOperableFromStructure:
         class OriginalName(BaseModel):
             field: str
 
-        op = Operable.from_structure(OriginalName, adapter="pydantic", name="CustomName")
+        op = Operable.from_structure(
+            OriginalName, adapter="pydantic", name="CustomName"
+        )
         assert op.name == "CustomName"
 
     def test_from_structure_type_error_on_non_basemodel(self):
@@ -374,7 +376,9 @@ class TestOperableComposeStructure:
         operable = Operable((spec1, spec2, spec3), name="TestModel")
 
         # Test with include
-        model_include = operable.compose_structure("IncludeModel", include={"field1", "field3"})
+        model_include = operable.compose_structure(
+            "IncludeModel", include={"field1", "field3"}
+        )
         assert model_include is not None
 
         # Test with exclude

@@ -13,10 +13,14 @@ from unittest.mock import patch
 import pytest
 
 from krons.core import Edge, Graph, Node
-from krons.operations import Builder, flow
-from krons.operations.flow import DependencyAwareExecutor, OperationResult, flow_stream
-from krons.operations.node import Operation, create_operation
 from krons.session import Session
+from krons.work.operations import Builder, flow
+from krons.work.operations.flow import (
+    DependencyAwareExecutor,
+    OperationResult,
+    flow_stream,
+)
+from krons.work.operations.node import Operation
 
 # -------------------------------------------------------------------------
 # Fixtures for Real Session
@@ -45,9 +49,9 @@ class TestFlowErrorHandlingWithRealSession:
         branch = session.create_branch(name="test")
 
         # Create cyclic graph manually
-        op1 = create_operation(operation_type="generate", parameters={"instruction": "First"})
+        op1 = Operation(operation_type="generate", parameters={"instruction": "First"})
         op1.metadata["name"] = "task1"
-        op2 = create_operation(operation_type="generate", parameters={"instruction": "Second"})
+        op2 = Operation(operation_type="generate", parameters={"instruction": "Second"})
         op2.metadata["name"] = "task2"
 
         graph = Graph()
@@ -139,7 +143,7 @@ class TestFlowErrorHandlingWithRealSession:
         builder.add("task2", "simple_op", {"instruction": "Test2"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "Pre-allocated branches for 2 operations" in caplog.text
@@ -189,7 +193,7 @@ class TestFlowStopConditions:
         builder.add("task1", "failing_verbose", {})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True, stop_on_error=True)
 
         assert "Test error for logging" in caplog.text or "failed" in caplog.text
@@ -207,10 +211,12 @@ class TestFlowStopConditions:
 
         builder = Builder()
         builder.add("task1", "simple_op", {"instruction": "First"})
-        builder.add("task2", "simple_op", {"instruction": "Second"}, depends_on=["task1"])
+        builder.add(
+            "task2", "simple_op", {"instruction": "Second"}, depends_on=["task1"]
+        )
 
         graph = builder.build()
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "waiting for" in caplog.text
@@ -304,7 +310,7 @@ class TestFlowResultProcessing:
         builder.add("task1", "simple_op", {"instruction": "Test"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "Executing operation:" in caplog.text
@@ -314,7 +320,7 @@ class TestFlowResultProcessing:
         """Test missing branch allocation raises ValueError."""
         session = session_with_ops
 
-        op = create_operation(
+        op = Operation(
             operation_type="generate",
             parameters={"instruction": "Test"},
         )
@@ -322,7 +328,9 @@ class TestFlowResultProcessing:
         graph = Graph()
         graph.add_node(op)
 
-        executor = DependencyAwareExecutor(session=session, graph=graph, default_branch=None)
+        executor = DependencyAwareExecutor(
+            session=session, graph=graph, default_branch=None
+        )
 
         with pytest.raises(ValueError, match="No branch allocated"):
             await executor._invoke_operation(op)
@@ -342,7 +350,7 @@ class TestFlowResultProcessing:
         builder.add("task1", "status_fail", {})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True, stop_on_error=False)
 
         assert "failed" in caplog.text
@@ -362,7 +370,7 @@ class TestFlowResultProcessing:
         builder.add("task1", "simple_op", {"instruction": "Test"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         assert "Completed operation:" in caplog.text
@@ -392,7 +400,9 @@ class TestFlowIntegration:
         builder.add("task1", "generate", {"instruction": "Root"})
         builder.add("task2", "generate", {"instruction": "Left"}, depends_on=["task1"])
         builder.add("task3", "generate", {"instruction": "Right"}, depends_on=["task1"])
-        builder.add("task4", "generate", {"instruction": "Merge"}, depends_on=["task2", "task3"])
+        builder.add(
+            "task4", "generate", {"instruction": "Merge"}, depends_on=["task2", "task3"]
+        )
 
         graph = builder.build()
         results = await flow(session, graph, branch=branch)
@@ -465,7 +475,9 @@ class TestFlowExceptionPaths:
     """Direct tests for exception handling in _execute_operation."""
 
     @pytest.mark.anyio
-    async def test_exception_in_execute_operation_no_verbose_no_stop(self, session_with_ops):
+    async def test_exception_in_execute_operation_no_verbose_no_stop(
+        self, session_with_ops
+    ):
         """Test exception caught, stored, execution continues."""
         session = session_with_ops
         branch = session.create_branch(name="test")
@@ -485,7 +497,9 @@ class TestFlowExceptionPaths:
         graph = builder.build()
 
         # Execute with stop_on_error=False, verbose=False
-        results = await flow(session, graph, branch=branch, stop_on_error=False, verbose=False)
+        results = await flow(
+            session, graph, branch=branch, stop_on_error=False, verbose=False
+        )
 
         # task1 should fail, task2 should succeed
         assert "task1" not in results
@@ -511,7 +525,7 @@ class TestFlowExceptionPaths:
         builder.add("task2", "success_op", {"instruction": "Should run"})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True, stop_on_error=False)
 
         # Verify verbose error logging
@@ -532,7 +546,9 @@ class TestFlowExceptionPaths:
         builder.add("task1", "fail_stop", {})
         graph = builder.build()
 
-        results = await flow(session, graph, branch=branch, stop_on_error=True, verbose=False)
+        results = await flow(
+            session, graph, branch=branch, stop_on_error=True, verbose=False
+        )
 
         # Task failed, no result
         assert "task1" not in results
@@ -552,8 +568,10 @@ class TestFlowExceptionPaths:
         builder.add("task1", "fail_full", {})
         graph = builder.build()
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
-            results = await flow(session, graph, branch=branch, verbose=True, stop_on_error=True)
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
+            results = await flow(
+                session, graph, branch=branch, verbose=True, stop_on_error=True
+            )
 
         # Verify verbose logging executed
         assert "failed" in caplog.text
@@ -563,7 +581,9 @@ class TestFlowExceptionPaths:
         assert "task1" not in results
 
     @pytest.mark.anyio
-    async def test_direct_executor_exception_verbose_stop(self, session_with_ops, caplog):
+    async def test_direct_executor_exception_verbose_stop(
+        self, session_with_ops, caplog
+    ):
         """Test exception path directly via executor to ensure coverage."""
         session = session_with_ops
         branch = session.create_branch(name="test")
@@ -598,7 +618,7 @@ class TestFlowExceptionPaths:
             raise ValueError("Direct executor exception test")
 
         with (
-            caplog.at_level(logging.DEBUG, logger="krons.operations.flow"),
+            caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"),
             patch.object(executor, "_invoke_operation", side_effect=mock_invoke_raise),
         ):
             # Execute - exception propagates through CompletionStream's TaskGroup
@@ -619,12 +639,14 @@ class TestFlowExceptionPaths:
         assert isinstance(executor.errors[op.id], ValueError)
 
     @pytest.mark.anyio
-    async def test_exception_during_wait_for_dependencies(self, session_with_ops, caplog):
+    async def test_exception_during_wait_for_dependencies(
+        self, session_with_ops, caplog
+    ):
         """Test exception raised during _wait_for_dependencies."""
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        op = create_operation(operation_type="generate", parameters={"instruction": "Test"})
+        op = Operation(operation_type="generate", parameters={"instruction": "Test"})
         op.metadata["name"] = "test_op"
 
         graph = Graph()
@@ -643,8 +665,10 @@ class TestFlowExceptionPaths:
             raise RuntimeError("Dependency wait failed")
 
         with (
-            caplog.at_level(logging.DEBUG, logger="krons.operations.flow"),
-            patch.object(executor, "_wait_for_dependencies", side_effect=mock_wait_deps),
+            caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"),
+            patch.object(
+                executor, "_wait_for_dependencies", side_effect=mock_wait_deps
+            ),
         ):
             await executor.execute()
 
@@ -745,8 +769,8 @@ class TestFlowStreamExecute:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        op1 = create_operation(operation_type="generate", parameters={})
-        op2 = create_operation(operation_type="generate", parameters={})
+        op1 = Operation(operation_type="generate", parameters={})
+        op2 = Operation(operation_type="generate", parameters={})
 
         graph = Graph()
         graph.add_node(op1)
@@ -836,14 +860,14 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_branch", branch_tracker)
 
         # Create operations with explicit branch assignments
-        op1 = create_operation(
+        op1 = Operation(
             operation_type="track_branch",
             parameters={"_op_name": "task1"},
         )
         op1.metadata["name"] = "task1"
         op1.metadata["branch"] = "branch1"  # String name
 
-        op2 = create_operation(
+        op2 = Operation(
             operation_type="track_branch",
             parameters={"_op_name": "task2"},
         )
@@ -880,7 +904,7 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_uuid_branch", branch_tracker)
 
         # Create operation with UUID branch assignment
-        op = create_operation(
+        op = Operation(
             operation_type="track_uuid_branch",
             parameters={"_op_name": "uuid_task"},
         )
@@ -914,7 +938,7 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_default", branch_tracker)
 
         # Create operation WITHOUT branch metadata
-        op = create_operation(
+        op = Operation(
             operation_type="track_default",
             parameters={"_op_name": "no_branch_task"},
         )
@@ -946,7 +970,7 @@ class TestFlowBranchAwareExecution:
         session.operations.register("track_fallback", branch_tracker)
 
         # Create operation with non-existent branch name
-        op = create_operation(
+        op = Operation(
             operation_type="track_fallback",
             parameters={"_op_name": "fallback_task"},
         )

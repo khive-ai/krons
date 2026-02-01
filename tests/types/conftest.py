@@ -13,8 +13,8 @@ from typing import Any, ClassVar
 
 import pytest
 
-from krons.specs import Spec
-from krons.types import DataClass, HashableModel, ModelConfig, Params, Unset
+from krons.core.specs import Spec
+from krons.core.types import DataClass, HashableModel, ModelConfig, Params, Unset
 
 __all__ = (
     "create_spec",
@@ -110,7 +110,9 @@ def get_sample_params_classes() -> dict[str, type]:
 
     @dataclass(slots=True, frozen=True, init=False)
     class MyParamsNoneSentinel(Params):
-        _config: ClassVar[ModelConfig] = ModelConfig(sentinel_additions=frozenset({"none"}))
+        _config: ClassVar[ModelConfig] = ModelConfig(
+            sentinel_additions=frozenset({"none"})
+        )
         field1: str = Unset
 
     @dataclass(slots=True, frozen=True, init=False)

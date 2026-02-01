@@ -227,7 +227,9 @@ class TestStringContentPreservation:
 
     def test_nested_with_apostrophes(self):
         """Test nested structure with apostrophes."""
-        result = fuzzy_json("{'outer': {'inner': \"it's nested\", 'also': \"won't break\"}}")
+        result = fuzzy_json(
+            "{'outer': {'inner': \"it's nested\", 'also': \"won't break\"}}"
+        )
         assert result == {"outer": {"inner": "it's nested", "also": "won't break"}}
 
     def test_array_with_apostrophes(self):

@@ -196,4 +196,6 @@ class TestRunAsyncInSyncContextThreading:
 
         # Verify a different event loop was used (in separate thread)
         assert captured_loop_id is not None
-        assert captured_loop_id != outer_loop_id, "Should use separate event loop in thread"
+        assert captured_loop_id != outer_loop_id, (
+            "Should use separate event loop in thread"
+        )

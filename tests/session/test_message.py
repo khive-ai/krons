@@ -33,7 +33,9 @@ class TestMessageCreation:
         sender_id = uuid4()
         recipient_id = uuid4()
 
-        msg = Message(content={"text": "test"}, sender=sender_id, recipient=recipient_id)
+        msg = Message(
+            content={"text": "test"}, sender=sender_id, recipient=recipient_id
+        )
 
         assert msg.sender == sender_id
         assert msg.recipient == recipient_id
@@ -61,7 +63,9 @@ class TestMessageProperties:
         """is_direct should be True when recipient set."""
         sender_id = uuid4()
         recipient_id = uuid4()
-        msg = Message(content={"text": "direct message"}, sender=sender_id, recipient=recipient_id)
+        msg = Message(
+            content={"text": "direct message"}, sender=sender_id, recipient=recipient_id
+        )
 
         assert msg.is_direct is True
         assert msg.is_broadcast is False
@@ -75,7 +79,9 @@ class TestMessageValidation:
         sender_str = "12345678-1234-5678-1234-567812345678"
         recipient_str = "87654321-4321-8765-4321-876543218765"
 
-        msg = Message(content={"text": "test"}, sender=sender_str, recipient=recipient_str)
+        msg = Message(
+            content={"text": "test"}, sender=sender_str, recipient=recipient_str
+        )
 
         assert msg.sender == UUID(sender_str)
         assert msg.recipient == UUID(recipient_str)
@@ -87,7 +93,9 @@ class TestMessageValidation:
         sender_element = Element()
         recipient_element = Element()
 
-        msg = Message(content={"text": "test"}, sender=sender_element, recipient=recipient_element)
+        msg = Message(
+            content={"text": "test"}, sender=sender_element, recipient=recipient_element
+        )
 
         assert msg.sender == sender_element.id
         assert msg.recipient == recipient_element.id
@@ -136,7 +144,9 @@ class TestMessageIdentity:
         recipient_id = uuid4()
 
         # Direct message
-        msg = Message(content={"text": "test"}, sender=sender_id, recipient=recipient_id)
+        msg = Message(
+            content={"text": "test"}, sender=sender_id, recipient=recipient_id
+        )
         repr_str = repr(msg)
         assert str(sender_id)[:8] in repr_str
         assert str(recipient_id)[:8] in repr_str
@@ -147,7 +157,9 @@ class TestMessageIdentity:
         assert "broadcast" in repr_str
 
         # With channel
-        channeled = Message(content={"text": "test"}, sender=sender_id, channel="updates")
+        channeled = Message(
+            content={"text": "test"}, sender=sender_id, channel="updates"
+        )
         repr_str = repr(channeled)
         assert "channel=updates" in repr_str
 
@@ -157,7 +169,9 @@ class TestMessageMetadata:
 
     def test_message_metadata(self):
         """Message should support metadata dict."""
-        msg = Message(content={"text": "test"}, metadata={"priority": "high", "tags": ["urgent"]})
+        msg = Message(
+            content={"text": "test"}, metadata={"priority": "high", "tags": ["urgent"]}
+        )
         assert msg.metadata["priority"] == "high"
         assert msg.metadata["tags"] == ["urgent"]
 

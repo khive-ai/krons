@@ -6,13 +6,13 @@
 import pytest
 
 from krons.core import Edge, Graph, Node
-from krons.operations.flow import (
+from krons.work.operations.flow import (
     DependencyAwareExecutor,
     OperationResult,
     flow,
     flow_stream,
 )
-from krons.operations.node import Operation
+from krons.work.operations.node import Operation
 
 
 class TestOperationResult:
@@ -425,7 +425,9 @@ class TestFlowStream:
         graph.add_node(op)
 
         results = []
-        async for result in flow_stream(session, graph, branch=branch, stop_on_error=False):
+        async for result in flow_stream(
+            session, graph, branch=branch, stop_on_error=False
+        ):
             results.append(result)
 
         assert len(results) == 1
@@ -509,7 +511,7 @@ class TestFlowVerbose:
         graph = Graph()
         graph.add_node(op)
 
-        with caplog.at_level(logging.DEBUG, logger="krons.operations.flow"):
+        with caplog.at_level(logging.DEBUG, logger="krons.work.operations.flow"):
             await flow(session, graph, branch=branch, verbose=True)
 
         # Should have logged execution messages

@@ -19,7 +19,14 @@ import json
 import pickle
 from typing import assert_never
 
-from krons.types import Enum, Undefined, UndefinedType, Unset, UnsetType, not_sentinel
+from krons.core.types import (
+    Enum,
+    Undefined,
+    UndefinedType,
+    Unset,
+    UnsetType,
+    not_sentinel,
+)
 
 # ---------------------------------------------------------------------------
 # StrEnum behavior + allowed()
@@ -243,7 +250,7 @@ def test_singleton_type_abstract_methods():
     """
     import pytest
 
-    from krons.types._sentinel import SingletonType
+    from krons.core.types._sentinel import SingletonType
 
     # Create a subclass that doesn't override abstract methods
     class IncompleteSentinel(SingletonType):

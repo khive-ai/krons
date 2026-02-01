@@ -207,7 +207,9 @@ def test_set_with_objects_deterministic():
     obj2 = ComplexObject(2)
     test_set = {obj1, obj2}
 
-    result = json_dump(test_set, deterministic_sets=True, safe_fallback=True, decode=True)
+    result = json_dump(
+        test_set, deterministic_sets=True, safe_fallback=True, decode=True
+    )
     data = orjson.loads(result)
     assert isinstance(data, list)
     assert len(data) == 2

@@ -4,10 +4,8 @@
 """Tests for kron.operations.node - Operation event."""
 
 import pytest
-from pydantic import ValidationError
 
-from krons.operations.node import Operation, create_operation
-from krons.types import Undefined
+from krons.work.operations.node import Operation
 
 
 class TestOperationCreation:
@@ -149,42 +147,3 @@ class TestOperationRepr:
         assert "generate" in repr_str
         assert "bound" in repr_str
         assert "pending" in repr_str  # Default status
-
-
-class TestCreateOperation:
-    """Test create_operation helper function."""
-
-    def test_create_operation_basic(self):
-        """create_operation should create Operation with required fields."""
-        op = create_operation(operation_type="generate", parameters={"instruction": "Test"})
-
-        assert isinstance(op, Operation)
-        assert op.operation_type == "generate"
-        assert op.parameters == {"instruction": "Test"}
-
-    def test_create_operation_no_type_raises(self):
-        """create_operation with no type raises error."""
-        # None triggers Pydantic validation error (not a valid string)
-        with pytest.raises(ValidationError, match="Input should be a valid string"):
-            create_operation(operation_type=None, parameters={})
-
-    def test_create_operation_sentinel_type_raises(self):
-        """create_operation with sentinel type raises ValueError."""
-        with pytest.raises(ValueError, match="operation_type is required"):
-            create_operation(operation_type=Undefined, parameters={})
-
-    def test_create_operation_default_parameters(self):
-        """create_operation with Undefined parameters uses empty dict."""
-        op = create_operation(operation_type="operate", parameters=Undefined)
-        assert op.parameters == {}
-
-    def test_create_operation_with_metadata(self):
-        """create_operation with metadata kwargs."""
-        op = create_operation(
-            operation_type="communicate",
-            parameters={"instruction": "Hello"},
-            metadata={"name": "test_op"},
-        )
-
-        assert op.operation_type == "communicate"
-        assert op.metadata.get("name") == "test_op"

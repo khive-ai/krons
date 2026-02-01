@@ -8,7 +8,11 @@ from uuid import uuid4
 import pytest
 
 from krons.core import Edge
-from krons.operations.builder import Builder, OperationGraphBuilder, _resolve_branch_ref
+from krons.work.operations.builder import (
+    Builder,
+    OperationGraphBuilder,
+    _resolve_branch_ref,
+)
 
 
 class TestResolveBranchRef:
@@ -99,7 +103,9 @@ class TestOperationBuilder:
         """Builder should handle operation dependencies."""
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "First"})
-        builder.add("task2", "generate", {"instruction": "Second"}, depends_on=["task1"])
+        builder.add(
+            "task2", "generate", {"instruction": "Second"}, depends_on=["task1"]
+        )
 
         task1 = builder.get("task1")
         task2 = builder.get("task2")
@@ -112,7 +118,9 @@ class TestOperationBuilder:
         """Builder should auto-link from current heads when depends_on is Undefined."""
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "First"})
-        builder.add("task2", "generate", {"instruction": "Second"})  # Auto-links to task1
+        builder.add(
+            "task2", "generate", {"instruction": "Second"}
+        )  # Auto-links to task1
 
         task1 = builder.get("task1")
         task2 = builder.get("task2")
@@ -192,7 +200,9 @@ class TestBuilderDependsOnMethod:
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "First"})
 
-        with pytest.raises(ValueError, match="Target operation 'nonexistent' not found"):
+        with pytest.raises(
+            ValueError, match="Target operation 'nonexistent' not found"
+        ):
             builder.depends_on("nonexistent", "task1")
 
     def test_depends_on_dependency_not_found_raises(self):
@@ -200,7 +210,9 @@ class TestBuilderDependsOnMethod:
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "First"})
 
-        with pytest.raises(ValueError, match="Dependency operation 'nonexistent' not found"):
+        with pytest.raises(
+            ValueError, match="Dependency operation 'nonexistent' not found"
+        ):
             builder.depends_on("task1", "nonexistent")
 
     def test_depends_on_with_label(self):
@@ -329,7 +341,9 @@ class TestBuilderBuildAndClear:
         """build() should return the operation graph."""
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "First"})
-        builder.add("task2", "generate", {"instruction": "Second"}, depends_on=["task1"])
+        builder.add(
+            "task2", "generate", {"instruction": "Second"}, depends_on=["task1"]
+        )
 
         graph = builder.build()
         assert graph is builder.graph
@@ -400,7 +414,9 @@ class TestBuilderRepr:
         """__repr__ should show operations, edges, executed counts."""
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "First"})
-        builder.add("task2", "generate", {"instruction": "Second"}, depends_on=["task1"])
+        builder.add(
+            "task2", "generate", {"instruction": "Second"}, depends_on=["task1"]
+        )
         builder.mark_executed("task1")
 
         repr_str = repr(builder)

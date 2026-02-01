@@ -14,44 +14,27 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Literal
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from krons.core import Element, Flow, Progression
-from krons.errors import AccessError, NotFoundError
-from krons.operations.node import Operation
-from krons.operations.registry import OperationRegistry
-from krons.services import ServiceRegistry
-from krons.types import HashableModel, Unset, UnsetType, not_sentinel
+from krons.core.base.pile import Pile
+from krons.core.types import HashableModel, Unset, UnsetType, not_sentinel
+from krons.errors import NotFoundError
+from krons.resources import ResourceRegistry, iModel
+from krons.resources.backend import Calling
+from krons.work.operations.node import Operation
+from krons.work.operations.registry import OperationRegistry
 
 from .message import Message
 
 if TYPE_CHECKING:
-    from krons.services.backend import Calling
+    from krons.resources.backend import Calling
 
 __all__ = (
     "Branch",
     "Session",
     "SessionConfig",
-    "capabilities_must_be_subset_of_branch",
-    "resource_must_be_accessible_by_branch",
-    "resource_must_exist_in_session",
 )
-
-
-class SessionConfig(HashableModel):
-    """Session initialization configuration.
-
-    Attributes:
-        default_branch_name: Name for auto-created default branch.
-        default_capabilities: Capabilities granted to default branch.
-        default_resources: Resources accessible by default branch.
-        auto_create_default_branch: Create "main" branch on init.
-    """
-
-    default_branch_name: str | None = None
-    default_capabilities: set[str] = Field(default_factory=set)
-    default_resources: set[str] = Field(default_factory=set)
-    auto_create_default_branch: bool = True
 
 
 class Branch(Progression):
@@ -67,95 +50,65 @@ class Branch(Progression):
     """
 
     session_id: UUID = Field(..., frozen=True)
-    capabilities: set[str] = Field(default_factory=set)
-    resources: set[str] = Field(default_factory=set)
+    capabilities: set[str] = Field(default_factory=set, frozen=True)
+    resources: set[str] = Field(default_factory=set, frozen=True)
 
     def __repr__(self) -> str:
         name_str = f" name='{self.name}'" if self.name else ""
         return f"Branch(messages={len(self)}, session={str(self.session_id)[:8]}{name_str})"
 
 
+class SessionConfig(HashableModel):
+    default_branch_name: str | None = None
+    shared_capabilities: set[str] = Field(default_factory=set)
+    shared_resources: set[str] = Field(default_factory=set)
+    default_gen_model: str | None = None
+    default_parse_model: str | None = None
+    auto_create_default_branch: bool = True
+
+
 class Session(Element):
-    """Central orchestrator: messages, branches, services, operations.
-
-    Lifecycle:
-        1. Create session (auto-creates default branch unless disabled)
-        2. Register services and operations
-        3. Create branches for different contexts/users
-        4. Add messages, conduct operations, make service requests
-
-    Attributes:
-        user: Optional user identifier.
-        communications: Flow containing messages and branches.
-        services: Service registry for backend access.
-        operations: Operation factory registry.
-        config: Session configuration.
-        default_branch_id: Branch used when none specified.
-
-    Example:
-        session = Session(user="agent-1")
-        session.services.register("openai", openai_service)
-        session.operations.register("chat", chat_factory)
-        result = await session.conduct("chat", params={"prompt": "hello"})
-    """
-
     user: str | None = None
-    communications: Flow[Message, Branch] = None  # type: ignore
-    services: ServiceRegistry = None  # type: ignore
-    operations: OperationRegistry = None  # type: ignore
-    config: SessionConfig = None  # type: ignore
+    communications: Flow[Message, Branch] = Field(
+        default_factory=lambda: Flow(item_type=Message)
+    )
+    resources: ResourceRegistry = Field(default_factory=ResourceRegistry)
+    operations: OperationRegistry = Field(default_factory=OperationRegistry)
+    config: SessionConfig = Field(default_factory=SessionConfig)
     default_branch_id: UUID | None = None
 
-    def __init__(
-        self,
-        user: str | None = None,
-        communications: Flow[Message, Branch] | None = None,
-        services: ServiceRegistry | None = None,
-        operations: OperationRegistry | None = None,
-        config: SessionConfig | dict | None = None,
-        default_branch_id: UUID | None = None,
-        **data,
-    ):
-        """Initialize session with optional pre-configured components.
-
-        Args:
-            user: User identifier.
-            communications: Pre-existing Flow (creates new if None).
-            services: Pre-existing ServiceRegistry (creates new if None).
-            operations: Pre-existing OperationRegistry (creates new if None).
-            config: SessionConfig or dict (uses defaults if None).
-            default_branch_id: Pre-set default branch.
-            **data: Additional Element fields.
-        """
-        super().__init__(**data)
-        self.user = user
-        self.communications = communications or Flow(item_type=Message)
-        self.services = services or ServiceRegistry()
-        self.operations = operations or OperationRegistry()
-        self.default_branch_id = default_branch_id
-
-        if config is None:
-            self.config = SessionConfig()
-        elif isinstance(config, dict):
-            self.config = SessionConfig(**config)
-        else:
-            self.config = config
-
-        if self.config.auto_create_default_branch and self.default_branch_id is None:
-            branch = self.create_branch(
-                name=self.config.default_branch_name or "main",
-                capabilities=self.config.default_capabilities,
-                resources=self.config.default_resources,
+    @model_validator(mode="after")
+    def _validate_default_branch(self) -> Session:
+        """Auto-create default branch if configured and not present."""
+        if self.config.auto_create_default_branch and self.default_branch is None:
+            default_branch_name = self.config.default_branch_name or "main"
+            self.create_branch(
+                name=default_branch_name,
+                capabilities=self.config.shared_capabilities,
+                resources=self.config.shared_resources,
             )
-            self.default_branch_id = branch.id
+            self.set_default_branch(default_branch_name)
+        return self
 
     @property
-    def messages(self):
+    def default_gen_model(self) -> iModel | None:
+        if self.config.default_gen_model is None:
+            return None
+        return self.resources.get(self.config.default_gen_model)
+
+    @property
+    def default_parse_model(self) -> iModel | None:
+        if self.config.default_parse_model is None:
+            return None
+        return self.resources.get(self.config.default_parse_model)
+
+    @property
+    def messages(self) -> Pile[Message]:
         """All messages in session (Pile[Message])."""
         return self.communications.items
 
     @property
-    def branches(self):
+    def branches(self) -> Pile[Branch]:
         """All branches in session (Pile[Branch])."""
         return self.communications.progressions
 
@@ -164,9 +117,7 @@ class Session(Element):
         """Default branch, or None if unset or deleted."""
         if self.default_branch_id is None:
             return None
-        with contextlib.suppress(KeyError, NotFoundError):
-            return self.communications.get_progression(self.default_branch_id)
-        return None
+        return self.communications.get_progression(self.default_branch_id)
 
     def create_branch(
         self,
@@ -187,10 +138,14 @@ class Session(Element):
         Returns:
             Created Branch added to session.
         """
+        if name:
+            from .constraints import branch_name_must_be_unique
+
+            branch_name_must_be_unique(self, name)
+
         order: list[UUID] = []
         if messages:
-            for msg in messages:
-                order.append(msg.id if isinstance(msg, Message) else msg)
+            order.extend([self._coerce_id(msg) for msg in messages])
 
         branch = Branch(
             session_id=self.id,
@@ -265,9 +220,13 @@ class Session(Element):
             name=name or f"{source.name}_fork",
             messages=source.order,
             capabilities=(
-                {*source.capabilities} if capabilities is True else (capabilities or set())
+                {*source.capabilities}
+                if capabilities is True
+                else (capabilities or set())
             ),
-            resources=({*source.resources} if resources is True else (resources or set())),
+            resources=(
+                {*source.resources} if resources is True else (resources or set())
+            ),
         )
 
         forked.metadata["forked_from"] = {
@@ -288,38 +247,25 @@ class Session(Element):
 
     async def request(
         self,
-        service_name: str,
-        *,
+        name: str,
+        /,
         branch: Branch | UUID | str | None = None,
         poll_timeout: float | None = None,
         poll_interval: float | None = None,
-        **kwargs,
+        **options,
     ) -> Calling:
-        """Direct service invocation with optional access control.
-
-        Args:
-            service_name: Registered service name.
-            branch: If provided, checks service in branch.resources.
-            poll_timeout: Max wait seconds.
-            poll_interval: Poll interval seconds.
-            **kwargs: Service-specific arguments.
-
-        Returns:
-            Calling with execution results.
-
-        Raises:
-            AccessError: If branch lacks access to service.
-            NotFoundError: If service not registered.
-        """
         if branch is not None:
             resolved_branch = self.get_branch(branch)
-            resource_must_be_accessible_by_branch(resolved_branch, service_name)
 
-        service = self.services.get(service_name)
-        return await service.invoke(
+            from .constraints import resource_must_be_accessible
+
+            resource_must_be_accessible(resolved_branch, name)
+
+        resource = self.resources.get(name)
+        return await resource.invoke(
             poll_timeout=poll_timeout,
             poll_interval=poll_interval,
-            **kwargs,
+            **options,
         )
 
     async def conduct(
@@ -365,47 +311,5 @@ class Session(Element):
         return (
             f"Session(messages={len(self.messages)}, "
             f"branches={len(self.branches)}, "
-            f"services={len(self.services)})"
+            f"services={len(self.resources)})"
         )
-
-
-def resource_must_exist_in_session(session: Session, name: str) -> None:
-    """Validate service exists. Raise NotFoundError with available names if not."""
-    if not session.services.has(name):
-        raise NotFoundError(
-            f"Service '{name}' not found in session services",
-            details={"available": session.services.list_names()},
-        )
-
-
-def resource_must_be_accessible_by_branch(branch: Branch, name: str) -> None:
-    """Validate branch has resource access. Raise AccessError if not."""
-    if name not in branch.resources:
-        raise AccessError(
-            f"Branch '{branch.name}' has no access to resource '{name}'",
-            details={
-                "branch": branch.name,
-                "resource": name,
-                "available": list(branch.resources),
-            },
-        )
-
-
-def capabilities_must_be_subset_of_branch(branch: Branch, capabilities: set[str]) -> None:
-    """Validate branch has all capabilities. Raise AccessError listing missing."""
-    if not capabilities.issubset(branch.capabilities):
-        missing = capabilities - branch.capabilities
-        raise AccessError(
-            f"Branch '{branch.name}' missing capabilities: {missing}",
-            details={
-                "requested": sorted(capabilities),
-                "available": sorted(branch.capabilities),
-            },
-        )
-
-
-def resolve_branch_exists_in_session(session: Session, branch: Branch | str) -> Branch:
-    """Get branch from session. Raise NotFoundError if not found."""
-    if (b_ := session.get_branch(branch, None)) is None:
-        raise NotFoundError(f"Branch '{branch}' does not exist in session")
-    return b_

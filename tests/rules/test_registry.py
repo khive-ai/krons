@@ -10,8 +10,8 @@ from typing import Generic, TypeVar, Union
 
 import pytest
 
-from krons.enforcement.common import StringRule
-from krons.enforcement.registry import (
+from krons.work.rules.common import StringRule
+from krons.work.rules.registry import (
     RuleRegistry,
     get_default_registry,
     reset_default_registry,
@@ -31,7 +31,9 @@ class TestRuleRegistryDuplicateRegistration:
         registry.register("username", rule1)
 
         # Attempt to register another rule for same field name
-        with pytest.raises(ValueError, match="Rule already registered for field 'username'"):
+        with pytest.raises(
+            ValueError, match="Rule already registered for field 'username'"
+        ):
             registry.register("username", rule2)
 
     def test_register_duplicate_field_name_with_replace(self):

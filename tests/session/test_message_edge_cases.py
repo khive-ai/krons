@@ -47,7 +47,9 @@ class TestMessageUUIDValidation:
         sender_str = "12345678-1234-5678-1234-567812345678"
         recipient_str = "87654321-4321-8765-4321-876543218765"
 
-        msg = Message(content={"text": "test"}, sender=sender_str, recipient=recipient_str)
+        msg = Message(
+            content={"text": "test"}, sender=sender_str, recipient=recipient_str
+        )
 
         assert isinstance(msg.sender, UUID)
         assert isinstance(msg.recipient, UUID)
@@ -248,7 +250,9 @@ class TestMessageReprEdgeCases:
         """Message repr should show first 8 chars of UUIDs."""
         sender_id = uuid4()
         recipient_id = uuid4()
-        msg = Message(content={"text": "test"}, sender=sender_id, recipient=recipient_id)
+        msg = Message(
+            content={"text": "test"}, sender=sender_id, recipient=recipient_id
+        )
 
         repr_str = repr(msg)
         assert str(sender_id)[:8] in repr_str

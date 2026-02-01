@@ -106,7 +106,9 @@ class TestAlcall:
         async def always_fail(x):
             raise ValueError("permanent")
 
-        result = await alcall([1, 2], always_fail, retry_attempts=1, retry_default="failed")
+        result = await alcall(
+            [1, 2], always_fail, retry_attempts=1, retry_default="failed"
+        )
         assert result == ["failed", "failed"]
 
     @pytest.mark.anyio

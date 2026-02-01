@@ -3,7 +3,7 @@
 
 """Kron exception hierarchy with structured details and retryability.
 
-All exceptions inherit from KronError and include:
+All exceptions inherit from KronsError and include:
     - message: Human-readable description
     - details: Structured context dict
     - retryable: Whether retry might succeed
@@ -23,7 +23,7 @@ __all__ = (
     "ExecutionError",
     "ExistsError",
     "KronConnectionError",
-    "KronError",
+    "KronsError",
     "KronTimeoutError",
     "NotFoundError",
     "OperationError",
@@ -33,7 +33,7 @@ __all__ = (
 
 
 @implements(Serializable)
-class KronError(Exception):
+class KronsError(Exception):
     """Base exception for kron. Serializable with structured details.
 
     Subclasses set default_message and default_retryable.
@@ -76,70 +76,70 @@ class KronError(Exception):
         }
 
 
-class ValidationError(KronError):
+class ValidationError(KronsError):
     """Data validation failure. Raise when input fails schema/constraint checks."""
 
     default_message = "Validation failed"
     default_retryable = False
 
 
-class AccessError(KronError):
+class AccessError(KronsError):
     """Permission denied. Raise when capability/resource access is blocked."""
 
     default_message = "Access denied"
     default_retryable = False
 
 
-class ConfigurationError(KronError):
+class ConfigurationError(KronsError):
     """Invalid configuration. Raise when setup/config is incorrect."""
 
     default_message = "Configuration error"
     default_retryable = False
 
 
-class ExecutionError(KronError):
+class ExecutionError(KronsError):
     """Execution failure. Raise when Event/Calling invoke fails (often transient)."""
 
     default_message = "Execution failed"
     default_retryable = True
 
 
-class KronConnectionError(KronError):
+class KronConnectionError(KronsError):
     """Network/connection failure. Named to avoid shadowing builtins."""
 
     default_message = "Connection error"
     default_retryable = True
 
 
-class KronTimeoutError(KronError):
+class KronTimeoutError(KronsError):
     """Operation timeout. Named to avoid shadowing builtins."""
 
     default_message = "Operation timed out"
     default_retryable = True
 
 
-class NotFoundError(KronError):
+class NotFoundError(KronsError):
     """Resource/item not found. Raise when lookup fails."""
 
     default_message = "Item not found"
     default_retryable = False
 
 
-class ExistsError(KronError):
+class ExistsError(KronsError):
     """Duplicate item. Raise when creating item that already exists."""
 
     default_message = "Item already exists"
     default_retryable = False
 
 
-class QueueFullError(KronError):
+class QueueFullError(KronsError):
     """Capacity exceeded. Raise when queue/buffer is full."""
 
     default_message = "Queue is full"
     default_retryable = True
 
 
-class OperationError(KronError):
+class OperationError(KronsError):
     """Generic operation failure. Use for unclassified operation errors."""
 
     default_message = "Operation failed"

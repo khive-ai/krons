@@ -11,16 +11,10 @@ from uuid import uuid4
 
 import pytest
 
-from krons.enforcement import (
-    ActionMeta,
-    EnforcementLevel,
-    KronConfig,
-    RequestContext,
-    ResolvedPolicy,
-    action,
-    get_action_meta,
-)
-from krons.specs import Operable, Spec
+from krons.core.specs import Operable, Spec
+from krons.work.operations.context import RequestContext
+from krons.work.policy import EnforcementLevel, ResolvedPolicy
+from krons.work.service import ActionMeta, KronConfig, action, get_action_meta
 
 # =============================================================================
 # Test Fixtures
@@ -293,8 +287,8 @@ class TestKronService:
 
     def test_kron_service_creation(self):
         """Test creating a KronService subclass."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         class TestService(KronService):
             @property
@@ -310,8 +304,8 @@ class TestKronService:
 
     def test_kron_service_has_engine_property(self):
         """Test has_engine property."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         class TestService(KronService):
             @property
@@ -335,8 +329,8 @@ class TestKronService:
 
     def test_kron_service_has_resolver_property(self):
         """Test has_resolver property."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         class TestService(KronService):
             @property
@@ -357,8 +351,8 @@ class TestKronService:
 
     def test_fetch_handler_unknown_action(self):
         """Test _fetch_handler raises ValueError for unknown action."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         class TestService(KronService):
             @property
@@ -372,8 +366,8 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action(self):
         """Test calling an action via KronService.call()."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         class TestService(KronService):
             @property
@@ -393,8 +387,8 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action_with_hooks(self):
         """Test calling an action with pre and post hooks."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         hook_calls = []
 
@@ -433,7 +427,7 @@ class TestKronService:
 
     def test_to_pascal_conversion(self):
         """Test _to_pascal helper function."""
-        from krons.enforcement.service import _to_pascal
+        from krons.work.service import _to_pascal
 
         assert _to_pascal("consent.grant") == "ConsentGrant"
         assert _to_pascal("consent_grant") == "ConsentGrant"
@@ -446,8 +440,8 @@ class TestKronService:
     )
     def test_build_action_types_with_operable(self):
         """Test that action types are built from operable."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         operable = Operable(
             [
@@ -475,8 +469,8 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action_with_missing_hook(self):
         """Test that missing hooks log warnings but don't fail."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         class TestService(KronService):
             @property
@@ -502,8 +496,8 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action_with_failing_hook(self):
         """Test that failing hooks are logged but don't block action."""
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         async def failing_hook(service, options, ctx, result=None):
             raise ValueError("Hook failed intentionally")
@@ -532,8 +526,8 @@ class TestKronService:
         """Test that invalid inputs in action trigger warning."""
         import logging
 
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         operable = Operable(
             [
@@ -565,8 +559,8 @@ class TestKronService:
         """Test that invalid outputs in action trigger warning."""
         import logging
 
-        from krons.enforcement.service import KronService
-        from krons.services.backend import Calling
+        from krons.resources.backend import Calling
+        from krons.work.service import KronService
 
         operable = Operable(
             [
@@ -582,7 +576,9 @@ class TestKronService:
                     def event_type(self):
                         return Calling
 
-                    @action(name="test.echo", outputs={"invalid_output"})  # Invalid output
+                    @action(
+                        name="test.echo", outputs={"invalid_output"}
+                    )  # Invalid output
                     async def _handle_echo(self, options, ctx):
                         return {}
 

@@ -134,11 +134,17 @@ class Exchange(Element):
                             except Exception:
                                 message_copy = message.model_copy()
                             deliveries.append((other_id, message_copy))
-                elif message.recipient is not None and message.recipient in self._owner_index:
+                elif (
+                    message.recipient is not None
+                    and message.recipient in self._owner_index
+                ):
                     deliveries.append((message.recipient, message))
         if deliveries:
             await concurrency.gather(
-                *[self._deliver_to(recipient_id, message) for recipient_id, message in deliveries],
+                *[
+                    self._deliver_to(recipient_id, message)
+                    for recipient_id, message in deliveries
+                ],
                 return_exceptions=True,
             )
 
@@ -196,7 +202,9 @@ class Exchange(Element):
         if flow is None:
             raise ValueError(f"Sender {sender} not registered")
 
-        message = Message(sender=sender, recipient=recipient, content=content, channel=channel)
+        message = Message(
+            sender=sender, recipient=recipient, content=content, channel=channel
+        )
         flow.add_item(message, progressions=OUTBOX)
         return message
 

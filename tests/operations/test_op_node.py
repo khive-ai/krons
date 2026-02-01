@@ -8,9 +8,8 @@ Tests Operation event with real Session objects.
 
 import pytest
 
-from krons.operations.node import Operation, create_operation
 from krons.session import Session
-from krons.types import Undefined
+from krons.work.operations.node import Operation
 
 
 class TestOperationWithRealSession:
@@ -41,14 +40,9 @@ class TestOperationWithRealSession:
         assert "operate" in repr_str
         assert "unbound" in repr_str
 
-    def test_create_operation_no_type_raises_error(self):
-        """Test create_operation with sentinel type raises ValueError."""
-        with pytest.raises(ValueError, match=r"operation_type.*required"):
-            create_operation(operation_type=Undefined, parameters={})
-
-    def test_create_operation_with_metadata(self):
-        """Test create_operation with metadata kwargs."""
-        op = create_operation(
+    def test_operation_with_metadata(self):
+        """Test Operation with metadata kwargs."""
+        op = Operation(
             operation_type="communicate",
             parameters={"instruction": "Hello"},
             metadata={"name": "test_op"},

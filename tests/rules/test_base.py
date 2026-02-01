@@ -5,7 +5,7 @@
 
 import pytest
 
-from krons.enforcement.rule import Rule, RuleParams, RuleQualifier, ValidationError
+from krons.work.rules.rule import Rule, RuleParams, RuleQualifier, ValidationError
 
 
 class TestRuleQualifier:
@@ -180,7 +180,10 @@ class TestRuleApply:
         assert await rule.apply("name", "test", int) is True
 
         # Force annotation qualifier - should also try field due to precedence
-        assert await rule.apply("other", "test", str, qualifier=RuleQualifier.ANNOTATION) is True
+        assert (
+            await rule.apply("other", "test", str, qualifier=RuleQualifier.ANNOTATION)
+            is True
+        )
 
     @pytest.mark.anyio
     async def test_apply_condition_not_implemented(self):

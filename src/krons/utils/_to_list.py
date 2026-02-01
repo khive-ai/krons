@@ -29,7 +29,7 @@ def _do_init() -> None:
     from pydantic import BaseModel
     from pydantic_core import PydanticUndefinedType
 
-    from krons.types import UndefinedType, UnsetType
+    from krons.core.types import UndefinedType, UnsetType
 
     global _MODEL_LIKE, _MAP_LIKE, _SINGLETONE_TYPES, _SKIP_TYPE, _SKIP_TUPLE_SET
     _MODEL_LIKE = (BaseModel,)
@@ -117,7 +117,11 @@ def to_list(
         if isinstance(input_, _BYTE_LIKE):
             return list(input_) if use_values else [input_]
         if isinstance(input_, Mapping):
-            return list(input_.values()) if use_values and hasattr(input_, "values") else [input_]
+            return (
+                list(input_.values())
+                if use_values and hasattr(input_, "values")
+                else [input_]
+            )
         if isinstance(input_, _MODEL_LIKE):
             return [input_]
         if isinstance(input_, Iterable) and not isinstance(input_, _BYTE_LIKE):
@@ -129,7 +133,9 @@ def to_list(
 
     initial_list = _to_list_type(input_, use_values=use_values)
     skip_types: tuple[type, ...] = _SKIP_TYPE if flatten_tuple_set else _SKIP_TUPLE_SET
-    processed = _process_list(initial_list, flatten=flatten, dropna=dropna, skip_types=skip_types)
+    processed = _process_list(
+        initial_list, flatten=flatten, dropna=dropna, skip_types=skip_types
+    )
 
     if unique:
         seen = set()

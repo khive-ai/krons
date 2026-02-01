@@ -165,7 +165,9 @@ def string_similarity(
             raise ValueError(f"Unsupported algorithm: {algorithm}")
 
     results = []
-    for idx, (orig_word, comp_word) in enumerate(zip(original_words, compare_words, strict=False)):
+    for idx, (orig_word, comp_word) in enumerate(
+        zip(original_words, compare_words, strict=False)
+    ):
         if algo_name == "hamming" and len(comp_word) != len(compare_word):
             continue  # Hamming requires equal length
         score = score_func(compare_word, comp_word)  # type: ignore[operator]

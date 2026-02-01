@@ -163,10 +163,14 @@ def import_module(
         ImportError: If module or attribute not found.
     """
     try:
-        full_import_path = f"{package_name}.{module_name}" if module_name else package_name
+        full_import_path = (
+            f"{package_name}.{module_name}" if module_name else package_name
+        )
 
         if import_name:
-            import_name = [import_name] if not isinstance(import_name, list) else import_name
+            import_name = (
+                [import_name] if not isinstance(import_name, list) else import_name
+            )
             a = __import__(
                 full_import_path,
                 fromlist=import_name,

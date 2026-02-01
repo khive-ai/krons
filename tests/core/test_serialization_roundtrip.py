@@ -23,8 +23,15 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import BaseModel
 
-from krons.core import Element, Flow, Node, Pile, Progression
-from krons.core.node import NODE_REGISTRY, create_node
+from krons.core import (
+    NODE_REGISTRY,
+    Element,
+    Flow,
+    Node,
+    Pile,
+    Progression,
+    create_node,
+)
 
 # =============================================================================
 # Module-level Node classes with embedding support
@@ -41,11 +48,15 @@ EmbeddingNode3 = create_node("EmbeddingNode3", embedding_enabled=True, embedding
 NODE_REGISTRY[EmbeddingNode3.class_name(full=True)] = EmbeddingNode3
 
 # Node with 1536-dim embedding for large embedding tests
-EmbeddingNode1536 = create_node("EmbeddingNode1536", embedding_enabled=True, embedding_dim=1536)
+EmbeddingNode1536 = create_node(
+    "EmbeddingNode1536", embedding_enabled=True, embedding_dim=1536
+)
 NODE_REGISTRY[EmbeddingNode1536.class_name(full=True)] = EmbeddingNode1536
 
 # Node with 100-dim embedding for nested content tests
-EmbeddingNode100 = create_node("EmbeddingNode100", embedding_enabled=True, embedding_dim=100)
+EmbeddingNode100 = create_node(
+    "EmbeddingNode100", embedding_enabled=True, embedding_dim=100
+)
 NODE_REGISTRY[EmbeddingNode100.class_name(full=True)] = EmbeddingNode100
 
 
@@ -101,22 +112,32 @@ def assert_node_fields_match(original: Node, restored: Node) -> None:
     # Note: Only nodes created with create_node(embedding_enabled=True) have embedding field
     if hasattr(original, "embedding"):
         if original.embedding is not None:
-            assert hasattr(restored, "embedding"), "embedding field lost during roundtrip"
-            assert restored.embedding is not None, "embedding value lost during roundtrip"
+            assert hasattr(restored, "embedding"), (
+                "embedding field lost during roundtrip"
+            )
+            assert restored.embedding is not None, (
+                "embedding value lost during roundtrip"
+            )
             assert len(restored.embedding) == len(original.embedding), (
                 f"embedding length mismatch: {len(restored.embedding)} != {len(original.embedding)}"
             )
-            for i, (r, o) in enumerate(zip(restored.embedding, original.embedding, strict=True)):
+            for i, (r, o) in enumerate(
+                zip(restored.embedding, original.embedding, strict=True)
+            ):
                 assert abs(r - o) < 1e-10, f"embedding[{i}] mismatch: {r} != {o}"
         else:
             if hasattr(restored, "embedding"):
                 assert restored.embedding is None, "embedding appeared from nowhere"
 
 
-def assert_progression_fields_match(original: Progression, restored: Progression) -> None:
+def assert_progression_fields_match(
+    original: Progression, restored: Progression
+) -> None:
     """Assert all Progression fields match exactly."""
     assert_element_fields_match(original, restored)
-    assert restored.name == original.name, f"name mismatch: {restored.name} != {original.name}"
+    assert restored.name == original.name, (
+        f"name mismatch: {restored.name} != {original.name}"
+    )
     assert list(restored.order) == list(original.order), (
         f"order mismatch:\n  restored: {list(restored.order)}\n  original: {list(original.order)}"
     )
@@ -140,7 +161,9 @@ def assert_pile_fields_match(original: Pile, restored: Pile) -> None:
     )
 
     # Items comparison (order matters)
-    assert len(restored) == len(original), f"length mismatch: {len(restored)} != {len(original)}"
+    assert len(restored) == len(original), (
+        f"length mismatch: {len(restored)} != {len(original)}"
+    )
 
     for orig_item, rest_item in zip(original, restored, strict=True):
         if isinstance(orig_item, Node):
@@ -154,14 +177,18 @@ def assert_pile_fields_match(original: Pile, restored: Pile) -> None:
 def assert_flow_fields_match(original: Flow, restored: Flow) -> None:
     """Assert all Flow fields match exactly."""
     assert_element_fields_match(original, restored)
-    assert restored.name == original.name, f"name mismatch: {restored.name} != {original.name}"
+    assert restored.name == original.name, (
+        f"name mismatch: {restored.name} != {original.name}"
+    )
     assert_pile_fields_match(original.items, restored.items)
 
     # Progressions comparison
     assert len(restored.progressions) == len(original.progressions), (
         f"progressions length mismatch: {len(restored.progressions)} != {len(original.progressions)}"
     )
-    for orig_prog, rest_prog in zip(original.progressions, restored.progressions, strict=True):
+    for orig_prog, rest_prog in zip(
+        original.progressions, restored.progressions, strict=True
+    ):
         assert_progression_fields_match(orig_prog, rest_prog)
 
 
@@ -211,15 +238,21 @@ class TestElementRoundtrip:
             ("json", "timestamp"),
         ],
     )
-    def test_element_roundtrip_timestamp_formats(self, mode: str, created_at_format: str) -> None:
+    def test_element_roundtrip_timestamp_formats(
+        self, mode: str, created_at_format: str
+    ) -> None:
         """Test Element roundtrip with all valid timestamp format combinations."""
         original = self._create_element_all_fields()
         data = original.to_dict(mode=mode, created_at_format=created_at_format)
         restored = Element.from_dict(data)
         assert_element_fields_match(original, restored)
 
-    @pytest.mark.parametrize("created_at_format", ["datetime", "isoformat", "timestamp"])
-    def test_element_roundtrip_timestamp_formats_db_mode(self, created_at_format: str) -> None:
+    @pytest.mark.parametrize(
+        "created_at_format", ["datetime", "isoformat", "timestamp"]
+    )
+    def test_element_roundtrip_timestamp_formats_db_mode(
+        self, created_at_format: str
+    ) -> None:
         """Test Element roundtrip with timestamp formats in db mode."""
         original = self._create_element_all_fields()
         data = original.to_dict(mode="db", created_at_format=created_at_format)
@@ -544,7 +577,10 @@ class TestPileRoundtrip:
     @pytest.mark.parametrize("mode", ["python", "json"])
     def test_pile_roundtrip_preserves_order(self, mode: str) -> None:
         """Test that Pile roundtrip preserves item order."""
-        nodes = [Node(content={"order": i}, metadata={"unique": str(uuid4())}) for i in range(5)]
+        nodes = [
+            Node(content={"order": i}, metadata={"unique": str(uuid4())})
+            for i in range(5)
+        ]
         original: Pile[Node] = Pile(items=nodes)
 
         data = original.to_dict(mode=mode)
@@ -558,7 +594,10 @@ class TestPileRoundtrip:
 
     def test_pile_roundtrip_preserves_order_db_mode(self) -> None:
         """Test that Pile roundtrip preserves item order in db mode."""
-        nodes = [Node(content={"order": i}, metadata={"unique": str(uuid4())}) for i in range(5)]
+        nodes = [
+            Node(content={"order": i}, metadata={"unique": str(uuid4())})
+            for i in range(5)
+        ]
         original: Pile[Node] = Pile(items=nodes)
 
         data = original.to_dict(mode="db")
@@ -834,7 +873,9 @@ class TestEdgeCases:
 
     def test_datetime_microsecond_precision(self) -> None:
         """Test that microsecond precision is preserved."""
-        original = Element(created_at=dt.datetime(2025, 6, 15, 12, 30, 45, 123456, tzinfo=dt.UTC))
+        original = Element(
+            created_at=dt.datetime(2025, 6, 15, 12, 30, 45, 123456, tzinfo=dt.UTC)
+        )
 
         for mode in ["python", "json"]:
             # timestamp format may lose some precision due to float representation

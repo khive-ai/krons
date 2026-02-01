@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 from pydantic import BaseModel
 
-from krons.enforcement.common import (
+from krons.work.rules.common import (
     BaseModelRule,
     BooleanRule,
     ChoiceRule,
@@ -20,8 +20,8 @@ from krons.enforcement.common import (
     NumberRule,
     StringRule,
 )
-from krons.enforcement.rule import Rule, RuleParams, RuleQualifier, ValidationError
-from krons.enforcement.validator import Validator
+from krons.work.rules.rule import Rule, RuleParams, RuleQualifier, ValidationError
+from krons.work.rules.validator import Validator
 
 
 class TestStringRule:
@@ -356,7 +356,9 @@ class TestChoiceRule:
     @pytest.mark.anyio
     async def test_apply_fields(self):
         """Test choice rule with apply_fields."""
-        rule = ChoiceRule(choices=["draft", "review", "published"], apply_fields={"status"})
+        rule = ChoiceRule(
+            choices=["draft", "review", "published"], apply_fields={"status"}
+        )
         assert await rule.apply("status", "draft", str) is True
         assert await rule.apply("other", "draft", str) is False
 
@@ -442,7 +444,9 @@ class TestRuleApply:
     async def test_qualifier_precedence(self):
         """Test qualifier precedence order."""
         # FIELD > ANNOTATION > CONDITION
-        rule = ChoiceRule(choices=["a", "b"], apply_fields={"status"}, apply_types={str})
+        rule = ChoiceRule(
+            choices=["a", "b"], apply_fields={"status"}, apply_types={str}
+        )
         # Should match by FIELD first
         assert await rule.apply("status", "a", str) is True
         # Should match by ANNOTATION if field doesn't match
@@ -610,7 +614,9 @@ class TestRuleDefaultQualifierProperty:
 
     def test_default_qualifier_property(self):
         """Test default_qualifier property returns params value."""
-        params = RuleParams(apply_types={str}, default_qualifier=RuleQualifier.ANNOTATION)
+        params = RuleParams(
+            apply_types={str}, default_qualifier=RuleQualifier.ANNOTATION
+        )
         rule = StringRule(params=params)
         assert rule.default_qualifier == RuleQualifier.ANNOTATION
 
@@ -760,7 +766,9 @@ class TestMappingRuleKeepOriginalKey:
     @pytest.mark.anyio
     async def test_fuzzy_keys_unknown_key_preserved(self):
         """Test fuzzy key matching preserves unknown keys."""
-        rule = MappingRule(required_keys={"name"}, optional_keys={"value"}, fuzzy_keys=True)
+        rule = MappingRule(
+            required_keys={"name"}, optional_keys={"value"}, fuzzy_keys=True
+        )
         # "unknown_key" is not in required_keys or optional_keys, so it should be kept as-is
         result = await rule.invoke(
             "config", {"NAME": "test", "unknown_key": "preserved_value"}, dict
@@ -784,7 +792,9 @@ class TestMappingRuleKeepOriginalKey:
     async def test_fuzzy_keys_only_unknown_keys(self):
         """Test fuzzy key matching with only unknown keys keeps them all."""
         rule = MappingRule(fuzzy_keys=True)
-        result = await rule.invoke("config", {"random_key": "value1", "another": "value2"}, dict)
+        result = await rule.invoke(
+            "config", {"random_key": "value1", "another": "value2"}, dict
+        )
         assert result["random_key"] == "value1"
         assert result["another"] == "value2"
 

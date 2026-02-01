@@ -9,10 +9,10 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from krons.enforcement.context import RequestContext
+from krons.core.specs import Operable, Spec
 from krons.errors import ValidationError
-from krons.specs import Operable, Spec
-from krons.specs.phrase import CrudOperation, CrudPattern, Phrase, _to_pascal, phrase
+from krons.work.operations.context import RequestContext
+from krons.work.phrase import CrudOperation, CrudPattern, Phrase, _to_pascal, phrase
 
 
 class TestRequestContextGetattr:

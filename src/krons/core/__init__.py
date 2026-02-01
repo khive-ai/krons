@@ -1,55 +1,47 @@
 # Copyright (c) 2025 - 2026, HaiyangLi <quantocean.li at gmail dot com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Core primitives with lazy loading for fast import."""
+"""Core module - Foundation primitives and submodules.
+
+Re-exports base classes from core/base/ and exposes submodules:
+- types: Sentinels, base types, DB types
+- specs: Spec definitions, Operable, adapters
+
+Note: Session (Message, Branch, Session, Exchange) is now at krons.session
+"""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-# Lazy import mapping
+# Lazy import mapping - delegates to core.base
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    # broadcaster
-    "Broadcaster": ("krons.core.broadcaster", "Broadcaster"),
-    # element
-    "Element": ("krons.core.element", "Element"),
-    # event
-    "Event": ("krons.core.event", "Event"),
-    "EventStatus": ("krons.core.event", "EventStatus"),
-    "Execution": ("krons.core.event", "Execution"),
-    # eventbus
-    "EventBus": ("krons.core.eventbus", "EventBus"),
-    "Handler": ("krons.core.eventbus", "Handler"),
-    # flow
-    "Flow": ("krons.core.flow", "Flow"),
-    # graph
-    "Edge": ("krons.core.graph", "Edge"),
-    "EdgeCondition": ("krons.core.graph", "EdgeCondition"),
-    "Graph": ("krons.core.graph", "Graph"),
-    # node
-    "DEFAULT_NODE_CONFIG": ("krons.core.node", "DEFAULT_NODE_CONFIG"),
-    "NODE_REGISTRY": ("krons.core.node", "NODE_REGISTRY"),
-    "PERSISTABLE_NODE_REGISTRY": ("krons.core.node", "PERSISTABLE_NODE_REGISTRY"),
-    "Node": ("krons.core.node", "Node"),
-    "NodeConfig": ("krons.core.node", "NodeConfig"),
-    "create_node": ("krons.core.node", "create_node"),
-    "generate_ddl": ("krons.core.node", "generate_ddl"),
-    # phrase
-    "PHRASE_REGISTRY": ("krons.core.phrase", "PHRASE_REGISTRY"),
-    "Phrase": ("krons.core.phrase", "Phrase"),
-    "PhraseConfig": ("krons.core.phrase", "PhraseConfig"),
-    "PhraseError": ("krons.core.phrase", "PhraseError"),
-    "RequirementNotMet": ("krons.core.phrase", "RequirementNotMet"),
-    "create_phrase": ("krons.core.phrase", "create_phrase"),
-    "get_phrase": ("krons.core.phrase", "get_phrase"),
-    "list_phrases": ("krons.core.phrase", "list_phrases"),
-    # pile
-    "Pile": ("krons.core.pile", "Pile"),
-    # processor
-    "Executor": ("krons.core.processor", "Executor"),
-    "Processor": ("krons.core.processor", "Processor"),
-    # progression
-    "Progression": ("krons.core.progression", "Progression"),
+    # Registries
+    "NODE_REGISTRY": ("krons.core.base", "NODE_REGISTRY"),
+    "PERSISTABLE_NODE_REGISTRY": ("krons.core.base", "PERSISTABLE_NODE_REGISTRY"),
+    # Classes
+    "Broadcaster": ("krons.core.base", "Broadcaster"),
+    "Edge": ("krons.core.base", "Edge"),
+    "EdgeCondition": ("krons.core.base", "EdgeCondition"),
+    "Element": ("krons.core.base", "Element"),
+    "Event": ("krons.core.base", "Event"),
+    "EventBus": ("krons.core.base", "EventBus"),
+    "EventStatus": ("krons.core.base", "EventStatus"),
+    "Execution": ("krons.core.base", "Execution"),
+    "Executor": ("krons.core.base", "Executor"),
+    "Flow": ("krons.core.base", "Flow"),
+    "Graph": ("krons.core.base", "Graph"),
+    "Handler": ("krons.core.base", "Handler"),
+    "Node": ("krons.core.base", "Node"),
+    "NodeConfig": ("krons.core.base", "NodeConfig"),
+    "Pile": ("krons.core.base", "Pile"),
+    "Processor": ("krons.core.base", "Processor"),
+    "Progression": ("krons.core.base", "Progression"),
+    # Functions
+    "create_node": ("krons.core.base", "create_node"),
+    "generate_all_ddl": ("krons.core.base", "generate_all_ddl"),
+    "generate_ddl": ("krons.core.base", "generate_ddl"),
+    "get_fk_dependencies": ("krons.core.base", "get_fk_dependencies"),
 }
 
 _LOADED: dict[str, object] = {}
@@ -79,41 +71,36 @@ def __dir__() -> list[str]:
 
 # TYPE_CHECKING block for static analysis
 if TYPE_CHECKING:
-    from .broadcaster import Broadcaster
-    from .element import Element
-    from .event import Event, EventStatus, Execution
-    from .eventbus import EventBus, Handler
-    from .flow import Flow
-    from .graph import Edge, EdgeCondition, Graph
-    from .node import (
-        DEFAULT_NODE_CONFIG,
+    from krons.core.base import (
         NODE_REGISTRY,
         PERSISTABLE_NODE_REGISTRY,
+        Broadcaster,
+        Edge,
+        EdgeCondition,
+        Element,
+        Event,
+        EventBus,
+        EventStatus,
+        Execution,
+        Executor,
+        Flow,
+        Graph,
+        Handler,
         Node,
         NodeConfig,
+        Pile,
+        Processor,
+        Progression,
         create_node,
+        generate_all_ddl,
         generate_ddl,
+        get_fk_dependencies,
     )
-    from .phrase import (
-        PHRASE_REGISTRY,
-        Phrase,
-        PhraseConfig,
-        PhraseError,
-        RequirementNotMet,
-        create_phrase,
-        get_phrase,
-        list_phrases,
-    )
-    from .pile import Pile
-    from .processor import Executor, Processor
-    from .progression import Progression
 
 __all__ = [
-    # constants
-    "DEFAULT_NODE_CONFIG",
+    # constants/registries
     "NODE_REGISTRY",
     "PERSISTABLE_NODE_REGISTRY",
-    "PHRASE_REGISTRY",
     # classes
     "Broadcaster",
     "Edge",
@@ -129,17 +116,12 @@ __all__ = [
     "Handler",
     "Node",
     "NodeConfig",
-    "Phrase",
-    "PhraseConfig",
-    "PhraseError",
     "Pile",
     "Processor",
     "Progression",
-    "RequirementNotMet",
     # functions
     "create_node",
-    "create_phrase",
+    "generate_all_ddl",
     "generate_ddl",
-    "get_phrase",
-    "list_phrases",
+    "get_fk_dependencies",
 ]

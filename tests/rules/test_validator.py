@@ -5,9 +5,9 @@
 
 import pytest
 
-from krons.enforcement.common import NumberRule, StringRule
-from krons.enforcement.rule import ValidationError
-from krons.enforcement.validator import Validator
+from krons.work.rules.common import NumberRule, StringRule
+from krons.work.rules.rule import ValidationError
+from krons.work.rules.validator import Validator
 
 
 class MockRuleRegistry:
@@ -337,7 +337,9 @@ class TestValidatorCustomValidators:
             return v.upper()
 
         validator = Validator(registry=registry)
-        spec = MockSpec("field", base_type=str, metadata={"validator": uppercase_validator})
+        spec = MockSpec(
+            "field", base_type=str, metadata={"validator": uppercase_validator}
+        )
 
         result = await validator.validate_spec(spec, "hello")
         assert result == "HELLO"
@@ -370,7 +372,9 @@ class TestValidatorCustomValidators:
             return v.upper()
 
         validator = Validator(registry=registry)
-        spec = MockSpec("field", base_type=str, metadata={"validator": [validator1, validator2]})
+        spec = MockSpec(
+            "field", base_type=str, metadata={"validator": [validator1, validator2]}
+        )
 
         result = await validator.validate_spec(spec, "  hello  ")
         assert result == "HELLO"
@@ -385,7 +389,9 @@ class TestValidatorCustomValidators:
             raise ValueError("Custom validation failed")
 
         validator = Validator(registry=registry)
-        spec = MockSpec("field", base_type=str, metadata={"validator": failing_validator})
+        spec = MockSpec(
+            "field", base_type=str, metadata={"validator": failing_validator}
+        )
 
         with pytest.raises(ValidationError, match="Custom validator failed"):
             await validator.validate_spec(spec, "hello")

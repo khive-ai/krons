@@ -6,8 +6,7 @@
 import pytest
 from pydantic import BaseModel
 
-from krons.core import Node
-from krons.core.node import NODE_REGISTRY, create_node
+from krons.core import NODE_REGISTRY, Node, create_node
 
 # Create Node subclass with embedding support for embedding tests
 EmbeddableNode = create_node("EmbeddableNode", embedding_enabled=True, embedding_dim=4)
@@ -244,7 +243,9 @@ class TestNodeDBSerialization:
         )
 
         original = ArticleNode(
-            content=ArticleContent(headline="Breaking News", body="Details here", views=42),
+            content=ArticleContent(
+                headline="Breaking News", body="Details here", views=42
+            ),
             embedding=[0.1, 0.2, 0.3],
             metadata={"source": "test"},
         )
@@ -267,7 +268,7 @@ class TestGetFKDependencies:
 
     def test_get_fk_dependencies_no_content(self):
         """Nodes without content should return empty set."""
-        from krons.core.node import get_fk_dependencies
+        from krons.core import get_fk_dependencies
 
         SimpleNode = create_node("SimpleNode", flatten_content=False)
         deps = get_fk_dependencies(SimpleNode)
@@ -275,7 +276,7 @@ class TestGetFKDependencies:
 
     def test_get_fk_dependencies_no_fk_fields(self):
         """Nodes with content but no FK fields should return empty set."""
-        from krons.core.node import get_fk_dependencies
+        from krons.core import get_fk_dependencies
 
         class PlainContent(BaseModel):
             name: str
@@ -289,8 +290,8 @@ class TestGetFKDependencies:
         """Nodes with FK fields should return referenced table names."""
         from typing import Annotated
 
-        from krons.core.node import get_fk_dependencies
-        from krons.types.db_types import FK
+        from krons.core import get_fk_dependencies
+        from krons.core.types.db_types import FK
 
         # Create a target node type
         class UserContent(BaseModel):
@@ -412,7 +413,7 @@ class TestNodeRegistry:
 
     def test_subclass_auto_registered(self):
         """Node subclasses with polymorphic=True should auto-register."""
-        from krons.core.node import NodeConfig
+        from krons.core import NodeConfig
 
         class CustomNode(Node):
             node_config = NodeConfig(polymorphic=True)
@@ -483,7 +484,7 @@ class TestNodeDDLGeneration:
 
     def test_generate_ddl_basic(self):
         """Test generate_ddl produces valid SQL."""
-        from krons.core.node import generate_ddl
+        from krons.core import generate_ddl
 
         class JobContent(BaseModel):
             title: str
@@ -504,8 +505,8 @@ class TestNodeDDLGeneration:
 
     def test_generate_ddl_with_fk(self):
         """Test generate_ddl includes FK constraints."""
-        from krons.core.node import generate_ddl
-        from krons.types.db_types import FK
+        from krons.core import generate_ddl
+        from krons.core.types.db_types import FK
 
         # Create a target node type for FK reference
         class UserContent(BaseModel):

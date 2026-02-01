@@ -5,8 +5,7 @@
 
 import pytest
 
-from krons.core import Event, Pile, Processor
-from krons.core.event import EventStatus
+from krons.core import Event, EventStatus, Pile, Processor
 
 
 @pytest.fixture

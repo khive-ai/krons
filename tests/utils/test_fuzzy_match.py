@@ -25,13 +25,17 @@ def test_fuzzy_match_keys_none_keys():
 
 def test_fuzzy_match_keys_invalid_threshold_below():
     """Test ValueError for similarity_threshold below 0.0"""
-    with pytest.raises(ValueError, match=r"similarity_threshold must be between 0.0 and 1.0"):
+    with pytest.raises(
+        ValueError, match=r"similarity_threshold must be between 0.0 and 1.0"
+    ):
         fuzzy_match_keys({"key1": "value1"}, ["key1"], similarity_threshold=-0.1)
 
 
 def test_fuzzy_match_keys_invalid_threshold_above():
     """Test ValueError for similarity_threshold above 1.0"""
-    with pytest.raises(ValueError, match=r"similarity_threshold must be between 0.0 and 1.0"):
+    with pytest.raises(
+        ValueError, match=r"similarity_threshold must be between 0.0 and 1.0"
+    ):
         fuzzy_match_keys({"key1": "value1"}, ["key1"], similarity_threshold=1.5)
 
 
@@ -155,7 +159,9 @@ def test_fuzzy_match_keys_handle_unmatched_raise():
     d = {"key1": "value1", "extra_key": "value2"}
     keys = ["key1"]
     with pytest.raises(ValueError, match="Unmatched keys found"):
-        fuzzy_match_keys(d, keys, handle_unmatched=HandleUnmatched.RAISE, fuzzy_match=False)
+        fuzzy_match_keys(
+            d, keys, handle_unmatched=HandleUnmatched.RAISE, fuzzy_match=False
+        )
 
 
 def test_fuzzy_match_keys_handle_unmatched_force():

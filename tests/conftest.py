@@ -27,6 +27,7 @@ from krons.core import (
     Edge,
     Element,
     Event,
+    EventStatus,
     Flow,
     Graph,
     Node,
@@ -34,7 +35,6 @@ from krons.core import (
     Processor,
     Progression,
 )
-from krons.core.event import EventStatus
 
 # Add tests/ directory to sys.path
 _tests_dir = Path(__file__).parent
@@ -187,7 +187,9 @@ def mock_node(
 
 def create_test_elements(count: int = 5, start_value: int = 0) -> list[TestElement]:
     """Create a list of test Elements."""
-    return [TestElement(value=start_value + i, name=f"element_{i}") for i in range(count)]
+    return [
+        TestElement(value=start_value + i, name=f"element_{i}") for i in range(count)
+    ]
 
 
 def create_test_nodes(count: int = 5) -> list[Node]:
@@ -232,7 +234,9 @@ def create_test_flow(
 ) -> Flow[TestElement, Progression]:
     """Create a test Flow with elements and progressions."""
     items = create_test_elements(count=item_count)
-    progressions = [Progression(name=f"prog_{i}", order=[]) for i in range(progression_count)]
+    progressions = [
+        Progression(name=f"prog_{i}", order=[]) for i in range(progression_count)
+    ]
     return Flow(items=items, progressions=progressions, item_type=TestElement)
 
 
