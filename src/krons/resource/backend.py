@@ -5,12 +5,13 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, Field, PrivateAttr, field_validator, model_validator
 
+from krons.errors import ValidationError
 from krons.core import Element, Event, EventStatus
-from krons.core.types import HashableModel, Unset, UnsetType, is_sentinel
+from krons.core.types import HashableModel, Unset, UnsetType, is_sentinel, is_unset
 
 from .hook import HookBroadcaster, HookEvent, HookPhase, HookRegistry
 
@@ -72,8 +73,15 @@ class ResourceConfig(HashableModel):
         except Exception as e:
             raise ValueError("Invalid payload") from e
 
+@runtime_checkable
+class NormalizedResponse(Protocol):
+    status: str
+    data: Any
+    error: str | None
+    raw_response: dict[str, Any]
+    metadata: dict[str, Any] | None
 
-class NormalizedResponse(HashableModel):
+class NormalizedResponseModel(HashableModel):
     """Generic normalized response for all resource backends.
 
     Works for any backend type: HTTP endpoints, tools, LLM APIs, etc.
@@ -225,6 +233,13 @@ class Calling(Event):
         )
         self._post_invoke_hook_event = h_ev
 
+    def assert_is_normalized(self) -> None:
+        """Assert that response is normalized."""
+        self.assert_completed()
+        if is_unset(self.execution.response):
+            raise ValidationError("Calling response is not set")
+        if not isinstance(self.execution.response, NormalizedResponse):
+            raise ValidationError("Calling response is not normalized")
 
 class ResourceBackend(Element):
     """Base class for all resource backends (Tool, Endpoint, etc.).

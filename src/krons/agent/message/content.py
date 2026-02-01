@@ -1,16 +1,20 @@
 # Copyright (c) 2025 - 2026, HaiyangLi <quantocean.li at gmail dot com>
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, ClassVar, Literal, Protocol, cast, runtime_checkable
+from typing_extensions import Self
 
 from pydantic import BaseModel, JsonValue
 
-from krons.core.types import DataClass, Enum, MaybeUnset, ModelConfig, Unset
+from krons.core.types import DataClass, Enum, MaybeUnset, ModelConfig, Unset, is_unset
+from krons.protocols import Deserializable, implements
 from krons.utils import now_utc
 from krons.utils.schemas import is_pydantic_model, minimal_yaml
+from krons.resources import NormalizedResponse
 
 from ._utils import _format_json_response_structure, _format_model_schema, _format_task
 
@@ -73,6 +77,7 @@ class CustomRenderer(Protocol):
     def __call__(self, model: type[BaseModel], **kwargs: Any) -> str: ...
 
 
+@implements(Deserializable)
 @dataclass(slots=True)
 class MessageContent(DataClass):
     _config: ClassVar[ModelConfig] = ModelConfig(
@@ -99,6 +104,7 @@ class MessageContent(DataClass):
         raise NotImplementedError("Subclasses must implement from_dict method")
 
 
+@implements(Deserializable)
 @dataclass(slots=True)
 class System(MessageContent):
     """System message with optional timestamp."""
@@ -155,6 +161,7 @@ class System(MessageContent):
         )
 
 
+@implements(Deserializable)
 @dataclass(slots=True)
 class Instruction(MessageContent):
     """User instruction with structured outputs."""
@@ -263,34 +270,44 @@ class Instruction(MessageContent):
         )
 
 
+@implements(Deserializable)
 @dataclass(slots=True)
 class Assistant(MessageContent):
     """Assistant text response."""
 
     role: ClassVar[MessageRole] = MessageRole.ASSISTANT
+    response: MaybeUnset[Any] = Unset
 
-    assistant_response: MaybeUnset[str] = Unset
+    _buffered_response: Any = Unset
+    
+    @classmethod
+    def create(cls, response_object: NormalizedResponse, /) -> Self:
+        self = cls(response=response_object.data)
+        self._buffered_response = response_object
+        return self
+
+    @property
+    def raw_response(self) -> dict[str, Any] | None:
+        if isinstance(self._buffered_response, NormalizedResponse):
+            return self._buffered_response.raw_response
+        return None
 
     def render(self, *_args, **_kwargs) -> str:
-        return (
-            ""
-            if self._is_sentinel(self.assistant_response)
-            else cast(str, self.assistant_response)
-        )
+        return str(self.response) if not self.is_sentinel_field("response") else ""
 
-    @classmethod
-    def create(cls, assistant_response: str | None = None) -> "Assistant":
-        return cls(
-            assistant_response=(
-                Unset if assistant_response is None else assistant_response
-            )
-        )
+
+
+
+
+
+
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Assistant":
         return cls.create(assistant_response=data.get("assistant_response"))
 
 
+@implements(Deserializable)
 @dataclass(slots=True)
 class ActionRequest(MessageContent):
     """Action/function call request."""
@@ -327,6 +344,7 @@ class ActionRequest(MessageContent):
         )
 
 
+@implements(Deserializable)
 @dataclass(slots=True)
 class ActionResponse(MessageContent):
     """Function call response."""

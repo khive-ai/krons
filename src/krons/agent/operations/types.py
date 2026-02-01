@@ -33,14 +33,9 @@ __all__ = (
     "ReturnAs",
 )
 
-# Type aliases
 HandleUnmatched = Literal["ignore", "raise", "remove", "fill", "force"]
 ReturnAs = Literal["text", "raw", "message", "calling"]
 
-
-# =============================================================================
-# Custom Parser/Renderer Protocols
-# =============================================================================
 
 
 @runtime_checkable

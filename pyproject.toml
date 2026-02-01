@@ -63,8 +63,9 @@ markers = [
 
 [project.optional-dependencies]
 tiktoken = ["tiktoken>=0.11.0",]
+fastmcp = ["fastmcp>=2.14.4",]
 
 agent = [
-    "krons[tiktoken]",
+    "krons[tiktoken, fastmcp]",
 ]
 all = ["krons[agent]"]

@@ -18,8 +18,9 @@ from krons.core.types import (
     Unset,
     is_sentinel,
     is_unset,
+    not_sentinel,
 )
-from krons.errors import KronsError, KronTimeoutError
+from krons.errors import KronsError, KronTimeoutError, ValidationError
 from krons.protocols import Invocable, Serializable, implements
 from krons.utils import async_synchronized, concurrency, json_dumpb
 
@@ -183,7 +184,6 @@ class Execution:
                 [self.error, exc],
             )
 
-
 @implements(Invocable)
 class Event(Element):
     """Base event with lifecycle tracking and execution state.
@@ -328,3 +328,20 @@ class Event(Element):
             "created_at": self.created_at,
         }
         return fresh
+
+    def assert_completed(self, *, retryable: MaybeUnset[bool] = Unset):
+        if self.execution.status != EventStatus.COMPLETED:
+            retryable_value = self.execution.retryable if is_unset(retryable) else retryable
+            retryable_value = True if retryable_value is True else False
+            exec_dict = self.execution.to_dict()
+            exec_dict.pop("response", None)
+            exec_dict.pop("retryable", None)
+
+            raise ValidationError(
+                "Event did not complete successfully.",
+                details={
+                    "event_id": str(self.id),
+                    **exec_dict,
+                },
+                retryable=retryable_value,
+            )

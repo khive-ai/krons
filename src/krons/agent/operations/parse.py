@@ -5,18 +5,112 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from krons.agents.message import InstructionContent
+from pydantic import BaseModel
+
+from krons.agents.message import Instruction
 from krons.core.types import is_sentinel
 from krons.errors import ConfigurationError, ExecutionError, KronsError, ValidationError
 from krons.session import Message
-from krons.utils.fuzzy import extract_json, fuzzy_validate_mapping
+from krons.utils.fuzzy import HandleUnmatched, extract_json, fuzzy_validate_mapping
 
-from .types import CustomParser, GenerateParams, HandleUnmatched, ParseParams
+from .types import CustomParser, GenerateParams, ParseParams
 
 if TYPE_CHECKING:
     from krons.session import Branch, Session
 
 __all__ = ("parse",)
+
+
+async def _parse(
+    text: str,
+    imodel,
+    similarity_threshold: float = 0.85,
+    handle_unmatched="force",
+    structure_format: str = "json",
+    custom_parser: CustomParser | None = None,
+    **imodel_kwargs: Any,
+): ...
+
+
+PARSE_PROMPT = (
+    "Reformat text into specified model or structure, using the model schema as a guide"
+)
+
+
+async def _llm_reparse(
+    session: Session,
+    branch: Branch,
+    text: str,
+    imodel,
+    tool_schemas,
+    request_model: type[BaseModel],
+    structure_format,
+    custom_renderer,
+    custom_parser: CustomParser | None = None,
+    **imodel_kwargs: Any,
+):
+    instruction = Instruction(
+        primary=PARSE_PROMPT,
+        context=[{"text_to_format": text}],
+        request_model=request_model,
+        tool_schemas=tool_schemas,
+    )
+
+    from .generate import _generate
+
+    res = await _generate(
+        session=session,
+        branch=branch,
+        instruction=instruction,
+        imodel=imodel,
+        structure_format=structure_format,
+        custom_renderer=custom_renderer,
+        return_as="text",
+        **imodel_kwargs,
+    )
+    if custom_parser is not None:
+        return custom_parser(res, list(request_model.model_fields.keys()))
+
+    return fuzzy_validate_mapping(
+        res,
+        list(request_model.model_fields.keys()),
+        handle_unmatched=HandleUnmatched.FORCE,
+    )
+
+
+async def _llm_reparse(
+    session: Session,
+    branch: Branch,
+    params: ParseParams,
+    poll_timeout: float | None = None,
+    poll_interval: float | None = None,
+) -> dict[str, Any] | None:
+    """Use LLM to reformat text into valid JSON."""
+    from .generate import generate
+
+    instruction = Message(
+        content=InstructionContent.create(instruction=instruction_text),
+        sender=session.id,
+        recipient=branch.id,
+    )
+
+    gen_params = GenerateParams(
+        instruction=instruction,
+        imodel=params.imodel,
+        return_as="text",
+        imodel_kwargs=params.imodel_kwargs,
+    )
+
+    result = await generate(session, branch, gen_params, poll_timeout, poll_interval)
+    return _direct_parse(
+        result,
+        params.target_keys,
+        params.similarity_threshold,
+        params.handle_unmatched,
+        params.structure_format,
+        params.custom_parser,
+        **params.match_kwargs,
+    )
 
 
 async def parse(

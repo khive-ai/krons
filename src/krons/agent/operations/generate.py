@@ -3,16 +3,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from krons.agents.message import Instruction, prepare_messages_for_chat
 from krons.errors import ValidationError
+from krons.resources import NormalizedResponse
 from krons.session import Message, resource_must_be_accessible
 
 from .constraints import resolve_response_is_normalized, response_must_be_completed
 from .types import CustomRenderer, GenerateParams, ReturnAs
 
 if TYPE_CHECKING:
+    from krons.core.types import MaybeUnset, Unset, is_sentinel, Enum
     from krons.resources import iModel
     from krons.resources.backend import Calling
     from krons.session import Branch, Session
@@ -25,7 +27,7 @@ async def generate(params: GenerateParams, ctx: RequestContext) -> Any:
     session = await ctx.get_session()
     return await _generate(
         session=session,
-        branch=ctx.branch_id,
+        branch=ctx.branch,
         instruction=params.instruction_message,
         imodel=params.imodel,
         structure_format=params.structure_format,
@@ -72,25 +74,46 @@ async def _generate(
     return _handle_return(calling, return_as)
 
 
-def _handle_return(calling: Calling, return_as: ReturnAs) -> Any:
-    # caller handles status
-    if return_as == "calling":
+class ReturnAs(Enum):
+
+    CALLING = "calling"
+    DATA = "data"
+    RAW = "raw"
+    NORMALIZED = "normalized"
+    CUSTOM = "custom"
+
+
+def parse_to_assistant_response(response: NormalizedResponse) -> Message:
+    from krons.agents.message import Assistant
+
+    metadata_dict: dict[str, Any] = {"raw_response": response.raw_response}
+    if response.metadata is not None:
+        metadata_dict.update(response.metadata)
+
+    return Message(
+        content=Assistant.create(assistant_response=response.data),
+        metadata=metadata_dict,
+    )
+
+
+
+def handle_return(calling: Calling,  return_as: ReturnAs, /, return_parser: Callable = None):
+    if return_as == ReturnAs.CALLING:
         return calling
 
-    response_must_be_completed(calling)
-    response = resolve_response_is_normalized(calling)
-
+    calling.assert_is_normalized()
+    response = calling.response
     match return_as:
-        case "text":
+        case ReturnAs.DATA:
             return response.data
-        case "raw":
+        case ReturnAs.RAW:
             return response.raw_response
-        case "response":
+        case ReturnAs.NORMALIZED:
             return response
-        case "message":
+        case ReturnAs.MESSAGE:
             from krons.agents.message import Assistant
 
-            metadata_dict: dict[str, Any] = {"raw_response": response.raw_response}
+            metadata_dict: dict[str, Any] = {"raw_response": calling.response.raw_response}
             if response.metadata is not None:
                 metadata_dict.update(response.metadata)
 
