@@ -184,6 +184,7 @@ class Execution:
                 [self.error, exc],
             )
 
+
 @implements(Invocable)
 class Event(Element):
     """Base event with lifecycle tracking and execution state.
@@ -331,7 +332,9 @@ class Event(Element):
 
     def assert_completed(self, *, retryable: MaybeUnset[bool] = Unset):
         if self.execution.status != EventStatus.COMPLETED:
-            retryable_value = self.execution.retryable if is_unset(retryable) else retryable
+            retryable_value = (
+                self.execution.retryable if is_unset(retryable) else retryable
+            )
             retryable_value = True if retryable_value is True else False
             exec_dict = self.execution.to_dict()
             exec_dict.pop("response", None)

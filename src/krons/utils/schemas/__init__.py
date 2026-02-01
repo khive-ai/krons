@@ -7,6 +7,11 @@ from ._breakdown_pydantic_annotation import (
     breakdown_pydantic_annotation,
     is_pydantic_model,
 )
+from ._formatter import (
+    format_clean_multiline_strings,
+    format_model_schema,
+    format_schema_pretty,
+)
 from ._minimal_yaml import minimal_yaml
 from ._typescript import typescript_schema
 
@@ -15,4 +20,7 @@ __all__ = (
     "is_pydantic_model",
     "minimal_yaml",
     "typescript_schema",
+    "format_model_schema",
+    "format_schema_pretty",
+    "format_clean_multiline_strings",
 )

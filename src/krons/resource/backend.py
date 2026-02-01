@@ -9,9 +9,9 @@ from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, Field, PrivateAttr, field_validator, model_validator
 
-from krons.errors import ValidationError
 from krons.core import Element, Event, EventStatus
 from krons.core.types import HashableModel, Unset, UnsetType, is_sentinel, is_unset
+from krons.errors import ValidationError
 
 from .hook import HookBroadcaster, HookEvent, HookPhase, HookRegistry
 
@@ -73,6 +73,7 @@ class ResourceConfig(HashableModel):
         except Exception as e:
             raise ValueError("Invalid payload") from e
 
+
 @runtime_checkable
 class NormalizedResponse(Protocol):
     status: str
@@ -80,6 +81,7 @@ class NormalizedResponse(Protocol):
     error: str | None
     raw_response: dict[str, Any]
     metadata: dict[str, Any] | None
+
 
 class NormalizedResponseModel(HashableModel):
     """Generic normalized response for all resource backends.
@@ -240,6 +242,7 @@ class Calling(Event):
             raise ValidationError("Calling response is not set")
         if not isinstance(self.execution.response, NormalizedResponse):
             raise ValidationError("Calling response is not normalized")
+
 
 class ResourceBackend(Element):
     """Base class for all resource backends (Tool, Endpoint, etc.).

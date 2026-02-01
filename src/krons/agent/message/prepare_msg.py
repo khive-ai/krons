@@ -9,29 +9,27 @@ from pydantic import JsonValue
 from krons.core import Pile, Progression
 from krons.core.types import not_sentinel
 
+from .action import ActionResponse
+from .assistant import Assistant
+from .instruction import Instruction
+from .role import RoledContent
+from .system import System
+
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
 from krons.session import Message
 
-from .content import ActionResponse as ActionResponseContent
-from .content import Assistant as AssistantResponseContent
-from .content import Instruction as InstructionContent
-from .content import MessageContent
-from .content import System as SystemContent
-
 __all__ = ("prepare_messages_for_chat",)
 
 
-def _get_text(content: MessageContent, attr: str) -> str:
+def _get_text(content: RoledContent, attr: str) -> str:
     """Get text from content attr, returning '' if sentinel."""
     val = getattr(content, attr)
     return "" if content._is_sentinel(val) else val
 
 
-def _build_context(
-    content: InstructionContent, action_outputs: list[str]
-) -> list[JsonValue]:
+def _build_context(content: Instruction, action_outputs: list[str]) -> list[JsonValue]:
     """Build context list by appending action outputs to existing context."""
     existing = content.context
     if content._is_sentinel(existing):
@@ -42,11 +40,11 @@ def _build_context(
 def prepare_messages_for_chat(
     messages: Pile[Message],
     progression: Progression | None = None,
-    new_instruction: Message | None = None,
+    new_instruction: Message | Instruction | None = None,
     to_chat: bool = False,
     structure_format: Literal["json", "custom"] = "json",
     custom_renderer: Callable[["BaseModel"], str] | None = None,
-) -> list[MessageContent] | list[dict[str, Any]]:
+) -> list[RoledContent] | list[dict[str, Any]]:
     """Prepare messages for chat API with intelligent content organization.
 
     Algorithm:
@@ -70,13 +68,17 @@ def prepare_messages_for_chat(
 
     if len(to_use) == 0:
         if new_instruction:
-            new_content: MessageContent = new_instruction.content.with_updates(
+            new_content = new_instruction.content if isinstance(new_instruction, Message) else new_instruction
+            new_content: RoledContent = new_content.with_updates(
                 copy_containers="deep"
             )
             if to_chat:
-                chat_msg = new_content.to_chat(structure_format, custom_renderer)
+                chat_msg = {
+                    "role": new_content.role.value,
+                    "content": new_content.render(structure_format, custom_renderer),
+                }
                 if not_sentinel(chat_msg, True, True):
-                    return [cast(dict[str, Any], chat_msg)]
+                    return [chat_msg]
                 return []
             return [new_content]
         return []
@@ -86,31 +88,31 @@ def prepare_messages_for_chat(
     start_idx = 0
 
     first_msg = to_use[0]
-    if isinstance(first_msg.content, SystemContent):
+    if isinstance(first_msg.content, System):
         system_text = first_msg.content.render()
         start_idx = 1
 
     # Phase 2: Process messages - collect action outputs for next instruction
-    _use_msgs: list[MessageContent] = []
+    _use_msgs: list[RoledContent] = []
     pending_actions: list[str] = []
 
     for i, msg in enumerate(to_use):
         if i < start_idx:
             continue
 
-        content = msg.content
+        content: RoledContent = msg.content
 
         # ActionResponseContent: collect rendered output
-        if isinstance(content, ActionResponseContent):
+        if isinstance(content, ActionResponse):
             pending_actions.append(content.render())
             continue
 
         # SystemContent in middle: skip
-        if isinstance(content, SystemContent):
+        if isinstance(content, System):
             continue
 
         # InstructionContent: embed pending action outputs
-        if isinstance(content, InstructionContent):
+        if isinstance(content, Instruction):
             updates: dict[str, Any] = {"tool_schemas": None, "request_model": None}
             if pending_actions:
                 updates["context"] = _build_context(content, pending_actions)
@@ -123,16 +125,12 @@ def prepare_messages_for_chat(
 
     # Phase 3: Merge consecutive AssistantResponses
     if len(_use_msgs) > 1:
-        merged: list[MessageContent] = [_use_msgs[0]]
+        merged: list[RoledContent] = [_use_msgs[0]]
         for content in _use_msgs[1:]:
-            if isinstance(content, AssistantResponseContent) and isinstance(
-                merged[-1], AssistantResponseContent
-            ):
+            if isinstance(content, Assistant) and isinstance(merged[-1], Assistant):
                 prev = _get_text(merged[-1], "assistant_response")
                 curr = _get_text(content, "assistant_response")
-                merged[-1] = AssistantResponseContent.create(
-                    assistant_response=f"{prev}\n\n{curr}"
-                )
+                merged[-1] = Assistant.create(assistant_response=f"{prev}\n\n{curr}")
             else:
                 merged.append(content)
         _use_msgs = merged
@@ -141,10 +139,10 @@ def prepare_messages_for_chat(
     if system_text:
         if len(_use_msgs) == 0 and new_instruction:
             # No history: embed into new_instruction
-            if isinstance(new_instruction.content, InstructionContent):
-                curr = _get_text(new_instruction.content, "instruction")
+            if isinstance(new_instruction.content, Instruction):
+                curr = _get_text(new_instruction.content, "primary")
                 system_updates: dict[str, Any] = {
-                    "instruction": f"{system_text}\n\n{curr}"
+                    "primary": f"{system_text}\n\n{curr}"
                 }
                 if pending_actions:
                     system_updates["context"] = _build_context(
@@ -157,16 +155,16 @@ def prepare_messages_for_chat(
                     )
                 )
                 new_instruction = None
-        elif _use_msgs and isinstance(_use_msgs[0], InstructionContent):
-            curr = _get_text(_use_msgs[0], "instruction")
+        elif _use_msgs and isinstance(_use_msgs[0], Instruction):
+            curr = _get_text(_use_msgs[0], "primary")
             _use_msgs[0] = _use_msgs[0].with_updates(
-                instruction=f"{system_text}\n\n{curr}"
+                primary=f"{system_text}\n\n{curr}"
             )
 
     # Phase 5: Append new_instruction (with any remaining action outputs)
     if new_instruction:
         final_updates: dict[str, Any] = {}
-        if pending_actions and isinstance(new_instruction.content, InstructionContent):
+        if pending_actions and isinstance(new_instruction.content, Instruction):
             final_updates["context"] = _build_context(
                 new_instruction.content, pending_actions
             )
@@ -179,8 +177,11 @@ def prepare_messages_for_chat(
     if to_chat:
         result: list[dict[str, Any]] = []
         for m in _use_msgs:
-            chat_msg = m.to_chat(structure_format, custom_renderer)
-            if not_sentinel(chat_msg, True, True):
-                result.append(cast(dict[str, Any], chat_msg))
+            result.append(
+                {
+                    "role": m.role.value,
+                    "content": m.render(structure_format, custom_renderer),
+                }
+            )
         return result
     return _use_msgs

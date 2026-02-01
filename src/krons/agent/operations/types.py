@@ -37,7 +37,6 @@ HandleUnmatched = Literal["ignore", "raise", "remove", "fill", "force"]
 ReturnAs = Literal["text", "raw", "message", "calling"]
 
 
-
 @runtime_checkable
 class CustomParser(Protocol):
     """Protocol for custom output parsers (e.g., LNDL).

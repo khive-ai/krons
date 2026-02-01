@@ -23,6 +23,7 @@ PARSE_PROMPT = (
     "Reformat text into specified model or structure, using the model schema as a guide"
 )
 
+
 async def _llm_reparse(
     session: Session,
     branch: Branch,

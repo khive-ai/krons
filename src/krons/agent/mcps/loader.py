@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 async def load_mcp_tools(
-    registry: Any,  # ResourceRegistry
+    registry: Any,
     server_config: dict[str, Any],
     tool_names: list[str] | None = None,
     request_options: dict[str, type] | None = None,
@@ -54,8 +54,8 @@ async def load_mcp_tools(
         ...     request_options={"search": SearchRequest},
         ... )
     """
-    from krons.agents.tool import Tool, ToolConfig
-    from krons.resources import iModel
+    from krons.agent.tool import Tool, ToolConfig
+    from krons.resource import iModel
 
     from .wrapper import MCPConnectionPool
 
