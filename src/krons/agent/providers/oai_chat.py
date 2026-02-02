@@ -133,7 +133,7 @@ class OAIChatEndpoint(Endpoint):
 
         super().__init__(config=config, circuit_breaker=circuit_breaker, **kwargs)
 
-    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponse:
+    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponseModel:
         """Normalize OpenAI response to standard format.
 
         Extracts:

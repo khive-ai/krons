@@ -113,7 +113,7 @@ class ClaudeCodeEndpoint(Endpoint):
         skip_payload_creation: bool = False,
         extra_headers: dict | None = None,
         **kwargs,
-    ) -> NormalizedResponse:
+    ) -> NormalizedResponseModel:
         """Execute Claude Code CLI and return normalized response.
 
         Overrides parent to handle tuple return from create_payload.
@@ -125,7 +125,7 @@ class ClaudeCodeEndpoint(Endpoint):
             **kwargs: Extra CLI arguments.
 
         Returns:
-            NormalizedResponse wrapping the CLI response.
+            NormalizedResponseModel wrapping the CLI response.
         """
         if skip_payload_creation:
             # If already a ClaudeCodeRequest, wrap it; otherwise treat as dict
@@ -227,7 +227,7 @@ class ClaudeCodeEndpoint(Endpoint):
             "session": to_dict(session, recursive=True),
         }
 
-    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponse:
+    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponseModel:
         """Normalize Claude Code response to standard format.
 
         Args:
@@ -236,7 +236,7 @@ class ClaudeCodeEndpoint(Endpoint):
                 - session: Organized ClaudeSession data
 
         Returns:
-            NormalizedResponse with:
+            NormalizedResponseModel with:
             - status: "success" or "error"
             - data: Final result text
             - raw_response: Actual raw CLI "result" chunk

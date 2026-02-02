@@ -10,11 +10,9 @@ from krons.errors import ValidationError
 from krons.resource import NormalizedResponse
 from krons.session import Message, resource_must_be_accessible
 
-from .constraints import resolve_response_is_normalized, response_must_be_completed
 from .types import CustomRenderer, GenerateParams, ReturnAs
 
 if TYPE_CHECKING:
-    from krons.core.types import Enum, MaybeUnset, Unset, is_sentinel
     from krons.resource import iModel
     from krons.resource.backend import Calling
     from krons.session import Branch, Session
@@ -74,14 +72,6 @@ async def _generate(
     return handle_return(calling, return_as)
 
 
-class ReturnAs(Enum):
-    CALLING = "calling"
-    DATA = "data"
-    RAW = "raw"
-    NORMALIZED = "normalized"
-    CUSTOM = "custom"
-
-
 def parse_to_assistant_response(response: NormalizedResponse) -> Message:
     from krons.agent.message import Assistant
 
@@ -98,19 +88,17 @@ def parse_to_assistant_response(response: NormalizedResponse) -> Message:
 def handle_return(
     calling: Calling, return_as: ReturnAs, /, return_parser: Callable = None
 ):
-    if return_as == ReturnAs.CALLING:
+    if return_as == "calling":
         return calling
 
     calling.assert_is_normalized()
     response = calling.response
     match return_as:
-        case ReturnAs.DATA:
+        case "text":
             return response.data
-        case ReturnAs.RAW:
+        case "raw":
             return response.raw_response
-        case ReturnAs.NORMALIZED:
-            return response
-        case ReturnAs.MESSAGE:
+        case "message":
             from krons.agent.message import Assistant
 
             metadata_dict: dict[str, Any] = {

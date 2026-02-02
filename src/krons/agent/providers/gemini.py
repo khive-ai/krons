@@ -127,7 +127,7 @@ class GeminiCodeEndpoint(Endpoint):
         skip_payload_creation: bool = False,
         extra_headers: dict | None = None,
         **kwargs,
-    ) -> NormalizedResponse:
+    ) -> NormalizedResponseModel:
         """Execute Gemini CLI and return normalized response.
 
         Overrides parent to handle tuple return from create_payload.
@@ -139,7 +139,7 @@ class GeminiCodeEndpoint(Endpoint):
             **kwargs: Extra CLI arguments.
 
         Returns:
-            NormalizedResponse wrapping the CLI response.
+            NormalizedResponseModel wrapping the CLI response.
         """
         if skip_payload_creation:
             # If already a GeminiCodeRequest, wrap it; otherwise treat as dict
@@ -225,7 +225,7 @@ class GeminiCodeEndpoint(Endpoint):
             "session": to_dict(session, recursive=True),
         }
 
-    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponse:
+    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponseModel:
         """Normalize Gemini CLI response to standard format.
 
         Args:
@@ -234,7 +234,7 @@ class GeminiCodeEndpoint(Endpoint):
                 - session: Organized GeminiSession data
 
         Returns:
-            NormalizedResponse with:
+            NormalizedResponseModel with:
             - status: "success" or "error"
             - data: Final result text
             - raw_response: Actual raw CLI result chunk

@@ -91,7 +91,7 @@ class AnthropicMessagesEndpoint(Endpoint):
 
         super().__init__(config=config, circuit_breaker=circuit_breaker, **kwargs)
 
-    def normalize_response(self, response: dict[str, Any]) -> NormalizedResponse:
+    def normalize_response(self, response: dict[str, Any]) -> NormalizedResponseModel:
         """Normalize Anthropic response to standard format.
 
         Extracts:

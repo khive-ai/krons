@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Any, ClassVar
 
 from krons.core.types import MaybeUnset, Unset
-from krons.protocols import Deserializable, implements
 from krons.utils.schemas import minimal_yaml
 
 from .role import Role, RoledContent

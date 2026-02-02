@@ -26,7 +26,7 @@ from pydantic import Field
 
 from krons.core import Element, Pile
 
-from .form import Form, parse_assignment, parse_full_assignment
+from .form import Form, parse_assignment
 
 __all__ = ("Report",)
 

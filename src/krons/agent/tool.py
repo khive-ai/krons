@@ -138,14 +138,14 @@ class Tool(ResourceBackend):
         except Exception as e:
             raise ValueError(f"Tool argument validation failed: {e}") from e
 
-    async def call(self, arguments: dict[str, Any] | None = None) -> NormalizedResponse:
+    async def call(self, arguments: dict[str, Any] | None = None) -> NormalizedResponseModel:
         """Execute the tool handler with given arguments.
 
         Args:
             arguments: Arguments to pass to handler
 
         Returns:
-            NormalizedResponse with result or error
+            NormalizedResponseModel with result or error
         """
         arguments = arguments or {}
 
@@ -170,14 +170,14 @@ class Tool(ResourceBackend):
                 raw_response={"error": str(e), "arguments": arguments},
             )
 
-    def normalize_response(self, raw_response: Any) -> NormalizedResponse:
+    def normalize_response(self, raw_response: Any) -> NormalizedResponseModel:
         """Normalize tool result to standard format.
 
         Args:
             raw_response: Raw result from handler
 
         Returns:
-            NormalizedResponse with status and data
+            NormalizedResponseModel with status and data
         """
         return NormalizedResponseModel(
             status="success",

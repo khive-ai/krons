@@ -4,7 +4,6 @@ from typing import Any, Callable, ClassVar, Literal
 from pydantic import BaseModel, JsonValue
 
 from krons.core.types import MaybeUnset, Unset
-from krons.protocols import Deserializable, implements
 from krons.resource.backend import is_unset
 from krons.utils.schemas import (
     breakdown_pydantic_annotation,

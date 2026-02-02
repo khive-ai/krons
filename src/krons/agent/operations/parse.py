@@ -78,20 +78,25 @@ async def _llm_reparse(
     )
 
 
-async def _llm_reparse(
+async def _llm_reparse_with_params(
     session: Session,
     branch: Branch,
     params: ParseParams,
     poll_timeout: float | None = None,
     poll_interval: float | None = None,
 ) -> dict[str, Any] | None:
-    """Use LLM to reformat text into valid JSON."""
+    """Use LLM to reformat text into valid JSON (using ParseParams)."""
     from .generate import generate
 
+    instruction_text = (
+        "Extract and reformat the following text into valid JSON. "
+        "Return ONLY the JSON object, no other text or markdown formatting."
+        f"\n\nExpected fields: {', '.join(params.target_keys)}"
+        f"\n\nText to parse:\n{params.text}"
+    )
+
     instruction = Message(
-        content=InstructionContent.create(instruction=instruction_text),
-        sender=session.id,
-        recipient=branch.id,
+        content=Instruction.create(primary=instruction_text),
     )
 
     gen_params = GenerateParams(
@@ -157,7 +162,7 @@ async def parse(
 
     for _ in range(params.max_retries):
         try:
-            return await _llm_reparse(
+            return await _llm_reparse_with_params(
                 session=session,
                 branch=branch,
                 params=params,
@@ -237,45 +242,3 @@ def _direct_parse(
             retryable=True,
             cause=e,
         )
-
-
-async def _llm_reparse(
-    session: Session,
-    branch: Branch,
-    params: ParseParams,
-    poll_timeout: float | None = None,
-    poll_interval: float | None = None,
-) -> dict[str, Any] | None:
-    """Use LLM to reformat text into valid JSON."""
-    from .generate import generate
-
-    instruction_text = (
-        "Extract and reformat the following text into valid JSON. "
-        "Return ONLY the JSON object, no other text or markdown formatting."
-        f"\n\nExpected fields: {', '.join(params.target_keys)}"
-        f"\n\nText to parse:\n{params.text}"
-    )
-
-    instruction = Message(
-        content=InstructionContent.create(instruction=instruction_text),
-        sender=session.id,
-        recipient=branch.id,
-    )
-
-    gen_params = GenerateParams(
-        instruction=instruction,
-        imodel=params.imodel,
-        return_as="text",
-        imodel_kwargs=params.imodel_kwargs,
-    )
-
-    result = await generate(session, branch, gen_params, poll_timeout, poll_interval)
-    return _direct_parse(
-        result,
-        params.target_keys,
-        params.similarity_threshold,
-        params.handle_unmatched,
-        params.structure_format,
-        params.custom_parser,
-        **params.match_kwargs,
-    )

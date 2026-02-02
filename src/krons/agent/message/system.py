@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Any, Callable, ClassVar, Literal
+from typing import Callable, ClassVar, Literal
 
 from krons.core.types import MaybeUnset, Unset
-from krons.protocols import Deserializable, implements
 from krons.utils import now_utc
 
 from .role import Role, RoledContent

@@ -18,7 +18,6 @@ from krons.core.types import (
     Unset,
     is_sentinel,
     is_unset,
-    not_sentinel,
 )
 from krons.errors import KronsError, KronTimeoutError, ValidationError
 from krons.protocols import Invocable, Serializable, implements

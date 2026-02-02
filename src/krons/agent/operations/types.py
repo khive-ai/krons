@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
-from krons.agent.message import InstructionContent
+from krons.agent.message import Instruction as InstructionContent
 from krons.core.types import ModelConfig, Params
 from krons.session import Message
 
@@ -160,7 +160,7 @@ class GenerateParams(Params):
         # We wrap the context dict in a list if present
         context_list = [self.context] if self.context is not None else None
         content = InstructionContent.create(
-            instruction=self.instruction,
+            primary=self.instruction,
             context=context_list,
             images=self.images,
             image_detail=self.image_detail,
