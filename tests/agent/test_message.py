@@ -7,26 +7,27 @@ from __future__ import annotations
 
 import pytest
 
-from krons.agents.message import (
+from krons.agent.message import (
     ActionRequest,
     ActionResponse,
     Assistant,
     Instruction,
-    MessageContent,
-    MessageRole,
+    Role,
+    RoledContent,
     System,
 )
 
 
-class TestMessageRole:
-    """Test MessageRole enum."""
+class TestRole:
+    """Test Role enum."""
 
     def test_role_values(self):
         """Test that all expected roles exist."""
-        assert MessageRole.SYSTEM.value == "system"
-        assert MessageRole.USER.value == "user"
-        assert MessageRole.ASSISTANT.value == "assistant"
-        assert MessageRole.TOOL.value == "tool"
+        assert Role.SYSTEM.value == "system"
+        assert Role.USER.value == "user"
+        assert Role.ASSISTANT.value == "assistant"
+        assert Role.ACTION.value == "action"
+        assert Role.UNSET.value == "unset"
 
 
 class TestSystemContent:
@@ -37,7 +38,7 @@ class TestSystemContent:
         system = System.create(system_message="You are a helpful assistant.")
 
         assert system.system_message == "You are a helpful assistant."
-        assert system.role == MessageRole.SYSTEM
+        assert system.role == Role.SYSTEM
 
     def test_system_render(self):
         """Test System render method."""
@@ -46,14 +47,16 @@ class TestSystemContent:
 
         assert "Be concise." in rendered
 
-    def test_system_to_chat(self):
-        """Test System to_chat method."""
-        system = System.create(system_message="Be helpful.")
-        chat = system.to_chat()
+    def test_system_with_datetime(self):
+        """Test System with datetime."""
+        system = System.create(
+            system_message="Hello",
+            system_datetime="2025-01-01T00:00:00Z",
+        )
+        rendered = system.render()
 
-        assert chat is not None
-        assert chat["role"] == "system"
-        assert "Be helpful." in chat["content"]
+        assert "2025-01-01T00:00:00Z" in rendered
+        assert "Hello" in rendered
 
 
 class TestInstructionContent:
@@ -61,15 +64,15 @@ class TestInstructionContent:
 
     def test_create_instruction_simple(self):
         """Test creating simple Instruction using create factory."""
-        instr = Instruction.create(instruction="What is 2+2?")
+        instr = Instruction.create(primary="What is 2+2?")
 
         assert instr.primary == "What is 2+2?"
-        assert instr.role == MessageRole.USER
+        assert instr.role == Role.USER
 
     def test_create_instruction_with_context(self):
         """Test creating Instruction with context."""
         instr = Instruction.create(
-            instruction="Summarize this",
+            primary="Summarize this",
             context=["The quick brown fox jumps over the lazy dog."],
         )
 
@@ -78,46 +81,33 @@ class TestInstructionContent:
 
     def test_instruction_render(self):
         """Test Instruction render method."""
-        instr = Instruction.create(instruction="Test instruction")
+        instr = Instruction.create(primary="Test instruction")
         rendered = instr.render()
 
         assert "Test instruction" in rendered
-
-    def test_instruction_to_chat(self):
-        """Test Instruction to_chat method."""
-        instr = Instruction.create(instruction="Hello world")
-        chat = instr.to_chat()
-
-        assert chat is not None
-        assert chat["role"] == "user"
-        assert "Hello world" in str(chat["content"])
 
 
 class TestAssistantContent:
     """Test Assistant message content."""
 
-    def test_create_assistant(self):
-        """Test creating Assistant content."""
-        assistant = Assistant.create(assistant_response="Here is my response.")
-
-        assert assistant.assistant_response == "Here is my response."
-        assert assistant.role == MessageRole.ASSISTANT
+    def test_assistant_role(self):
+        """Test Assistant has correct role."""
+        # Direct instantiation for testing
+        assistant = Assistant(response="Test response")
+        assert assistant.role == Role.ASSISTANT
 
     def test_assistant_render(self):
         """Test Assistant render method."""
-        assistant = Assistant.create(assistant_response="The answer is 42.")
+        assistant = Assistant(response="The answer is 42.")
         rendered = assistant.render()
 
         assert rendered == "The answer is 42."
 
-    def test_assistant_to_chat(self):
-        """Test Assistant to_chat method."""
-        assistant = Assistant.create(assistant_response="I can help with that.")
-        chat = assistant.to_chat()
-
-        assert chat is not None
-        assert chat["role"] == "assistant"
-        assert "I can help with that." in str(chat["content"])
+    def test_assistant_render_unset(self):
+        """Test Assistant render with unset response."""
+        assistant = Assistant()
+        rendered = assistant.render()
+        assert rendered == ""
 
 
 class TestActionRequest:
@@ -143,6 +133,15 @@ class TestActionRequest:
 
         assert "get_weather" in rendered
         assert "NYC" in rendered
+
+    def test_action_request_from_dict(self):
+        """Test ActionRequest from_dict."""
+        action = ActionRequest.from_dict({
+            "function": "test_func",
+            "arguments": {"arg1": "val1"},
+        })
+        assert action.function == "test_func"
+        assert action.arguments == {"arg1": "val1"}
 
 
 class TestActionResponse:
@@ -190,30 +189,30 @@ class TestActionResponse:
         assert "error" in rendered.lower() or "wrong" in rendered.lower()
 
 
-class TestMessageContentProtocol:
-    """Test MessageContent protocol methods."""
+class TestRoledContentProtocol:
+    """Test RoledContent base class methods."""
 
-    def test_system_is_message_content(self):
-        """Test System is a MessageContent."""
+    def test_system_is_roled_content(self):
+        """Test System is a RoledContent."""
         system = System.create(system_message="Test")
-        assert isinstance(system, MessageContent)
+        assert isinstance(system, RoledContent)
 
-    def test_instruction_is_message_content(self):
-        """Test Instruction is a MessageContent."""
-        instr = Instruction.create(instruction="Test")
-        assert isinstance(instr, MessageContent)
+    def test_instruction_is_roled_content(self):
+        """Test Instruction is a RoledContent."""
+        instr = Instruction.create(primary="Test")
+        assert isinstance(instr, RoledContent)
 
-    def test_assistant_is_message_content(self):
-        """Test Assistant is a MessageContent."""
-        assistant = Assistant.create(assistant_response="Test")
-        assert isinstance(assistant, MessageContent)
+    def test_assistant_is_roled_content(self):
+        """Test Assistant is a RoledContent."""
+        assistant = Assistant(response="Test")
+        assert isinstance(assistant, RoledContent)
 
-    def test_action_request_is_message_content(self):
-        """Test ActionRequest is a MessageContent."""
+    def test_action_request_is_roled_content(self):
+        """Test ActionRequest is a RoledContent."""
         action = ActionRequest.create(function="test", arguments={})
-        assert isinstance(action, MessageContent)
+        assert isinstance(action, RoledContent)
 
-    def test_action_response_is_message_content(self):
-        """Test ActionResponse is a MessageContent."""
+    def test_action_response_is_roled_content(self):
+        """Test ActionResponse is a RoledContent."""
         response = ActionResponse.create(result="test")
-        assert isinstance(response, MessageContent)
+        assert isinstance(response, RoledContent)

@@ -6,8 +6,8 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Any
 
-from krons.resources.backend import NormalizedResponse
-from krons.resources.endpoint import Endpoint, EndpointConfig
+from krons.resource.backend import NormalizedResponseModel
+from krons.resource.endpoint import Endpoint, EndpointConfig
 
 __all__ = (
     "OAIChatEndpoint",
@@ -164,7 +164,7 @@ class OAIChatEndpoint(Endpoint):
             message = choice.get("message", {})
             metadata.update({k: message[k] for k in ("tool_calls",) if k in message})
 
-        return NormalizedResponse(
+        return NormalizedResponseModel(
             status="success",
             data=text,
             raw_response=raw_response,

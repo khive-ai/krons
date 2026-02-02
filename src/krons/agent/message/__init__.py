@@ -5,7 +5,6 @@ from .instruction import Instruction
 from .role import Role, RoledContent
 from .system import System
 
-
 __all__ = (
     "ActionRequest",
     "ActionResponse",

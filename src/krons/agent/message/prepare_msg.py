@@ -68,10 +68,12 @@ def prepare_messages_for_chat(
 
     if len(to_use) == 0:
         if new_instruction:
-            new_content = new_instruction.content if isinstance(new_instruction, Message) else new_instruction
-            new_content: RoledContent = new_content.with_updates(
-                copy_containers="deep"
+            new_content = (
+                new_instruction.content
+                if isinstance(new_instruction, Message)
+                else new_instruction
             )
+            new_content: RoledContent = new_content.with_updates(copy_containers="deep")
             if to_chat:
                 chat_msg = {
                     "role": new_content.role.value,
@@ -141,9 +143,7 @@ def prepare_messages_for_chat(
             # No history: embed into new_instruction
             if isinstance(new_instruction.content, Instruction):
                 curr = _get_text(new_instruction.content, "primary")
-                system_updates: dict[str, Any] = {
-                    "primary": f"{system_text}\n\n{curr}"
-                }
+                system_updates: dict[str, Any] = {"primary": f"{system_text}\n\n{curr}"}
                 if pending_actions:
                     system_updates["context"] = _build_context(
                         new_instruction.content, pending_actions
@@ -157,9 +157,7 @@ def prepare_messages_for_chat(
                 new_instruction = None
         elif _use_msgs and isinstance(_use_msgs[0], Instruction):
             curr = _get_text(_use_msgs[0], "primary")
-            _use_msgs[0] = _use_msgs[0].with_updates(
-                primary=f"{system_text}\n\n{curr}"
-            )
+            _use_msgs[0] = _use_msgs[0].with_updates(primary=f"{system_text}\n\n{curr}")
 
     # Phase 5: Append new_instruction (with any remaining action outputs)
     if new_instruction:

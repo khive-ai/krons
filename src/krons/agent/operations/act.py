@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from krons.agents.message import ActionRequestContent, ActionResponseContent
+from krons.agent.message import ActionRequestContent, ActionResponseContent
 from krons.session import Message
 from krons.utils.concurrency import alcall
 

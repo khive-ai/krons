@@ -17,7 +17,7 @@ import shutil
 import pytest
 
 # Skip all tests if providers not available
-pytest.importorskip("krons.agents.providers")
+pytest.importorskip("krons.agent.providers")
 
 
 def _has_claude_cli() -> bool:
@@ -36,7 +36,7 @@ class TestClaudeCodeEndpoint:
     @pytest.fixture
     def endpoint(self):
         """Create Claude Code endpoint."""
-        from krons.agents.providers.claude_code import ClaudeCodeEndpoint
+        from krons.agent.providers.claude_code import ClaudeCodeEndpoint
 
         return ClaudeCodeEndpoint()
 
@@ -123,7 +123,7 @@ class TestGeminiCodeEndpoint:
     @pytest.fixture
     def endpoint(self):
         """Create Gemini Code endpoint."""
-        from krons.agents.providers.gemini import GeminiCodeEndpoint
+        from krons.agent.providers.gemini import GeminiCodeEndpoint
 
         return GeminiCodeEndpoint()
 
@@ -157,7 +157,7 @@ class TestClaudeCodeStructuredOutput:
     @pytest.fixture
     def endpoint(self):
         """Create Claude Code endpoint."""
-        from krons.agents.providers.claude_code import ClaudeCodeEndpoint
+        from krons.agent.providers.claude_code import ClaudeCodeEndpoint
 
         return ClaudeCodeEndpoint()
 
@@ -285,7 +285,7 @@ if __name__ == "__main__":
             print("Claude CLI not installed, skipping test")
             return
 
-        from krons.agents.providers.claude_code import ClaudeCodeEndpoint
+        from krons.agent.providers.claude_code import ClaudeCodeEndpoint
 
         endpoint = ClaudeCodeEndpoint()
         print("Testing Claude Code endpoint with structured output...")

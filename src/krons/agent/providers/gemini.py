@@ -8,14 +8,14 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from krons.agents.third_party.gemini_models import (
+from krons.agent.third_party.gemini_models import (
     GeminiChunk,
     GeminiCodeRequest,
     GeminiSession,
     stream_gemini_cli,
 )
-from krons.resources.backend import NormalizedResponse
-from krons.resources.endpoint import Endpoint, EndpointConfig
+from krons.resource.backend import NormalizedResponseModel
+from krons.resource.endpoint import Endpoint, EndpointConfig
 
 __all__ = (
     "GeminiCodeEndpoint",
@@ -258,7 +258,7 @@ class GeminiCodeEndpoint(Endpoint):
             "summary": session.get("summary"),
         }
 
-        return NormalizedResponse(
+        return NormalizedResponseModel(
             status="error" if session.get("is_error") else "success",
             data=text,
             raw_response=raw_cli_result,

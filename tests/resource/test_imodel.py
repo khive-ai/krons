@@ -12,10 +12,10 @@ import pytest
 from pydantic import BaseModel
 
 from krons.core import EventStatus, Executor
-from krons.resources import APICalling, Endpoint, EndpointConfig, NormalizedResponse
-from krons.resources.hook import HookRegistry
-from krons.resources.imodel import iModel
-from krons.resources.utilities.rate_limiter import RateLimitConfig, TokenBucket
+from krons.resource import APICalling, Endpoint, EndpointConfig, NormalizedResponseModel
+from krons.resource.hook import HookRegistry
+from krons.resource.imodel import iModel
+from krons.resource.utilities.rate_limiter import RateLimitConfig, TokenBucket
 
 # =============================================================================
 # Test Request Models
@@ -489,7 +489,7 @@ class TestIModelClaudeCodeSession:
 
         # Create mock calling with response
         calling = MagicMock()
-        calling.execution.response = NormalizedResponse(
+        calling.execution.response = NormalizedResponseModel(
             status="success",
             data={"content": "Hello"},
             raw_response={"content": "Hello"},
@@ -515,7 +515,7 @@ class TestIModelClaudeCodeSession:
 
         # Create mock calling with response without metadata
         calling = MagicMock()
-        calling.execution.response = NormalizedResponse(
+        calling.execution.response = NormalizedResponseModel(
             status="success",
             data={"content": "Hello"},
             raw_response={"content": "Hello"},
@@ -530,7 +530,7 @@ class TestIModelClaudeCodeSession:
         """Test _store_claude_code_session_id ignores non-claude_code provider."""
         # mock_imodel has provider="test_provider"
         calling = MagicMock()
-        calling.execution.response = NormalizedResponse(
+        calling.execution.response = NormalizedResponseModel(
             status="success",
             data={"content": "Hello"},
             raw_response={"content": "Hello"},

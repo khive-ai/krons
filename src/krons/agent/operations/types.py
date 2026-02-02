@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
-from krons.agents.message import InstructionContent
+from krons.agent.message import InstructionContent
 from krons.core.types import ModelConfig, Params
 from krons.session import Message
 
 if TYPE_CHECKING:
     from krons.core.specs import Operable
-    from krons.resources import iModel
+    from krons.resource import iModel
 
 __all__ = (
     "ActionRequest",

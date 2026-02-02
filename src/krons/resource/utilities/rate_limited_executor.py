@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Self
 from typing_extensions import override
 
 from krons.core import Event, Executor, Processor
-from krons.resources.endpoint import APICalling
+from krons.resource.endpoint import APICalling
 from krons.utils.concurrency import get_cancelled_exc_class, sleep
 
 from .rate_limiter import TokenBucket

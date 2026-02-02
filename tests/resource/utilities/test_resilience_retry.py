@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from krons.errors import KronConnectionError
-from krons.resources.utilities.resilience import (
+from krons.resource.utilities.resilience import (
     CircuitBreakerOpenError,
     RetryConfig,
     retry_with_backoff,
@@ -123,9 +123,7 @@ class TestRetryWithBackoff:
             side_effect=[ValueError("fail1"), ValueError("fail2"), "success"]
         )
 
-        with patch(
-            "krons.resources.utilities.resilience.sleep", new_callable=AsyncMock
-        ):
+        with patch("krons.resource.utilities.resilience.sleep", new_callable=AsyncMock):
             result = await retry_with_backoff(
                 mock_func, max_retries=3, initial_delay=0.1, retry_on=(ValueError,)
             )
@@ -139,7 +137,7 @@ class TestRetryWithBackoff:
         mock_func = AsyncMock(side_effect=ValueError("persistent failure"))
 
         with (
-            patch("krons.resources.utilities.resilience.sleep", new_callable=AsyncMock),
+            patch("krons.resource.utilities.resilience.sleep", new_callable=AsyncMock),
             pytest.raises(ValueError, match="persistent failure"),
         ):
             await retry_with_backoff(
@@ -173,7 +171,7 @@ class TestRetryWithBackoff:
         )
         mock_sleep = AsyncMock()
 
-        with patch("krons.resources.utilities.resilience.sleep", mock_sleep):
+        with patch("krons.resource.utilities.resilience.sleep", mock_sleep):
             result = await retry_with_backoff(
                 mock_func,
                 max_retries=3,
@@ -199,7 +197,7 @@ class TestRetryWithBackoff:
         mock_func = AsyncMock(side_effect=[ValueError("1"), ValueError("2"), "success"])
         mock_sleep = AsyncMock()
 
-        with patch("krons.resources.utilities.resilience.sleep", mock_sleep):
+        with patch("krons.resource.utilities.resilience.sleep", mock_sleep):
             result = await retry_with_backoff(
                 mock_func,
                 max_retries=2,
@@ -223,7 +221,7 @@ class TestRetryWithBackoff:
         mock_func = AsyncMock(side_effect=[ValueError("1"), ValueError("2"), "success"])
         mock_sleep = AsyncMock()
 
-        with patch("krons.resources.utilities.resilience.sleep", mock_sleep):
+        with patch("krons.resource.utilities.resilience.sleep", mock_sleep):
             result = await retry_with_backoff(
                 mock_func,
                 max_retries=2,
@@ -253,9 +251,7 @@ class TestRetryWithBackoff:
             side_effect=[ValueError("val"), TypeError("type"), "success"]
         )
 
-        with patch(
-            "krons.resources.utilities.resilience.sleep", new_callable=AsyncMock
-        ):
+        with patch("krons.resource.utilities.resilience.sleep", new_callable=AsyncMock):
             result = await retry_with_backoff(
                 mock_func,
                 max_retries=3,
@@ -294,9 +290,7 @@ class TestRetryWithBackoff:
             ]
         )
 
-        with patch(
-            "krons.resources.utilities.resilience.sleep", new_callable=AsyncMock
-        ):
+        with patch("krons.resource.utilities.resilience.sleep", new_callable=AsyncMock):
             result = await retry_with_backoff(
                 mock_func,
                 max_retries=3,

@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from krons.agents.tool import Tool, ToolConfig, tool
+from krons.agent.tool import Tool, ToolConfig, tool
 
 
 class TestToolConfig:

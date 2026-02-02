@@ -296,7 +296,7 @@ class ResourceBackend(Element):
         Returns:
             NormalizedResponse with status, data, raw_response
         """
-        return NormalizedResponse(
+        return NormalizedResponseModel(
             status="success",
             data=raw_response,
             raw_response=raw_response,

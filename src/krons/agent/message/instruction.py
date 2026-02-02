@@ -19,7 +19,6 @@ from .common import CustomRenderer
 from .role import Role, RoledContent
 
 
-@implements(Deserializable)
 @dataclass(slots=True)
 class Instruction(RoledContent):
     role: ClassVar[Role] = Role.USER
@@ -53,7 +52,7 @@ class Instruction(RoledContent):
                 "'request_model' must be a subclass of pydantic BaseModel."
             )
 
-        if images is not None:
+        if not is_unset(images) and images is not None:
             from krons.utils.validators import validate_image_url
 
             for url in images:

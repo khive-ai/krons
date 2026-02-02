@@ -3,7 +3,7 @@
 
 import warnings
 
-from krons.resources.endpoint import Endpoint
+from krons.resource.endpoint import Endpoint
 
 KNOWN_PROVIDERS = frozenset(
     {

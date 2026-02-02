@@ -8,7 +8,6 @@ from krons.utils import now_utc
 from .role import Role, RoledContent
 
 
-@implements(Deserializable)
 @dataclass(slots=True)
 class System(RoledContent):
     """System message with optional timestamp."""
@@ -52,14 +51,4 @@ class System(RoledContent):
             system_message=Unset if system_message is None else system_message,
             system_datetime=Unset if system_datetime is None else system_datetime,
             datetime_factory=Unset if datetime_factory is None else datetime_factory,
-        )
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "System":
-        return cls.create(
-            **{
-                k: v
-                for k in cls.allowed()
-                if (k in data and not cls._is_sentinel(v := data[k]))
-            }
         )

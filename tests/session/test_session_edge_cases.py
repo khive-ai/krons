@@ -438,8 +438,8 @@ class TestSessionInitializationEdgeCases:
         session = Session(
             config={
                 "default_branch_name": "custom-main",
-                "default_capabilities": {"cap1"},
-                "default_resources": {"res1"},
+                "shared_capabilities": {"cap1"},
+                "shared_resources": {"res1"},
             }
         )
 

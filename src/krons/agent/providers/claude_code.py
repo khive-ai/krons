@@ -8,14 +8,14 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from krons.agents.third_party.claude_code import (
+from krons.agent.third_party.claude_code import (
     ClaudeChunk,
     ClaudeCodeRequest,
     ClaudeSession,
     stream_claude_code_cli,
 )
-from krons.resources.backend import NormalizedResponse
-from krons.resources.endpoint import Endpoint, EndpointConfig
+from krons.resource.backend import NormalizedResponseModel
+from krons.resource.endpoint import Endpoint, EndpointConfig
 
 __all__ = (
     "ClaudeCodeEndpoint",
@@ -266,7 +266,7 @@ class ClaudeCodeEndpoint(Endpoint):
             "summary": session.get("summary"),  # Always include (None if not present)
         }
 
-        return NormalizedResponse(
+        return NormalizedResponseModel(
             status="error" if session.get("is_error") else "success",
             data=text,
             raw_response=raw_cli_result,  # Use actual raw CLI result chunk

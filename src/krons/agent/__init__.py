@@ -19,40 +19,40 @@ from typing import TYPE_CHECKING
 # Lazy import mapping
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     # tool.py
-    "Tool": ("krons.agents.tool", "Tool"),
-    "ToolCalling": ("krons.agents.tool", "ToolCalling"),
-    "ToolConfig": ("krons.agents.tool", "ToolConfig"),
-    "tool": ("krons.agents.tool", "tool"),
+    "Tool": ("krons.agent.tool", "Tool"),
+    "ToolCalling": ("krons.agent.tool", "ToolCalling"),
+    "ToolConfig": ("krons.agent.tool", "ToolConfig"),
+    "tool": ("krons.agent.tool", "tool"),
     # providers
     "AnthropicMessagesEndpoint": (
-        "krons.agents.providers",
+        "krons.agent.providers",
         "AnthropicMessagesEndpoint",
     ),
-    "GeminiCodeEndpoint": ("krons.agents.providers", "GeminiCodeEndpoint"),
-    "OAIChatEndpoint": ("krons.agents.providers", "OAIChatEndpoint"),
-    "create_anthropic_config": ("krons.agents.providers", "create_anthropic_config"),
+    "GeminiCodeEndpoint": ("krons.agent.providers", "GeminiCodeEndpoint"),
+    "OAIChatEndpoint": ("krons.agent.providers", "OAIChatEndpoint"),
+    "create_anthropic_config": ("krons.agent.providers", "create_anthropic_config"),
     "create_gemini_code_config": (
-        "krons.agents.providers",
+        "krons.agent.providers",
         "create_gemini_code_config",
     ),
-    "create_oai_chat": ("krons.agents.providers", "create_oai_chat"),
-    "match_endpoint": ("krons.agents.providers", "match_endpoint"),
+    "create_oai_chat": ("krons.agent.providers", "create_oai_chat"),
+    "match_endpoint": ("krons.agent.providers", "match_endpoint"),
     # message
-    "ActionRequest": ("krons.agents.message", "ActionRequest"),
-    "ActionResponse": ("krons.agents.message", "ActionResponse"),
-    "Assistant": ("krons.agents.message", "Assistant"),
-    "Instruction": ("krons.agents.message", "Instruction"),
-    "MessageContent": ("krons.agents.message", "MessageContent"),
-    "MessageRole": ("krons.agents.message", "MessageRole"),
-    "System": ("krons.agents.message", "System"),
-    "prepare_messages_for_chat": ("krons.agents.message", "prepare_messages_for_chat"),
+    "ActionRequest": ("krons.agent.message", "ActionRequest"),
+    "ActionResponse": ("krons.agent.message", "ActionResponse"),
+    "Assistant": ("krons.agent.message", "Assistant"),
+    "Instruction": ("krons.agent.message", "Instruction"),
+    "MessageContent": ("krons.agent.message", "MessageContent"),
+    "MessageRole": ("krons.agent.message", "MessageRole"),
+    "System": ("krons.agent.message", "System"),
+    "prepare_messages_for_chat": ("krons.agent.message", "prepare_messages_for_chat"),
     # mcps
-    "CommandNotAllowedError": ("krons.agents.mcps", "CommandNotAllowedError"),
-    "DEFAULT_ALLOWED_COMMANDS": ("krons.agents.mcps", "DEFAULT_ALLOWED_COMMANDS"),
-    "MCPConnectionPool": ("krons.agents.mcps", "MCPConnectionPool"),
-    "create_mcp_callable": ("krons.agents.mcps", "create_mcp_callable"),
-    "load_mcp_config": ("krons.agents.mcps", "load_mcp_config"),
-    "load_mcp_tools": ("krons.agents.mcps", "load_mcp_tools"),
+    "CommandNotAllowedError": ("krons.agent.mcps", "CommandNotAllowedError"),
+    "DEFAULT_ALLOWED_COMMANDS": ("krons.agent.mcps", "DEFAULT_ALLOWED_COMMANDS"),
+    "MCPConnectionPool": ("krons.agent.mcps", "MCPConnectionPool"),
+    "create_mcp_callable": ("krons.agent.mcps", "create_mcp_callable"),
+    "load_mcp_config": ("krons.agent.mcps", "load_mcp_config"),
+    "load_mcp_tools": ("krons.agent.mcps", "load_mcp_tools"),
 }
 
 _LOADED: dict[str, object] = {}
@@ -72,7 +72,7 @@ def __getattr__(name: str) -> object:
         _LOADED[name] = value
         return value
 
-    raise AttributeError(f"module 'krons.agents' has no attribute {name!r}")
+    raise AttributeError(f"module 'krons.agent' has no attribute {name!r}")
 
 
 def __dir__() -> list[str]:
@@ -82,7 +82,7 @@ def __dir__() -> list[str]:
 
 # TYPE_CHECKING block for static analysis
 if TYPE_CHECKING:
-    from krons.agents.mcps import (
+    from krons.agent.mcps import (
         DEFAULT_ALLOWED_COMMANDS,
         CommandNotAllowedError,
         MCPConnectionPool,
@@ -90,7 +90,7 @@ if TYPE_CHECKING:
         load_mcp_config,
         load_mcp_tools,
     )
-    from krons.agents.message import (
+    from krons.agent.message import (
         ActionRequest,
         ActionResponse,
         Assistant,
@@ -100,7 +100,7 @@ if TYPE_CHECKING:
         System,
         prepare_messages_for_chat,
     )
-    from krons.agents.providers import (
+    from krons.agent.providers import (
         AnthropicMessagesEndpoint,
         GeminiCodeEndpoint,
         OAIChatEndpoint,
@@ -109,7 +109,7 @@ if TYPE_CHECKING:
         create_oai_chat,
         match_endpoint,
     )
-    from krons.agents.tool import Tool, ToolCalling, ToolConfig, tool
+    from krons.agent.tool import Tool, ToolCalling, ToolConfig, tool
 
 __all__ = [
     # tool

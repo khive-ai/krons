@@ -25,8 +25,8 @@ class TestSessionConfig:
         config = SessionConfig()
 
         assert config.default_branch_name is None
-        assert config.default_capabilities == set()
-        assert config.default_resources == set()
+        assert config.shared_capabilities == set()
+        assert config.shared_resources == set()
         assert config.auto_create_default_branch is True
 
     def test_auto_create_default_branch(self):
@@ -53,8 +53,8 @@ class TestSessionConfig:
     def test_config_default_capabilities_and_resources(self):
         """SessionConfig should propagate defaults to created branch."""
         config = SessionConfig(
-            default_capabilities={"tool1", "tool2"},
-            default_resources={"service1", "service2"},
+            shared_capabilities={"tool1", "tool2"},
+            shared_resources={"service1", "service2"},
         )
         session = Session(config=config)
 
@@ -75,10 +75,10 @@ class TestSessionCreation:
         assert len(session.branches) == 1
 
     def test_session_has_registries(self):
-        """Session should have services and operations registries."""
+        """Session should have resources and operations registries."""
         session = Session()
 
-        assert session.services is not None
+        assert session.resources is not None
         assert session.operations is not None
         assert session.communications is not None
 

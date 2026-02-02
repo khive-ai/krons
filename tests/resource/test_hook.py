@@ -17,7 +17,7 @@ from __future__ import annotations
 import pytest
 
 from krons.core import EventStatus
-from krons.resources.hook import (
+from krons.resource.hook import (
     HookBroadcaster,
     HookEvent,
     HookPhase,

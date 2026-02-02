@@ -10,8 +10,8 @@ from uuid import UUID
 import pytest
 from pydantic import BaseModel
 
-from krons.resources import Endpoint, EndpointConfig, ResourceRegistry
-from krons.resources.imodel import iModel
+from krons.resource import Endpoint, EndpointConfig, ResourceRegistry
+from krons.resource.imodel import iModel
 
 # =============================================================================
 # Test Request Model

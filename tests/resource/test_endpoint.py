@@ -14,8 +14,8 @@ import pytest
 from pydantic import BaseModel, SecretStr, ValidationError
 
 from krons.errors import KronConnectionError
-from krons.resources import APICalling, Endpoint, EndpointConfig
-from krons.resources.utilities.resilience import CircuitBreaker, RetryConfig
+from krons.resource import APICalling, Endpoint, EndpointConfig
+from krons.resource.utilities.resilience import CircuitBreaker, RetryConfig
 
 # =============================================================================
 # Test Request Models

@@ -15,7 +15,7 @@ from krons.errors import ConfigurationError, ValidationError
 
 if TYPE_CHECKING:
     from krons.core.specs import Operable
-    from krons.resources.backend import Calling, NormalizedResponse
+    from krons.resource.backend import Calling, NormalizedResponse
     from krons.session import Branch, Session
 
 __all__ = (
@@ -116,7 +116,7 @@ def resolve_response_is_normalized(calling: Calling) -> NormalizedResponse:
         ValidationError: If response is not available or not normalized
     """
     from krons.core.types import is_sentinel
-    from krons.resources.backend import NormalizedResponse
+    from krons.resource.backend import NormalizedResponse
 
     response = calling.response
     if is_sentinel(response):

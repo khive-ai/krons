@@ -10,12 +10,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from krons.agents.mcps import (
+from krons.agent.mcps import (
     DEFAULT_ALLOWED_COMMANDS,
     CommandNotAllowedError,
     MCPConnectionPool,
 )
-from krons.agents.mcps.wrapper import MCP_ENV_ALLOWLIST, filter_mcp_environment
+from krons.agent.mcps.wrapper import MCP_ENV_ALLOWLIST, filter_mcp_environment
 
 
 class TestFilterMCPEnvironment:

@@ -34,9 +34,9 @@ from typing import Any, get_type_hints
 
 from pydantic import BaseModel, Field
 
-from krons.resources.backend import (
+from krons.resource.backend import (
     Calling,
-    NormalizedResponse,
+    NormalizedResponseModel,
     ResourceBackend,
     ResourceConfig,
 )
@@ -163,7 +163,7 @@ class Tool(ResourceBackend):
 
         except Exception as e:
             logger.exception(f"Tool '{self.name}' execution failed: {e}")
-            return NormalizedResponse(
+            return NormalizedResponseModel(
                 status="error",
                 data=None,
                 error=str(e),
@@ -179,7 +179,7 @@ class Tool(ResourceBackend):
         Returns:
             NormalizedResponse with status and data
         """
-        return NormalizedResponse(
+        return NormalizedResponseModel(
             status="success",
             data=raw_response,
             raw_response={"result": raw_response},

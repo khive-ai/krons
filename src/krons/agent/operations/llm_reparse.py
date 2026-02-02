@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel
 
-from krons.agents.message import Instruction
+from krons.agent.message import Instruction
 from krons.core.types import MaybeUnset, Unset, is_sentinel
 from krons.errors import ConfigurationError, ExecutionError, KronsError, ValidationError
-from krons.resources import iModel
+from krons.resource import iModel
 from krons.session import Message
 from krons.utils.fuzzy import HandleUnmatched, extract_json, fuzzy_validate_mapping
 

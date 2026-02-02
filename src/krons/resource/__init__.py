@@ -18,18 +18,19 @@ from typing import TYPE_CHECKING
 
 # Lazy import mapping
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "Calling": ("krons.resources.backend", "Calling"),
-    "NormalizedResponse": ("krons.resources.backend", "NormalizedResponse"),
-    "ResourceBackend": ("krons.resources.backend", "ResourceBackend"),
-    "ResourceConfig": ("krons.resources.backend", "ResourceConfig"),
-    "ResourceRegistry": ("krons.resources.registry", "ResourceRegistry"),
-    "iModel": ("krons.resources.imodel", "iModel"),
-    "Endpoint": ("krons.resources.endpoint", "Endpoint"),
-    "EndpointConfig": ("krons.resources.endpoint", "EndpointConfig"),
-    "APICalling": ("krons.resources.endpoint", "APICalling"),
-    "HookRegistry": ("krons.resources.hook", "HookRegistry"),
-    "HookEvent": ("krons.resources.hook", "HookEvent"),
-    "HookPhase": ("krons.resources.hook", "HookPhase"),
+    "Calling": ("krons.resource.backend", "Calling"),
+    "NormalizedResponse": ("krons.resource.backend", "NormalizedResponse"),
+    "NormalizedResponseModel": ("krons.resource.backend", "NormalizedResponseModel"),
+    "ResourceBackend": ("krons.resource.backend", "ResourceBackend"),
+    "ResourceConfig": ("krons.resource.backend", "ResourceConfig"),
+    "ResourceRegistry": ("krons.resource.registry", "ResourceRegistry"),
+    "iModel": ("krons.resource.imodel", "iModel"),
+    "Endpoint": ("krons.resource.endpoint", "Endpoint"),
+    "EndpointConfig": ("krons.resource.endpoint", "EndpointConfig"),
+    "APICalling": ("krons.resource.endpoint", "APICalling"),
+    "HookRegistry": ("krons.resource.hook", "HookRegistry"),
+    "HookEvent": ("krons.resource.hook", "HookEvent"),
+    "HookPhase": ("krons.resource.hook", "HookPhase"),
 }
 
 _LOADED: dict[str, object] = {}
@@ -49,7 +50,7 @@ def __getattr__(name: str) -> object:
         _LOADED[name] = value
         return value
 
-    raise AttributeError(f"module 'krons.resources' has no attribute {name!r}")
+    raise AttributeError(f"module 'krons.resource' has no attribute {name!r}")
 
 
 def __dir__() -> list[str]:
@@ -59,7 +60,7 @@ def __dir__() -> list[str]:
 
 # TYPE_CHECKING block for static analysis
 if TYPE_CHECKING:
-    from .backend import Calling, NormalizedResponse, ResourceBackend, ResourceConfig
+    from .backend import Calling, NormalizedResponse, NormalizedResponseModel, ResourceBackend, ResourceConfig
     from .endpoint import APICalling, Endpoint, EndpointConfig
     from .hook import HookEvent, HookPhase, HookRegistry
     from .imodel import iModel
@@ -74,6 +75,7 @@ __all__ = (
     "HookPhase",
     "HookRegistry",
     "NormalizedResponse",
+    "NormalizedResponseModel",
     "ResourceBackend",
     "ResourceConfig",
     "ResourceRegistry",

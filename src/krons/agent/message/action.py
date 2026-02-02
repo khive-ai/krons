@@ -8,7 +8,6 @@ from krons.utils.schemas import minimal_yaml
 from .role import Role, RoledContent
 
 
-@implements(Deserializable)
 @dataclass(slots=True)
 class ActionRequest(RoledContent):
     """Action/function call request."""
@@ -34,14 +33,7 @@ class ActionRequest(RoledContent):
             arguments=Unset if arguments is None else arguments,
         )
 
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ActionRequest":
-        return cls.create(
-            function=data.get("function"), arguments=data.get("arguments")
-        )
 
-
-@implements(Deserializable)
 @dataclass(slots=True)
 class ActionResponse(RoledContent):
     """Function call response."""
@@ -78,12 +70,4 @@ class ActionResponse(RoledContent):
             request_id=Unset if request_id is None else request_id,
             result=result,
             error=Unset if error is None else error,
-        )
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ActionResponse":
-        return cls.create(
-            request_id=data.get("request_id"),
-            result=data.get("result"),
-            error=data.get("error"),
         )

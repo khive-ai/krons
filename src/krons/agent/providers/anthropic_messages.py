@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from krons.resources.backend import NormalizedResponse
-from krons.resources.endpoint import Endpoint, EndpointConfig
+from krons.resource.backend import NormalizedResponseModel
+from krons.resource.endpoint import Endpoint, EndpointConfig
 
 __all__ = (
     "AnthropicMessagesEndpoint",
@@ -138,7 +138,7 @@ class AnthropicMessagesEndpoint(Endpoint):
         if tool_uses:
             metadata["tool_uses"] = tool_uses
 
-        return NormalizedResponse(
+        return NormalizedResponseModel(
             status="success",
             data=text,
             raw_response=response,

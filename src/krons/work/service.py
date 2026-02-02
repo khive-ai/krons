@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import Field, PrivateAttr
 
-from krons.resources import ResourceBackend, ResourceConfig
+from krons.resource import ResourceBackend, ResourceConfig
 from krons.work.operations.context import RequestContext
 
 from .policy import EnforcementLevel, PolicyEngine, PolicyResolver

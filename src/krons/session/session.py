@@ -11,24 +11,18 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import Field, model_validator
 
-from krons.core import Element, Flow, Progression
-from krons.core.base.pile import Pile
+from krons.core import Element, Flow, Pile, Progression
 from krons.core.types import HashableModel, Unset, UnsetType, not_sentinel
 from krons.errors import NotFoundError
-from krons.resources import ResourceRegistry, iModel
-from krons.resources.backend import Calling
-from krons.work.operations.node import Operation
-from krons.work.operations.registry import OperationRegistry
+from krons.resource import Calling, ResourceRegistry, iModel
+from krons.work.operations import Operation, OperationRegistry
 
 from .message import Message
-
-if TYPE_CHECKING:
-    from krons.resources.backend import Calling
 
 __all__ = (
     "Branch",
@@ -117,7 +111,9 @@ class Session(Element):
         """Default branch, or None if unset or deleted."""
         if self.default_branch_id is None:
             return None
-        return self.communications.get_progression(self.default_branch_id)
+        with contextlib.suppress(KeyError, NotFoundError):
+            return self.communications.get_progression(self.default_branch_id)
+        return None
 
     def create_branch(
         self,

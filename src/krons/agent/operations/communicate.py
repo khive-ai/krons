@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
-from krons.agents.message import AssistantResponseContent
+from krons.agent.message import AssistantResponseContent
 from krons.errors import ValidationError
 from krons.session import Message
 from krons.work.rules import Validator
@@ -23,7 +23,7 @@ from .types import CommunicateParams, GenerateParams
 
 if TYPE_CHECKING:
     from krons.core.specs import Operable
-    from krons.resources.backend import Calling, NormalizedResponse
+    from krons.resource.backend import Calling, NormalizedResponse
     from krons.session import Branch, Session
 
 __all__ = ("communicate",)

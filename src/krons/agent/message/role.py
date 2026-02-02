@@ -33,8 +33,8 @@ class RoledContent(DataClass):
 
     role: Role = Role.UNSET
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def create(cls, **kwargs) -> RoledContent:
         raise NotImplementedError("Subclasses must implement create method")
 

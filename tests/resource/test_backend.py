@@ -10,7 +10,7 @@ from pydantic import BaseModel, ValidationError
 
 from krons.core import EventStatus
 from krons.core.types import Unset, is_sentinel
-from krons.resources import Calling, NormalizedResponse, ResourceBackend, ResourceConfig
+from krons.resource import Calling, NormalizedResponseModel, ResourceBackend, ResourceConfig
 
 # =============================================================================
 # Mock Components
@@ -58,7 +58,7 @@ class MockResourceBackend(ResourceBackend):
         if self.should_fail:
             raise RuntimeError("Test failure")
 
-        return NormalizedResponse(
+        return NormalizedResponseModel(
             status="success",
             data=self.result_value,
             raw_response={"result": self.result_value},
@@ -181,7 +181,7 @@ class TestNormalizedResponse:
 
     def test_success_response(self):
         """NormalizedResponse with status='success'."""
-        response = NormalizedResponse(
+        response = NormalizedResponseModel(
             status="success",
             data={"key": "value"},
             raw_response={"original": "data"},
@@ -195,7 +195,7 @@ class TestNormalizedResponse:
 
     def test_error_response(self):
         """NormalizedResponse with status='error'."""
-        response = NormalizedResponse(
+        response = NormalizedResponseModel(
             status="error",
             error="Something went wrong",
             raw_response={"error": "details"},
@@ -207,7 +207,7 @@ class TestNormalizedResponse:
 
     def test_to_dict_excludes_none(self):
         """_to_dict() should exclude None values."""
-        response = NormalizedResponse(
+        response = NormalizedResponseModel(
             status="success",
             data="result",
             raw_response={"result": "test"},
@@ -221,7 +221,7 @@ class TestNormalizedResponse:
 
     def test_to_dict_includes_metadata(self):
         """_to_dict() should include metadata when present."""
-        response = NormalizedResponse(
+        response = NormalizedResponseModel(
             status="success",
             data="result",
             raw_response={"result": "test"},

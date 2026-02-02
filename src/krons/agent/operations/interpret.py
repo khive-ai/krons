@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from krons.core.types import is_sentinel
-from krons.resources import iModel
+from krons.resource import iModel
 
 from .constraints import resource_must_be_accessible_by_branch
 from .generate import generate

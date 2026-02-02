@@ -11,7 +11,7 @@ import asyncio
 import pytest
 
 from krons.errors import KronConnectionError
-from krons.resources.utilities.resilience import (
+from krons.resource.utilities.resilience import (
     CircuitBreaker,
     CircuitBreakerOpenError,
     CircuitState,

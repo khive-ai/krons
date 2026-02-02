@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from krons.agents.providers import (
+from krons.agent.providers import (
     AnthropicMessagesEndpoint,
     OAIChatEndpoint,
     create_anthropic_config,

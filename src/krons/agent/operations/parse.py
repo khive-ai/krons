@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from krons.agents.message import Instruction
+from krons.agent.message import Instruction
 from krons.core.types import is_sentinel
 from krons.errors import ConfigurationError, ExecutionError, KronsError, ValidationError
 from krons.session import Message

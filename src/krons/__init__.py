@@ -11,8 +11,8 @@ _MODULE_ALIASES: dict[str, str] = {
     "specs": "krons.core.specs",
     "session": "krons.session",
     "operations": "krons.work.operations",
-    "agents": "krons.agents",
-    "resources": "krons.resources",
+    "agent": "krons.agent",
+    "resource": "krons.resource",
     "work": "krons.work",
 }
 
@@ -40,8 +40,8 @@ def __dir__() -> list[str]:
 
 
 if TYPE_CHECKING:
-    from krons import agents as agents
-    from krons import resources as resources
+    from krons import agent as agent
+    from krons import resource as resource
     from krons import session as session
     from krons import work as work
     from krons.core import specs as specs

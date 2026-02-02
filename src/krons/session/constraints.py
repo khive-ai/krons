@@ -11,10 +11,10 @@ __all__ = (
 
 def resource_must_exist(session, name: str):
     """Validate resource exists in session. Raise NotFoundError if not."""
-    if not session.services.has(name):
+    if not session.resources.has(name):
         raise NotFoundError(
             f"Service '{name}' not found in session services",
-            details={"available": session.services.list_names()},
+            details={"available": session.resources.list_names()},
         )
 
 
@@ -47,8 +47,11 @@ def capabilities_must_be_granted(branch, capabilities: set[str]) -> None:
 def branch_name_must_be_unique(session, name: str) -> None:
     try:
         session.communications.get_progression(name)
-    except KeyError:
+        # If we get here, the name exists - not unique
         raise ExistsError(f"Branch with name '{name}' already exists")
+    except KeyError:
+        # KeyError means name not found - it's unique, which is good
+        pass
 
 
 def genai_model_must_be_configured(session) -> None:
