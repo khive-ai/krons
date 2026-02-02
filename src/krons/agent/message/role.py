@@ -43,7 +43,7 @@ class RoledContent(DataClass):
         raise NotImplementedError("Subclasses must implement render method")
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> RoledContent:
+    def from_dict(cls, data: dict[str, Any], **kwargs: Any) -> RoledContent:
         return cls.create(
             **{
                 k: v

@@ -59,6 +59,7 @@ markers = [
     "unit: marks tests as unit tests",
     "integration: marks tests as integration tests",
     "slow: marks tests as slow",
+    "property: marks tests as property-based tests (hypothesis)",
 ]
 
 [project.optional-dependencies]
