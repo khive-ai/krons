@@ -1,5 +1,6 @@
 from typing import Any, Protocol, runtime_checkable
 
+from krons.core.types import MaybeUnset, Unset, Enum
 from pydantic import BaseModel
 
 
@@ -38,3 +39,10 @@ class CustomParser(Protocol):
     def __call__(
         self, text: str, target_keys: list[str], **kwargs: Any
     ) -> dict[str, Any]: ...
+
+
+class StructureFormat(Enum):
+    """Enumeration of structure formats for instruction rendering."""
+
+    JSON = "json"
+    CUSTOM = "custom"

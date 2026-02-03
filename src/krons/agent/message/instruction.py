@@ -14,7 +14,7 @@ from krons.utils.schemas import (
     minimal_yaml,
 )
 
-from .common import CustomRenderer
+from .common import CustomRenderer, StructureFormat
 from .role import Role, RoledContent
 
 
@@ -28,7 +28,7 @@ class Instruction(RoledContent):
     tool_schemas: MaybeUnset[list[str | dict]] = Unset
     images: MaybeUnset[list[str]] = Unset
     image_detail: MaybeUnset[Literal["low", "high", "auto"]] = Unset
-    structure_format: MaybeUnset[Literal["json", "custom"]] = Unset
+    structure_format: MaybeUnset[StructureFormat] = Unset
     custom_renderer: MaybeUnset[Callable[[type[BaseModel]], str]] = Unset
 
     @classmethod
@@ -40,7 +40,7 @@ class Instruction(RoledContent):
         request_model: MaybeUnset[type[BaseModel]] = Unset,
         images: MaybeUnset[list[str]] = Unset,
         image_detail: MaybeUnset[Literal["low", "high", "auto"]] = Unset,
-        structure_format: MaybeUnset[Literal["json", "custom"]] = Unset,
+        structure_format: MaybeUnset[StructureFormat] = Unset,
         custom_renderer: MaybeUnset[Callable[[type[BaseModel]], str]] = Unset,
     ):
         if is_unset(primary) and is_unset(request_model):
@@ -73,10 +73,10 @@ class Instruction(RoledContent):
 
     def _format_text_content(
         self,
-        structure_format: Literal["json", "custom"],
+        structure_format: StructureFormat,
         custom_renderer: MaybeUnset[CustomRenderer],
     ) -> str:
-        if structure_format == "custom" and not callable(custom_renderer):
+        if structure_format == StructureFormat.CUSTOM and not callable(custom_renderer):
             raise ValueError(
                 "Custom renderer must be provided when structure_format is 'custom'."
             )
@@ -94,9 +94,9 @@ class Instruction(RoledContent):
             model = self.request_model
             text += format_model_schema(model)
 
-            if structure_format == "custom":
+            if structure_format == StructureFormat.CUSTOM:
                 text += custom_renderer(model)
-            elif structure_format == "json" or is_unset(structure_format):
+            elif structure_format == StructureFormat.JSON or is_unset(structure_format):
                 text += _format_json_response_structure(model)
 
         return text.strip()

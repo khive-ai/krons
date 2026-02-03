@@ -15,8 +15,6 @@ from .instruction import Instruction
 from .role import RoledContent
 from .system import System
 
-if TYPE_CHECKING:
-    from pydantic import BaseModel
 
 from krons.session import Message
 
@@ -41,9 +39,7 @@ def prepare_messages_for_chat(
     messages: Pile[Message],
     progression: Progression | None = None,
     new_instruction: Message | Instruction | None = None,
-    to_chat: bool = False,
-    structure_format: Literal["json", "custom"] = "json",
-    custom_renderer: Callable[["BaseModel"], str] | None = None,
+    to_chat: bool = True,
 ) -> list[RoledContent] | list[dict[str, Any]]:
     """Prepare messages for chat API with intelligent content organization.
 
@@ -73,11 +69,13 @@ def prepare_messages_for_chat(
                 if isinstance(new_instruction, Message)
                 else new_instruction
             )
-            new_content: RoledContent = new_content.with_updates(copy_containers="deep")
+            new_content: Instruction = new_content.with_updates(copy_containers="deep")
             if to_chat:
                 chat_msg = {
                     "role": new_content.role.value,
-                    "content": new_content.render(structure_format, custom_renderer),
+                    "content": new_content.render(
+                        new_content.structure_format, new_content.custom_renderer
+                    ),
                 }
                 if not_sentinel(chat_msg, True, True):
                     return [chat_msg]
@@ -173,12 +171,19 @@ def prepare_messages_for_chat(
         )
 
     if to_chat:
-        result: list[dict[str, Any]] = []
+        result = []
         for m in _use_msgs:
+            data = {}
+            if isinstance(m, Instruction):
+                data = {
+                    "structure_format": m.structure_format,
+                    "custom_renderer": m.custom_renderer,
+                }
+
             result.append(
                 {
                     "role": m.role.value,
-                    "content": m.render(structure_format, custom_renderer),
+                    "content": m.render(**data),
                 }
             )
         return result

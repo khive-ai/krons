@@ -24,13 +24,10 @@ class ActionRequest(RoledContent):
         return minimal_yaml(doc)
 
     @classmethod
-    def create(
-        cls, function: str | None = None, arguments: dict[str, Any] | None = None
-    ) -> "ActionRequest":
-        return cls(
-            function=Unset if function is None else function,
-            arguments=Unset if arguments is None else arguments,
-        )
+    def create(cls, function: str, arguments: dict[str, Any] = Unset):
+        if cls._is_sentinel(arguments):
+            arguments = {}
+        return cls(function=function, arguments=arguments)
 
 
 @dataclass(slots=True)
