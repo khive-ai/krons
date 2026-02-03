@@ -59,12 +59,14 @@ markers = [
     "unit: marks tests as unit tests",
     "integration: marks tests as integration tests",
     "slow: marks tests as slow",
+    "property: marks tests as property-based tests (hypothesis)",
 ]
 
 [project.optional-dependencies]
 tiktoken = ["tiktoken>=0.11.0",]
+fastmcp = ["fastmcp>=2.14.4",]
 
 agent = [
-    "krons[tiktoken]",
+    "krons[tiktoken, fastmcp]",
 ]
 all = ["krons[agent]"]

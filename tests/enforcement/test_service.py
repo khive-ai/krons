@@ -45,20 +45,20 @@ class TestRequestContext:
         assert ctx.name == "test.action"
         assert ctx.id is not None
         assert ctx.session_id is None
-        assert ctx.branch_id is None
+        assert ctx.branch is None
         assert ctx.metadata == {}
 
     def test_with_session_and_branch(self):
         """Test RequestContext with session and branch IDs."""
         session_id = uuid4()
-        branch_id = uuid4()
+        branch = uuid4()
         ctx = RequestContext(
             name="test.action",
             session_id=session_id,
-            branch_id=branch_id,
+            branch=branch,
         )
         assert ctx.session_id == session_id
-        assert ctx.branch_id == branch_id
+        assert ctx.branch == branch
 
     def test_metadata_via_kwargs(self):
         """Test that extra kwargs become metadata."""
@@ -287,7 +287,7 @@ class TestKronService:
 
     def test_kron_service_creation(self):
         """Test creating a KronService subclass."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         class TestService(KronService):
@@ -304,7 +304,7 @@ class TestKronService:
 
     def test_kron_service_has_engine_property(self):
         """Test has_engine property."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         class TestService(KronService):
@@ -329,7 +329,7 @@ class TestKronService:
 
     def test_kron_service_has_resolver_property(self):
         """Test has_resolver property."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         class TestService(KronService):
@@ -351,7 +351,7 @@ class TestKronService:
 
     def test_fetch_handler_unknown_action(self):
         """Test _fetch_handler raises ValueError for unknown action."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         class TestService(KronService):
@@ -366,7 +366,7 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action(self):
         """Test calling an action via KronService.call()."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         class TestService(KronService):
@@ -387,7 +387,7 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action_with_hooks(self):
         """Test calling an action with pre and post hooks."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         hook_calls = []
@@ -440,7 +440,7 @@ class TestKronService:
     )
     def test_build_action_types_with_operable(self):
         """Test that action types are built from operable."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         operable = Operable(
@@ -469,7 +469,7 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action_with_missing_hook(self):
         """Test that missing hooks log warnings but don't fail."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         class TestService(KronService):
@@ -496,7 +496,7 @@ class TestKronService:
     @pytest.mark.anyio
     async def test_call_action_with_failing_hook(self):
         """Test that failing hooks are logged but don't block action."""
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         async def failing_hook(service, options, ctx, result=None):
@@ -526,7 +526,7 @@ class TestKronService:
         """Test that invalid inputs in action trigger warning."""
         import logging
 
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         operable = Operable(
@@ -559,7 +559,7 @@ class TestKronService:
         """Test that invalid outputs in action trigger warning."""
         import logging
 
-        from krons.resources.backend import Calling
+        from krons.resource.backend import Calling
         from krons.work.service import KronService
 
         operable = Operable(

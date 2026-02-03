@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 from pydantic import Field, PrivateAttr
 
 from krons.core import Event, Node
-from krons.core.types import Undefined, UndefinedType, is_sentinel
 
 if TYPE_CHECKING:
     from krons.session import Branch, Session

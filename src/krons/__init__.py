@@ -1,18 +1,6 @@
 # Copyright (c) 2025 - 2026, HaiyangLi <quantocean.li at gmail dot com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""krons - Spec-Based Composable Framework.
-
-Top-level re-exports for convenient imports:
-- krons.types -> krons.core.types
-- krons.specs -> krons.core.specs
-- krons.session -> krons.session (top-level module)
-- krons.operations -> krons.work.operations
-- krons.agents -> krons.agents
-- krons.resources -> krons.resources
-- krons.work -> krons.work
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -23,8 +11,8 @@ _MODULE_ALIASES: dict[str, str] = {
     "specs": "krons.core.specs",
     "session": "krons.session",
     "operations": "krons.work.operations",
-    "agents": "krons.agents",
-    "resources": "krons.resources",
+    "agent": "krons.agent",
+    "resource": "krons.resource",
     "work": "krons.work",
 }
 
@@ -52,8 +40,8 @@ def __dir__() -> list[str]:
 
 
 if TYPE_CHECKING:
-    from krons import agents as agents
-    from krons import resources as resources
+    from krons import agent as agent
+    from krons import resource as resource
     from krons import session as session
     from krons import work as work
     from krons.core import specs as specs

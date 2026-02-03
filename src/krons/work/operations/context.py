@@ -85,7 +85,7 @@ class RequestContext(DataClass):
     name: str
     id: UUID = field(default_factory=uuid4)
     session_id: ID[Session] | None = None
-    branch_id: ID[Branch] | None = None
+    branch: ID[Branch] | str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     conn: Any | None = None
     query_fn: QueryFn | None = None
@@ -95,7 +95,7 @@ class RequestContext(DataClass):
         self,
         name: str,
         session_id: ID[Session] | None = None,
-        branch_id: ID[Branch] | None = None,
+        branch: ID[Branch] | str | None = None,
         id: UUID | None = None,
         conn: Any | None = None,
         query_fn: QueryFn | None = None,
@@ -105,7 +105,7 @@ class RequestContext(DataClass):
         self.name = name
         self.id = id or uuid4()
         self.session_id = session_id
-        self.branch_id = branch_id
+        self.branch = branch
         self.conn = conn
         self.query_fn = query_fn
         self.now = now
@@ -141,12 +141,12 @@ class RequestContext(DataClass):
         return await get_session(self.session_id)
 
     async def get_branch(self) -> Branch | None:
-        """Fetch the Branch object for branch_id, if set.
+        """Fetch the Branch object for branch, if set.
 
-        Returns None if branch_id is not set.
-        Raises ValueError if branch_id is not found.
+        Returns None if branch is not set.
+        Raises ValueError if branch is not found.
         """
         session = await self.get_session()
-        if session is None or self.branch_id is None:
+        if session is None or self.branch is None:
             return None
-        return session.branches.get(self.branch_id)
+        return session.branches.get(self.branch)

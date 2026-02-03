@@ -34,8 +34,7 @@ from uuid import UUID, uuid4
 from krons.utils import concurrency
 
 if TYPE_CHECKING:
-    from .form import Form
-    from .worker import WorkConfig, Worker, WorkLink
+    from .worker import Worker
 
 __all__ = ("WorkerEngine", "WorkerTask")
 

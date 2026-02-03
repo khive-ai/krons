@@ -27,8 +27,8 @@ Example:
 from __future__ import annotations
 
 import functools
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Awaitable, Callable
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Awaitable, Callable
 from uuid import UUID
 
 if TYPE_CHECKING:
