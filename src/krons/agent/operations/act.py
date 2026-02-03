@@ -4,14 +4,10 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import TYPE_CHECKING, Any, Literal
-from krons.core.types import HashableModel, Params
-from pydantic import Field, field_validator, BaseModel
+from typing import Literal
+from krons.core.types import Params
 from krons.resource import Calling
-from krons.utils import alcall, to_dict, to_list, extract_json
-import re
-
-from krons.agent.message.common import StructureFormat
+from krons.utils import alcall
 from krons.agent.message.action import ActionRequest, ActionResponse
 
 from krons.session import Session, Branch, Message
