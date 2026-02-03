@@ -3,8 +3,9 @@
 
 """Validation constraints for agent operations.
 
-These functions validate preconditions and resolve parameters
-for generate, communicate, act, and react operations.
+Precondition checks and parameter resolution for generate, communicate,
+act, and react operations. Each function either validates (raises on
+failure) or resolves (returns a value).
 """
 
 from __future__ import annotations
@@ -33,24 +34,17 @@ __all__ = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Resolution functions (return a value or raise)
+# ---------------------------------------------------------------------------
+
+
 def resolve_branch_exists_in_session(
     session: Session,
     branch: Branch | str,
 ) -> Branch:
-    """Resolve branch reference to actual Branch object.
-
-    Args:
-        session: Session containing branches
-        branch: Branch object or branch ID string
-
-    Returns:
-        Resolved Branch object
-
-    Raises:
-        ValidationError: If branch not found in session
-    """
+    """Resolve branch reference to Branch object. Raises on not found."""
     if isinstance(branch, str):
-        # Look up branch by ID in session
         resolved = session.branches.get(branch)
         if resolved is None:
             raise ValidationError(
@@ -65,18 +59,7 @@ def resolve_genai_model_exists_in_session(
     session: Session,
     model_name: str | None = None,
 ) -> Any:
-    """Resolve and validate that a GenAI model exists in session.
-
-    Args:
-        session: Session containing services
-        model_name: Optional model name, uses default if not provided
-
-    Returns:
-        iModel instance from session
-
-    Raises:
-        ConfigurationError: If model not found or not configured
-    """
+    """Resolve model name → iModel from session registry."""
     name = model_name or getattr(session, "default_generate_model", None)
     if name is None:
         raise ConfigurationError(
@@ -84,37 +67,28 @@ def resolve_genai_model_exists_in_session(
             details={"session_id": str(session.id)},
         )
 
-    if not hasattr(session, "registry") or session.registry is None:
+    registry = getattr(session, "registry", None)
+    if registry is None:
         raise ConfigurationError(
             "Session has no service registry",
             details={"session_id": str(session.id)},
         )
 
-    model = session.registry.get(name)
+    model = registry.get(name)
     if model is None:
         raise ConfigurationError(
             f"Model '{name}' not found in session registry",
             details={
                 "session_id": str(session.id),
                 "model_name": name,
-                "available": list(session.registry.list_names()),
+                "available": list(registry.list_names()),
             },
         )
     return model
 
 
 def resolve_response_is_normalized(calling: Calling) -> NormalizedResponse:
-    """Extract normalized response from a Calling event.
-
-    Args:
-        calling: Completed Calling event
-
-    Returns:
-        NormalizedResponse from the calling
-
-    Raises:
-        ValidationError: If response is not available or not normalized
-    """
+    """Extract NormalizedResponse from Calling, raising if absent or wrong type."""
     from krons.core.types import is_sentinel
     from krons.resource.backend import NormalizedResponse
 
@@ -124,7 +98,6 @@ def resolve_response_is_normalized(calling: Calling) -> NormalizedResponse:
             "Calling has no response",
             details={"calling_id": str(calling.id)},
         )
-
     if not isinstance(response, NormalizedResponse):
         raise ValidationError(
             f"Response is not normalized: {type(response).__name__}",
@@ -133,16 +106,59 @@ def resolve_response_is_normalized(calling: Calling) -> NormalizedResponse:
     return response
 
 
+def resolve_parse_params(
+    params: Any,
+    operable: Operable | None = None,
+) -> dict[str, Any]:
+    """Normalize parse params to dict, validating output_fields against operable."""
+    if hasattr(params, "model_dump"):
+        result = params.model_dump(exclude_none=True)
+    elif isinstance(params, dict):
+        result = dict(params)
+    else:
+        result = {"text": str(params)}
+
+    if operable and "output_fields" in result:
+        field_names = {s.name for s in operable.get_specs()}
+        invalid = set(result["output_fields"]) - field_names
+        if invalid:
+            raise ValidationError(
+                f"Output fields not in operable: {invalid}",
+                details={"invalid": sorted(invalid), "available": sorted(field_names)},
+            )
+    return result
+
+
+def resolve_generate_params(
+    params: Any,
+    session: Session,
+    branch: Branch,
+) -> dict[str, Any]:
+    """Normalize generate params to dict, resolving default model."""
+    if hasattr(params, "model_dump"):
+        result = params.model_dump(exclude_none=True)
+    elif isinstance(params, dict):
+        result = dict(params)
+    else:
+        raise ValidationError(
+            f"Invalid params type: {type(params).__name__}",
+            details={"expected": "GenerateParams or dict"},
+        )
+
+    if "model" not in result or result["model"] is None:
+        result["model"] = getattr(session, "default_generate_model", None)
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Validation functions (raise on failure, return None)
+# ---------------------------------------------------------------------------
+
+
 def response_must_be_completed(calling: Calling) -> None:
-    """Validate that a Calling event completed successfully.
-
-    Args:
-        calling: Calling event to check
-
-    Raises:
-        ValidationError: If calling failed or has errors
-    """
+    """Validate Calling completed without error status."""
     from krons.core import EventStatus
+    from krons.core.types import is_sentinel
 
     if calling.execution.status == EventStatus.FAILED:
         raise ValidationError(
@@ -154,8 +170,6 @@ def response_must_be_completed(calling: Calling) -> None:
         )
 
     response = calling.response
-    from krons.core.types import is_sentinel
-
     if not is_sentinel(response) and response.status == "error":
         raise ValidationError(
             f"Response error: {response.error}",
@@ -164,54 +178,37 @@ def response_must_be_completed(calling: Calling) -> None:
 
 
 def resource_must_exist_in_session(session: Session, name: str) -> Any:
-    """Validate that a resource exists in session registry.
-
-    Args:
-        session: Session to check
-        name: Resource name
-
-    Returns:
-        The resource from registry
-
-    Raises:
-        ValidationError: If resource not found
-    """
-    if not hasattr(session, "registry") or session.registry is None:
+    """Validate resource exists in session registry, return it."""
+    registry = getattr(session, "registry", None)
+    if registry is None:
         raise ValidationError(
             "Session has no service registry",
             details={"session_id": str(session.id)},
         )
 
-    resource = session.registry.get(name)
+    resource = registry.get(name)
     if resource is None:
         raise ValidationError(
             f"Resource '{name}' not found in session",
             details={
                 "session_id": str(session.id),
                 "resource_name": name,
-                "available": list(session.registry.list_names()),
+                "available": list(registry.list_names()),
             },
         )
     return resource
 
 
 def resource_must_be_accessible_by_branch(branch: Branch, name: str) -> None:
-    """Validate that a branch has access to a resource.
-
-    Args:
-        branch: Branch to check
-        name: Resource name
-
-    Raises:
-        ValidationError: If branch doesn't have access
-    """
-    if hasattr(branch, "resources") and name not in branch.resources:
+    """Validate branch has access to named resource."""
+    resources = getattr(branch, "resources", None)
+    if resources is not None and name not in resources:
         raise ValidationError(
             f"Branch '{branch.id}' has no access to resource '{name}'",
             details={
                 "branch_id": str(branch.id),
                 "resource": name,
-                "available": list(getattr(branch, "resources", [])),
+                "available": list(resources),
             },
         )
 
@@ -220,15 +217,7 @@ def capabilities_must_be_subset_of_branch(
     branch: Branch,
     required: set[str],
 ) -> None:
-    """Validate branch has all required capabilities.
-
-    Args:
-        branch: Branch to check
-        required: Set of required capability names
-
-    Raises:
-        ValidationError: If branch missing capabilities
-    """
+    """Validate branch has all required capabilities."""
     branch_caps = getattr(branch, "capabilities", set())
     missing = required - branch_caps
     if missing:
@@ -247,15 +236,7 @@ def capabilities_must_be_subset_of_operable(
     operable: Operable,
     required: set[str],
 ) -> None:
-    """Validate operable defines all required fields.
-
-    Args:
-        operable: Operable to check
-        required: Set of required field names
-
-    Raises:
-        ValidationError: If operable missing fields
-    """
+    """Validate operable defines all required fields."""
     field_names = {s.name for s in operable.get_specs()}
     missing = required - field_names
     if missing:
@@ -270,81 +251,9 @@ def capabilities_must_be_subset_of_operable(
 
 
 def genai_model_must_be_configured(session: Session) -> None:
-    """Validate session has a default GenAI model configured.
-
-    Args:
-        session: Session to check
-
-    Raises:
-        ConfigurationError: If no default model configured
-    """
+    """Validate session has a default GenAI model configured."""
     if not getattr(session, "default_generate_model", None):
         raise ConfigurationError(
             "Session has no default_generate_model configured",
             details={"session_id": str(session.id)},
         )
-
-
-def resolve_parse_params(
-    params: Any,
-    operable: Operable | None = None,
-) -> dict[str, Any]:
-    """Resolve and validate parse operation parameters.
-
-    Args:
-        params: ParseParams or dict
-        operable: Optional operable for field validation
-
-    Returns:
-        Resolved parameters dict
-    """
-    if hasattr(params, "model_dump"):
-        result = params.model_dump(exclude_none=True)
-    elif isinstance(params, dict):
-        result = dict(params)
-    else:
-        result = {"text": str(params)}
-
-    if operable and "output_fields" in result:
-        # Validate output fields exist in operable
-        field_names = {s.name for s in operable.get_specs()}
-        invalid = set(result["output_fields"]) - field_names
-        if invalid:
-            raise ValidationError(
-                f"Output fields not in operable: {invalid}",
-                details={"invalid": sorted(invalid), "available": sorted(field_names)},
-            )
-
-    return result
-
-
-def resolve_generate_params(
-    params: Any,
-    session: Session,
-    branch: Branch,
-) -> dict[str, Any]:
-    """Resolve and validate generate operation parameters.
-
-    Args:
-        params: GenerateParams or dict
-        session: Session for model resolution
-        branch: Branch for capability checks
-
-    Returns:
-        Resolved parameters dict
-    """
-    if hasattr(params, "model_dump"):
-        result = params.model_dump(exclude_none=True)
-    elif isinstance(params, dict):
-        result = dict(params)
-    else:
-        raise ValidationError(
-            f"Invalid params type: {type(params).__name__}",
-            details={"expected": "GenerateParams or dict"},
-        )
-
-    # Resolve model if not specified
-    if "model" not in result or result["model"] is None:
-        result["model"] = getattr(session, "default_generate_model", None)
-
-    return result

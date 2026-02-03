@@ -1,79 +1,73 @@
 # Copyright (c) 2025 - 2026, HaiyangLi <quantocean.li at gmail dot com>
 # SPDX-License-Identifier: Apache-2.0
 
+"""Parse operation: extract structured JSON from raw LLM text.
+
+Handler signature: parse(params, ctx) → dict[str, Any]
+
+Two-stage pipeline:
+  1. _direct_parse: regex/fuzzy extraction (fast, no LLM call)
+  2. _llm_reparse: LLM-assisted fallback (up to max_retries)
+"""
+
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-
-from krons.agent.message.common import StructureFormat, CustomParser, CustomRenderer
-from krons.core.types import MaybeUnset, Unset, is_sentinel
+from krons.agent.message.common import CustomParser, CustomRenderer, StructureFormat
+from krons.core.types import MaybeUnset, ModelConfig, Params, Unset, is_sentinel
 from krons.errors import ConfigurationError, ExecutionError, KronsError, ValidationError
-from krons.resource.imodel import iModel
 from krons.utils.fuzzy import HandleUnmatched, extract_json, fuzzy_validate_mapping
-from dataclasses import dataclass, field
-from krons.core.types import Params, ModelConfig
-from krons.work.operations import RequestContext
 
 if TYPE_CHECKING:
+    from krons.resource.imodel import iModel
     from krons.session import Branch, Session
+    from krons.work.operations import RequestContext
 
-__all__ = ("parse",)
+__all__ = ("ParseParams", "parse")
 
 
 @dataclass(frozen=True, slots=True)
 class ParseParams(Params):
+    """Parameters for parse operation.
+
+    Attributes:
+        text: Raw text to parse (required).
+        target_keys: Expected keys for fuzzy matching (or derived from request_model).
+        imodel: Model for LLM reparse fallback.
+        structure_format: JSON (default) or custom parser.
+        max_retries: LLM reparse attempts (1-5, 0 = direct only).
+    """
+
     _config = ModelConfig(sentinel_additions=frozenset({"none", "empty"}))
 
     text: str
-    """Required. Raw text to parse."""
-
     target_keys: MaybeUnset[list[str]] = Unset
-    """Expected keys for fuzzy matching."""
-
     imodel: iModel | str | None = None
-    """Model for LLM reparse fallback."""
-
     imodel_kwargs: dict[str, Any] = field(default_factory=dict)
-    """Additional kwargs for imodel."""
-
     custom_parser: CustomParser | None = None
-    """Custom parser for structure_format='custom'. Extracts dict from text."""
-
     custom_renderer: MaybeUnset[CustomRenderer] = Unset
-    """Custom renderer for structure_format='custom'. Formats request_model schema."""
-
     structure_format: StructureFormat = StructureFormat.JSON
-    """Format for parsing output ('json' or 'custom')."""
-
     tool_schemas: MaybeUnset[list[str]] = Unset
-    """Tool schemas for function calling (pass-through to instruction)."""
-
     request_model: MaybeUnset[type[BaseModel]] = Unset
-
     similarity_threshold: float = 0.85
-    """Fuzzy match threshold."""
-
     handle_unmatched: HandleUnmatched = HandleUnmatched.FORCE
-    """How to handle unmatched keys."""
-
     max_retries: int = 3
-    """Retry attempts for LLM reparse. should be less than 5 to avoid long delays."""
-
     fill_mapping: dict[str, Any] | None = None
-
     fill_value: Any = Unset
 
 
 async def parse(params: ParseParams, ctx: RequestContext) -> dict[str, Any]:
+    """Parse operation handler: resolve target_keys and delegate to _parse."""
     target_keys = params.target_keys
 
     if params.is_sentinel_field("target_keys"):
         if params.is_sentinel_field("request_model"):
             raise ValidationError(
-                "Either 'target_keys' or 'request_model' must be provided for parse operation"
+                "Either 'target_keys' or 'request_model' must be provided for parse"
             )
         target_keys = list(params.request_model.model_fields.keys())
 
@@ -94,8 +88,8 @@ async def _parse(
     branch: Branch | str,
     text: str,
     target_keys: list[str],
-    structure_format: StructureFormat,
-    custom_parser: CustomParser,
+    structure_format: StructureFormat = StructureFormat.JSON,
+    custom_parser: CustomParser | None = None,
     similarity_threshold: float = 0.85,
     handle_unmatched: HandleUnmatched = HandleUnmatched.FORCE,
     fill_mapping: dict[str, Any] | None = None,
@@ -106,12 +100,20 @@ async def _parse(
     request_model: MaybeUnset[type[BaseModel]] = Unset,
     custom_renderer: MaybeUnset[CustomRenderer] = Unset,
     **imodel_kwargs: Any,
-):
-    if is_sentinel(target_keys, {"none", "empty"}):
+) -> dict[str, Any]:
+    """Two-stage parse: try direct extraction, fall back to LLM reparse.
+
+    Raises:
+        ValidationError: Missing required params.
+        ExecutionError: All parse attempts failed.
+    """
+    _sentinel_check = {"none", "empty"}
+    if is_sentinel(target_keys, _sentinel_check):
         raise ValidationError("No target_keys provided for parse operation")
-    if is_sentinel(text, {"none", "empty"}):
+    if is_sentinel(text, _sentinel_check):
         raise ValidationError("No text provided for parse operation")
 
+    # Stage 1: direct parse (no LLM call)
     try:
         return _direct_parse(
             text=text,
@@ -126,9 +128,9 @@ async def _parse(
     except KronsError as e:
         if e.retryable is False:
             raise
-
     except Exception as e:
-        if is_sentinel(max_retries, {"none", "empty"}) or max_retries < 1:
+        # Stage 2: LLM reparse fallback
+        if is_sentinel(max_retries, _sentinel_check) or max_retries < 1:
             raise ExecutionError(
                 "Direct parse failed and max_retries not enabled, no reparse attempted",
                 retryable=False,
@@ -164,14 +166,19 @@ async def _parse(
 def _direct_parse(
     text: str,
     target_keys: list[str],
-    structure_format: StructureFormat,
-    custom_parser: CustomParser,
+    structure_format: StructureFormat = StructureFormat.JSON,
+    custom_parser: CustomParser | None = None,
     similarity_threshold: float = 0.85,
     handle_unmatched: HandleUnmatched = HandleUnmatched.FORCE,
     fill_mapping: dict[str, Any] | None = None,
     fill_value: Any = Unset,
-):
-    if is_sentinel(target_keys, {"none", "empty"}):
+) -> dict[str, Any]:
+    """Extract JSON from text without LLM assistance.
+
+    Routes to custom_parser or built-in JSON extraction + fuzzy matching.
+    """
+    _sentinel_check = {"none", "empty"}
+    if is_sentinel(target_keys, _sentinel_check):
         raise ValidationError("No target_keys provided for direct_parse operation")
 
     match structure_format:
@@ -189,6 +196,7 @@ def _direct_parse(
                     retryable=True,
                     cause=e,
                 )
+
         case StructureFormat.JSON:
             pass
 
@@ -208,7 +216,7 @@ def _direct_parse(
             cause=e,
         )
 
-    if is_sentinel(extracted, {"none", "empty"}):
+    if is_sentinel(extracted, _sentinel_check):
         raise ExecutionError(
             "No JSON object could be extracted from text during parse",
             retryable=True,

@@ -1,10 +1,36 @@
-from krons.errors import ValidationError
+# Copyright (c) 2025 - 2026, HaiyangLi <quantocean.li at gmail dot com>
+# SPDX-License-Identifier: Apache-2.0
+
+"""Shared utilities for agent operations.
+
+ReturnAs: Enum controlling how Calling results are unwrapped.
+handle_return: Dispatch Calling → desired output form.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from krons.core.types import Enum, MaybeUnset, Unset, is_sentinel
-from krons.resource import Calling
-from typing import Callable
+from krons.errors import ValidationError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from krons.resource.backend import Calling
 
 
 class ReturnAs(Enum):
+    """How to unwrap a Calling result.
+
+    TEXT      - response.data (typically the LLM text)
+    RAW       - response.raw_response (provider-specific dict)
+    RESPONSE  - the NormalizedResponse object
+    MESSAGE   - wrapped as a Message with Assistant content
+    CALLING   - the raw Calling event (no unwrap, no validation)
+    CUSTOM    - apply caller-supplied return_parser
+    """
+
     TEXT = "text"
     RAW = "raw"
     RESPONSE = "response"
@@ -20,14 +46,11 @@ def handle_return(
     *,
     return_parser: MaybeUnset[Callable] = Unset,
 ):
-    """
-    if return calling, or custom, no further processing is done.
-    No validation is performed on the calling object in these cases.
+    """Unwrap a Calling into the form requested by return_as.
 
-    In other cases, the calling object will be validated to be complete
-    with a normalized response.
+    CALLING and CUSTOM bypass normalization checks.
+    All other modes call calling.assert_is_normalized() first.
     """
-
     if return_as == ReturnAs.CALLING:
         return calling
 
@@ -46,9 +69,11 @@ def handle_return(
             return response.data
         case ReturnAs.RAW:
             return response.raw_response
+        case ReturnAs.RESPONSE:
+            return response
         case ReturnAs.MESSAGE:
-            from krons.agent.message.assistant import parse_to_assistant_response
+            from krons.agent.message.assistant import parse_to_assistant_message
 
-            return parse_to_assistant_response(response)
+            return parse_to_assistant_message(response)
         case _:
             raise ValidationError(f"Unsupported return_as: {return_as.value}")
