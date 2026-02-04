@@ -108,6 +108,16 @@ class TestContentSpecs:
         assert "metadata" in names
         assert "embedding" in names
 
+    def test_get_specs_with_meta_key(self):
+        """ContentSpecs with meta_key should include the alias."""
+        specs = ContentSpecs.get_specs(meta_key="node_metadata")
+
+        assert isinstance(specs, list)
+        assert len(specs) == 6
+
+        names = [s.name for s in specs]
+        assert "node_metadata" in names
+
     def test_get_specs_id_is_uuid(self):
         """ID spec should be UUID type."""
         specs = ContentSpecs.get_specs()

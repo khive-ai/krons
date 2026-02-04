@@ -745,9 +745,12 @@ def create_node(
         has_embedding = True
 
     # 1. Build all possible specs
+    # Extract meta_key from config_kwargs if provided, else use default
+    meta_key = config_kwargs.get("meta_key", "node_metadata")
     all_specs = ContentSpecs.get_specs(
         content_type=content if content else Unset,
         dim=resolved_embedding_dim,
+        meta_key=meta_key,
     ) + AuditSpecs.get_specs(use_uuid=True)
 
     # 2. Track which fields to include
@@ -837,19 +840,17 @@ def _extract_base_type(annotation: Any) -> Any:
     return annotation
 
 
-def generate_ddl(
-    node_cls: type[Node],
-    *,
-    include_audit_columns: bool = True,
-) -> str:
+def generate_ddl(node_cls: type[Node]) -> str:
     """Generate CREATE TABLE DDL from Node subclass.
 
     Flattens content fields (if configured), adds audit columns, and
     generates PostgreSQL DDL with pgvector support for embeddings.
 
+    Audit column inclusion is driven by NodeConfig settings (track_updated_at,
+    soft_delete, versioning, etc.).
+
     Args:
         node_cls: Persistable Node subclass (must have table_name)
-        include_audit_columns: Include audit columns from NodeConfig
 
     Returns:
         CREATE TABLE IF NOT EXISTS statement
@@ -875,7 +876,8 @@ def generate_ddl(
     )
 
     all_specs = ContentSpecs.get_specs(
-        dim=config.embedding_dim if config.embedding_enabled else Unset
+        dim=config.embedding_dim if config.embedding_enabled else Unset,
+        meta_key=config.meta_key,
     ) + AuditSpecs.get_specs(use_uuid=True)
 
     # Flatten content: extract fields from BaseModel instead of generic JSONB
@@ -900,25 +902,24 @@ def generate_ddl(
     ):
         include.add("content")
 
-    include.add("metadata")
+    if not config.is_sentinel_field("meta_key") and config.meta_key != "metadata":
+        include.add(config.meta_key)
 
-    if include_audit_columns:
-        if config.track_updated_at:
-            include.add("updated_at")
-        if config.track_updated_by:
-            include.add("updated_by")
-        if config.track_is_active:
-            include.add("is_active")
-        if config.soft_delete:
-            include.update({"is_deleted", "deleted_at"})
-            if config.track_deleted_by:
-                include.add("deleted_by")
-        if config.versioning:
-            include.add("version")
-        if config.content_hashing:
-            include.add("content_hash")
-        if config.integrity_hashing:
-            include.add("integrity_hash")
+    audit_cols = {
+        "updated_at": config.track_updated_at,
+        "updated_by": config.track_updated_by,
+        "is_active": config.track_is_active,
+        "is_deleted": config.soft_delete,
+        "deleted_at": config.soft_delete,
+        "deleted_by": config.soft_delete and config.track_deleted_by,
+        "version": config.versioning,
+        "content_hash": config.content_hashing,
+        "integrity_hash": config.integrity_hashing,
+    }
+
+    for col, enabled in audit_cols.items():
+        if enabled:
+            include.add(col)
 
     # If flattened, include the extracted content field names
     if config.flatten_content and content_type is not None:

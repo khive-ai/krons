@@ -1,6 +1,6 @@
 [project]
 name = "krons"
-version = "0.2.3"
+version = "0.2.4"
 description = "Spec-based composable framework for building type-safe systems"
 readme = "README.md"
 requires-python = ">=3.11"
