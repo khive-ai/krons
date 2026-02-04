@@ -21,6 +21,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "PERSISTABLE_NODE_REGISTRY": ("krons.core.base", "PERSISTABLE_NODE_REGISTRY"),
     # Classes
     "Broadcaster": ("krons.core.base", "Broadcaster"),
+    "DataLoggerConfig": ("krons.core.base", "DataLoggerConfig"),
     "Edge": ("krons.core.base", "Edge"),
     "EdgeCondition": ("krons.core.base", "EdgeCondition"),
     "Element": ("krons.core.base", "Element"),
@@ -75,6 +76,7 @@ if TYPE_CHECKING:
         NODE_REGISTRY,
         PERSISTABLE_NODE_REGISTRY,
         Broadcaster,
+        DataLoggerConfig,
         Edge,
         EdgeCondition,
         Element,
@@ -103,6 +105,7 @@ __all__ = [
     "PERSISTABLE_NODE_REGISTRY",
     # classes
     "Broadcaster",
+    "DataLoggerConfig",
     "Edge",
     "EdgeCondition",
     "Element",
