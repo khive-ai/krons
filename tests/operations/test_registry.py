@@ -15,7 +15,7 @@ class TestOperationRegistry:
         """Registry.register() should add handler."""
         registry = OperationRegistry()
 
-        async def my_factory(session, branch, params):
+        async def my_factory(params, ctx):
             return "result"
 
         registry.register("my_op", my_factory)
@@ -27,7 +27,7 @@ class TestOperationRegistry:
         """Registry.get() should retrieve handler."""
         registry = OperationRegistry()
 
-        async def my_factory(session, branch, params):
+        async def my_factory(params, ctx):
             return "result"
 
         registry.register("my_op", my_factory)
@@ -46,7 +46,7 @@ class TestOperationRegistry:
         """Registry.has() should check existence."""
         registry = OperationRegistry()
 
-        async def my_factory(session, branch, params):
+        async def my_factory(params, ctx):
             return "result"
 
         assert registry.has("my_op") is False
@@ -64,10 +64,10 @@ class TestOperationRegistryDuplicate:
         """Duplicate registration should raise ValueError."""
         registry = OperationRegistry()
 
-        async def factory1(session, branch, params):
+        async def factory1(params, ctx):
             return "result1"
 
-        async def factory2(session, branch, params):
+        async def factory2(params, ctx):
             return "result2"
 
         registry.register("my_op", factory1)
@@ -79,10 +79,10 @@ class TestOperationRegistryDuplicate:
         """Duplicate registration with override=True should succeed."""
         registry = OperationRegistry()
 
-        async def factory1(session, branch, params):
+        async def factory1(params, ctx):
             return "result1"
 
-        async def factory2(session, branch, params):
+        async def factory2(params, ctx):
             return "result2"
 
         registry.register("my_op", factory1)
@@ -99,7 +99,7 @@ class TestOperationRegistryUnregister:
         """unregister() should remove existing handler."""
         registry = OperationRegistry()
 
-        async def my_factory(session, branch, params):
+        async def my_factory(params, ctx):
             return "result"
 
         registry.register("my_op", my_factory)
@@ -129,7 +129,7 @@ class TestOperationRegistryListNames:
         """list_names() should return all registered operation names."""
         registry = OperationRegistry()
 
-        async def factory(session, branch, params):
+        async def factory(params, ctx):
             return "result"
 
         registry.register("op1", factory)
@@ -148,7 +148,7 @@ class TestOperationRegistryDunderMethods:
         """'in' operator should check existence."""
         registry = OperationRegistry()
 
-        async def factory(session, branch, params):
+        async def factory(params, ctx):
             return "result"
 
         registry.register("my_op", factory)
@@ -160,7 +160,7 @@ class TestOperationRegistryDunderMethods:
         """len() should return number of registered operations."""
         registry = OperationRegistry()
 
-        async def factory(session, branch, params):
+        async def factory(params, ctx):
             return "result"
 
         assert len(registry) == 0
@@ -175,7 +175,7 @@ class TestOperationRegistryDunderMethods:
         """__repr__ should show registered operations."""
         registry = OperationRegistry()
 
-        async def factory(session, branch, params):
+        async def factory(params, ctx):
             return "result"
 
         registry.register("my_op", factory)
@@ -191,47 +191,38 @@ class TestOperationRegistryInvocation:
     """Test that registered factories can be invoked correctly."""
 
     @pytest.mark.anyio
-    async def test_factory_invocation(self):
-        """Registered factory should be callable."""
+    async def test_handler_invocation(self):
+        """Registered handler should be callable."""
         registry = OperationRegistry()
 
-        async def my_factory(session, branch, params):
+        async def my_handler(params, ctx):
             return f"result_{params['value']}"
 
-        registry.register("my_op", my_factory)
+        registry.register("my_op", my_handler)
 
-        factory = registry.get("my_op")
-        result = await factory(None, None, {"value": "42"})
+        handler = registry.get("my_op")
+        result = await handler({"value": "42"}, None)
         assert result == "result_42"
 
     @pytest.mark.anyio
-    async def test_factory_receives_all_args(self):
-        """Factory should receive session, branch, and params."""
+    async def test_handler_receives_params_and_ctx(self):
+        """Handler should receive params and ctx."""
         registry = OperationRegistry()
 
         received_args = {}
 
-        async def tracking_factory(session, branch, params):
-            received_args["session"] = session
-            received_args["branch"] = branch
+        async def tracking_handler(params, ctx):
             received_args["params"] = params
+            received_args["ctx"] = ctx
             return "tracked"
 
-        registry.register("tracking", tracking_factory)
+        registry.register("tracking", tracking_handler)
 
-        class MockSession:
-            name = "test_session"
-
-        class MockBranch:
-            name = "test_branch"
-
-        session = MockSession()
-        branch = MockBranch()
         params = {"key": "value"}
+        ctx = {"name": "test_ctx"}
 
-        factory = registry.get("tracking")
-        await factory(session, branch, params)
+        handler = registry.get("tracking")
+        await handler(params, ctx)
 
-        assert received_args["session"] is session
-        assert received_args["branch"] is branch
         assert received_args["params"] is params
+        assert received_args["ctx"] is ctx

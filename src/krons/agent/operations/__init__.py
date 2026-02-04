@@ -16,10 +16,13 @@ Spec models:
     Instruct: Task handoff bundle for orchestration.
     ReActAnalysis, PlannedAction, Analysis: ReAct loop models.
 
-Register handlers with session.operations:
-    session.operations.register("generate", generate)
-    session.operations.register("operate", operate)
+Built-in handlers are auto-registered on Session creation:
+    generate, structure, operate, react, react_stream
+
+Usage:
     result = await session.conduct("operate", branch, params)
+    async for analysis in session.stream_conduct("react_stream", params=...):
+        print(analysis)
 """
 
 from __future__ import annotations

@@ -62,6 +62,9 @@ class MockSession:
     """Mock session for testing flow execution."""
 
     def __init__(self, factories=None):
+        from uuid import uuid4
+
+        self.id = uuid4()
         self._factories = factories or {}
         self.operations = self
         self._branches = {}
@@ -106,11 +109,11 @@ class TestOperationFlow:
         """OperationFlow should run operations in order."""
         execution_order = []
 
-        async def factory_a(session, branch, params):
+        async def factory_a(params, ctx):
             execution_order.append("A")
             return "result_A"
 
-        async def factory_b(session, branch, params):
+        async def factory_b(params, ctx):
             execution_order.append("B")
             return "result_B"
 
@@ -149,13 +152,13 @@ class TestOperationFlow:
         start_times = {}
         end_times = {}
 
-        async def factory_a(session, branch, params):
+        async def factory_a(params, ctx):
             start_times["A"] = asyncio.get_event_loop().time()
             await asyncio.sleep(0.05)
             end_times["A"] = asyncio.get_event_loop().time()
             return "result_A"
 
-        async def factory_b(session, branch, params):
+        async def factory_b(params, ctx):
             start_times["B"] = asyncio.get_event_loop().time()
             await asyncio.sleep(0.05)
             end_times["B"] = asyncio.get_event_loop().time()
@@ -232,7 +235,7 @@ class TestFlowErrorHandling:
     async def test_operation_failure_with_stop_on_error(self):
         """Failed operation with stop_on_error=True should stop execution."""
 
-        async def failing_factory(session, branch, params):
+        async def failing_factory(params, ctx):
             raise RuntimeError("Intentional failure")
 
         session = MockSession({"failing_op": failing_factory})
@@ -255,10 +258,10 @@ class TestFlowErrorHandling:
         """Failed operation with stop_on_error=False should continue others."""
         executed = []
 
-        async def failing_factory(session, branch, params):
+        async def failing_factory(params, ctx):
             raise RuntimeError("Intentional failure")
 
-        async def success_factory(session, branch, params):
+        async def success_factory(params, ctx):
             executed.append("success")
             return "success_result"
 
@@ -345,7 +348,7 @@ class TestDependencyAwareExecutor:
         """Executor should raise if no branch allocated for operation."""
         session = MockSession()
 
-        async def test_factory(session, branch, params):
+        async def test_factory(params, ctx):
             return "result"
 
         session.register("test_op", test_factory)
@@ -376,10 +379,10 @@ class TestFlowStream:
     async def test_stream_yields_results(self):
         """flow_stream should yield results as operations complete."""
 
-        async def factory_a(session, branch, params):
+        async def factory_a(params, ctx):
             return "result_A"
 
-        async def factory_b(session, branch, params):
+        async def factory_b(params, ctx):
             return "result_B"
 
         session = MockSession(
@@ -412,7 +415,7 @@ class TestFlowStream:
     async def test_stream_yields_errors(self):
         """flow_stream should yield error results for failed operations."""
 
-        async def failing_factory(session, branch, params):
+        async def failing_factory(params, ctx):
             raise RuntimeError("Test error")
 
         session = MockSession({"failing_op": failing_factory})
@@ -465,7 +468,7 @@ class TestFlowMaxConcurrent:
         concurrent_count = 0
         max_seen = 0
 
-        async def tracking_factory(session, branch, params):
+        async def tracking_factory(params, ctx):
             nonlocal concurrent_count, max_seen
             concurrent_count += 1
             max_seen = max(max_seen, concurrent_count)
@@ -499,7 +502,7 @@ class TestFlowVerbose:
         """flow with verbose=True should log execution details."""
         import logging
 
-        async def test_factory(session, branch, params):
+        async def test_factory(params, ctx):
             return "result"
 
         session = MockSession({"test_op": test_factory})

@@ -90,19 +90,22 @@ class TestOperationInvoke:
     @pytest.mark.anyio
     async def test_invoke(self):
         """Operation.invoke() should execute handler."""
+        from uuid import uuid4
 
         class MockRegistry:
             def get(self, op_type):
-                async def factory(session, branch, params):
+                async def handler(params, ctx):
                     return f"result_{params.get('value', 'default')}"
 
-                return factory
+                return handler
 
         class MockSession:
+            id = uuid4()
             operations = MockRegistry()
 
         class MockBranch:
-            pass
+            name = "test"
+            id = uuid4()
 
         op = Operation(operation_type="test_op", parameters={"value": "42"})
         op.bind(MockSession(), MockBranch())

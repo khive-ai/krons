@@ -21,7 +21,7 @@ import sys
 import anyio
 from pydantic import BaseModel, Field
 
-from krons.agent.operations import GenerateParams, Instruct, ReturnAs, generate
+from krons.agent.operations import GenerateParams, Instruct, ReturnAs
 from krons.agent.providers.claude_code import ClaudeCodeEndpoint, create_claude_code_config
 from krons.resource import iModel
 from krons.session import Session, SessionConfig
@@ -126,7 +126,6 @@ async def main(simple: bool = False):
         )
     )
     session.resources.register(orc_model)
-    session.operations.register("generate", generate)
 
     orc_branch = session.default_branch
     status(f"Session ready: {len(session.resources)} resources, branch={orc_branch.name}")

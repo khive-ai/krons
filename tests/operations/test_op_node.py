@@ -62,7 +62,7 @@ class TestOperationInvokeWithRealSession:
         branch = session.create_branch(name="test")
 
         # Register a simple factory
-        async def test_factory(session, branch, params):
+        async def test_factory(params, ctx):
             return f"result_{params.get('value', 'default')}"
 
         session.operations.register("test_op", test_factory)
@@ -83,7 +83,7 @@ class TestOperationInvokeWithRealSession:
         branch = session.create_branch(name="test")
 
         # Register factory
-        async def echo_factory(session, branch, params):
+        async def echo_factory(params, ctx):
             return {"echo": params}
 
         session.operations.register("echo", echo_factory)

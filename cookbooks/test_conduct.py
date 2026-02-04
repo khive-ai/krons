@@ -15,10 +15,7 @@ from pydantic import BaseModel, Field
 from krons.agent.operations import (
     GenerateParams,
     Instruct,
-    ReturnAs,
     StructureParams,
-    generate,
-    structure,
 )
 from krons.agent.providers.claude_code import ClaudeCodeEndpoint, create_claude_code_config
 from krons.core.specs import Operable
@@ -47,7 +44,6 @@ async def main():
         )
     )
     session.resources.register(model)
-    session.operations.register("structure", structure)
 
     phase("Structured Output Test (structure operation)")
 

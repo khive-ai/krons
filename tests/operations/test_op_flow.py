@@ -85,7 +85,7 @@ class TestFlowErrorHandlingWithRealSession:
         branch_name = "test_branch"
         session.create_branch(name=branch_name)
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return "result"
 
         session.operations.register("simple_op", simple_factory)
@@ -133,7 +133,7 @@ class TestFlowErrorHandlingWithRealSession:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return "result"
 
         session.operations.register("simple_op", simple_factory)
@@ -163,7 +163,7 @@ class TestFlowStopConditions:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_factory(session, branch, parameters):
+        async def failing_factory(params, ctx):
             raise RuntimeError("Intentional failure")
 
         session.operations.register("failing_op", failing_factory)
@@ -184,7 +184,7 @@ class TestFlowStopConditions:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_factory(session, branch, parameters):
+        async def failing_factory(params, ctx):
             raise ValueError("Test error for logging")
 
         session.operations.register("failing_verbose", failing_factory)
@@ -204,7 +204,7 @@ class TestFlowStopConditions:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return "result"
 
         session.operations.register("simple_op", simple_factory)
@@ -239,9 +239,9 @@ class TestFlowExecutionEvents:
 
         received_params = None
 
-        async def param_receiver(session, branch, parameters):
+        async def param_receiver(params, ctx):
             nonlocal received_params
-            received_params = parameters
+            received_params = params
             return "done"
 
         session.operations.register("param_receiver", param_receiver)
@@ -265,10 +265,10 @@ class TestFlowExecutionEvents:
 
         dependent_ran = False
 
-        async def failing_factory(session, branch, parameters):
+        async def failing_factory(params, ctx):
             raise RuntimeError("Intentional failure")
 
-        async def dependent_factory(session, branch, parameters):
+        async def dependent_factory(params, ctx):
             nonlocal dependent_ran
             dependent_ran = True
             return "done"
@@ -301,7 +301,7 @@ class TestFlowResultProcessing:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return "result"
 
         session.operations.register("simple_op", simple_factory)
@@ -341,7 +341,7 @@ class TestFlowResultProcessing:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def status_failed_factory(session, branch, parameters):
+        async def status_failed_factory(params, ctx):
             raise RuntimeError("Operation failed with error status")
 
         session.operations.register("status_fail", status_failed_factory)
@@ -361,7 +361,7 @@ class TestFlowResultProcessing:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return "result"
 
         session.operations.register("simple_op", simple_factory)
@@ -390,10 +390,10 @@ class TestFlowIntegration:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return f"result_{params.get('instruction', 'default')}"
 
-        session.operations.register("generate", simple_factory)
+        session.operations.register("generate", simple_factory, override=True)
 
         builder = Builder()
         # Diamond dependency: task1 -> task2, task3 -> task4
@@ -416,10 +416,10 @@ class TestFlowIntegration:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_factory(session, branch, parameters):
+        async def failing_factory(params, ctx):
             raise RuntimeError("Fail")
 
-        async def success_factory(session, branch, parameters):
+        async def success_factory(params, ctx):
             return "success_result"
 
         session.operations.register("fail_task", failing_factory)
@@ -445,7 +445,7 @@ class TestFlowIntegration:
         concurrent_count = 0
         max_seen = 0
 
-        async def concurrent_tracker(session, branch, parameters):
+        async def concurrent_tracker(params, ctx):
             nonlocal concurrent_count, max_seen
             concurrent_count += 1
             max_seen = max(max_seen, concurrent_count)
@@ -482,10 +482,10 @@ class TestFlowExceptionPaths:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_op(session, branch, parameters):
+        async def failing_op(params, ctx):
             raise ValueError("Test exception - no verbose, no stop")
 
-        async def success_op(session, branch, parameters):
+        async def success_op(params, ctx):
             return "success"
 
         session.operations.register("fail_no_verbose", failing_op)
@@ -511,10 +511,10 @@ class TestFlowExceptionPaths:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_op(session, branch, params):
+        async def failing_op(params, ctx):
             raise RuntimeError("Mock exception for verbose logging")
 
-        async def success_op(session, branch, params):
+        async def success_op(params, ctx):
             return "success"
 
         session.operations.register("failing_op", failing_op)
@@ -537,7 +537,7 @@ class TestFlowExceptionPaths:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_with_stop(session, branch, parameters):
+        async def failing_with_stop(params, ctx):
             raise ValueError("Test exception with stop_on_error")
 
         session.operations.register("fail_stop", failing_with_stop)
@@ -559,7 +559,7 @@ class TestFlowExceptionPaths:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_full_path(session, branch, parameters):
+        async def failing_full_path(params, ctx):
             raise RuntimeError("Full exception path test")
 
         session.operations.register("fail_full", failing_full_path)
@@ -588,10 +588,10 @@ class TestFlowExceptionPaths:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def test_factory(session, branch, params):
+        async def test_factory(params, ctx):
             return "result"
 
-        session.operations.register("generate", test_factory)
+        session.operations.register("generate", test_factory, override=True)
 
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "Test"})
@@ -708,10 +708,10 @@ class TestFlowStreamExecute:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return "result"
 
-        session.operations.register("generate", simple_factory)
+        session.operations.register("generate", simple_factory, override=True)
 
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "First"})
@@ -739,7 +739,7 @@ class TestFlowStreamExecute:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def failing_factory(session, branch, parameters):
+        async def failing_factory(params, ctx):
             raise RuntimeError("Test error")
 
         session.operations.register("fail_stream", failing_factory)
@@ -814,10 +814,10 @@ class TestFlowStreamExecute:
         session = session_with_ops
         branch = session.create_branch(name="test")
 
-        async def simple_factory(session, branch, params):
+        async def simple_factory(params, ctx):
             return "result"
 
-        session.operations.register("generate", simple_factory)
+        session.operations.register("generate", simple_factory, override=True)
 
         builder = Builder()
         builder.add("task1", "generate", {"instruction": "Test"})
@@ -852,9 +852,9 @@ class TestFlowBranchAwareExecution:
         # Track which branch each operation runs on
         execution_branches = {}
 
-        async def branch_tracker(session, branch, parameters):
-            op_name = parameters.get("_op_name", "unknown")
-            execution_branches[op_name] = branch
+        async def branch_tracker(params, ctx):
+            op_name = params.get("_op_name", "unknown")
+            execution_branches[op_name] = ctx.metadata["_bound_branch"]
             return "done"
 
         session.operations.register("track_branch", branch_tracker)
@@ -896,9 +896,9 @@ class TestFlowBranchAwareExecution:
 
         execution_branches = {}
 
-        async def branch_tracker(session, branch, parameters):
-            op_name = parameters.get("_op_name", "unknown")
-            execution_branches[op_name] = branch
+        async def branch_tracker(params, ctx):
+            op_name = params.get("_op_name", "unknown")
+            execution_branches[op_name] = ctx.metadata["_bound_branch"]
             return "done"
 
         session.operations.register("track_uuid_branch", branch_tracker)
@@ -930,9 +930,9 @@ class TestFlowBranchAwareExecution:
 
         execution_branches = {}
 
-        async def branch_tracker(session, branch, parameters):
-            op_name = parameters.get("_op_name", "unknown")
-            execution_branches[op_name] = branch
+        async def branch_tracker(params, ctx):
+            op_name = params.get("_op_name", "unknown")
+            execution_branches[op_name] = ctx.metadata["_bound_branch"]
             return "done"
 
         session.operations.register("track_default", branch_tracker)
@@ -962,9 +962,9 @@ class TestFlowBranchAwareExecution:
 
         execution_branches = {}
 
-        async def branch_tracker(session, branch, parameters):
-            op_name = parameters.get("_op_name", "unknown")
-            execution_branches[op_name] = branch
+        async def branch_tracker(params, ctx):
+            op_name = params.get("_op_name", "unknown")
+            execution_branches[op_name] = ctx.metadata["_bound_branch"]
             return "done"
 
         session.operations.register("track_fallback", branch_tracker)
@@ -996,9 +996,9 @@ class TestFlowBranchAwareExecution:
 
         execution_branches = {}
 
-        async def branch_tracker(session, branch, parameters):
-            op_name = parameters.get("_op_name", "unknown")
-            execution_branches[op_name] = branch
+        async def branch_tracker(params, ctx):
+            op_name = params.get("_op_name", "unknown")
+            execution_branches[op_name] = ctx.metadata["_bound_branch"]
             return f"result_from_{op_name}"
 
         session.operations.register("multi_branch_op", branch_tracker)

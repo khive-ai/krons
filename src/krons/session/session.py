@@ -10,7 +10,7 @@ Branch is a named message progression with capability/resource access control.
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterable
+from collections.abc import AsyncGenerator, Iterable
 from typing import Any, Literal
 from uuid import UUID
 
@@ -20,7 +20,7 @@ from krons.core import Element, Flow, Pile, Progression
 from krons.core.types import HashableModel, Unset, UnsetType, not_sentinel
 from krons.errors import NotFoundError
 from krons.resource import Calling, ResourceRegistry, iModel
-from krons.work.operations import Operation, OperationRegistry
+from krons.work.operations import Operation, OperationRegistry, RequestContext
 
 from .message import Message
 
@@ -73,7 +73,7 @@ class Session(Element):
 
     @model_validator(mode="after")
     def _validate_default_branch(self) -> Session:
-        """Auto-create default branch if configured and not present."""
+        """Auto-create default branch and register built-in operations."""
         if self.config.auto_create_default_branch and self.default_branch is None:
             default_branch_name = self.config.default_branch_name or "main"
             self.create_branch(
@@ -82,6 +82,26 @@ class Session(Element):
                 resources=self.config.shared_resources,
             )
             self.set_default_branch(default_branch_name)
+
+        # Register built-in operations (lazy import avoids circular)
+        from krons.agent.operations import (
+            generate,
+            operate,
+            react,
+            react_stream,
+            structure,
+        )
+
+        for name, handler in (
+            ("generate", generate),
+            ("structure", structure),
+            ("operate", operate),
+            ("react", react),
+            ("react_stream", react_stream),
+        ):
+            if not self.operations.has(name):
+                self.operations.register(name, handler)
+
         return self
 
     @property
@@ -319,6 +339,52 @@ class Session(Element):
             await op.invoke()
 
         return op
+
+    async def stream_conduct(
+        self,
+        operation_type: str,
+        branch: Branch | UUID | str | None = None,
+        params: Any | None = None,
+        verbose: bool = False,
+    ) -> AsyncGenerator[Any, None]:
+        """Stream operation results via async generator.
+
+        For streaming handlers like react_stream that yield intermediate
+        results per round. Bypasses the Operation wrapper since streaming
+        handlers produce multiple values, not a single response.
+
+        Args:
+            operation_type: Registry key (e.g. "react_stream").
+            branch: Target branch (default if None).
+            params: Operation parameters.
+            verbose: Enable real-time streaming output.
+
+        Yields:
+            Handler results (e.g., ReActAnalysis per round).
+        """
+        resolved = self._resolve_branch(branch)
+        handler = self.operations.get(operation_type)
+
+        ctx = RequestContext(
+            name=operation_type,
+            session_id=self.id,
+            branch=resolved.name or str(resolved.id),
+            _bound_session=self,
+            _bound_branch=resolved,
+            _verbose=verbose,
+        )
+
+        if verbose:
+            from krons.utils.display import status
+
+            branch_name = resolved.name or str(resolved.id)[:8]
+            status(
+                f"stream_conduct({operation_type}) on branch={branch_name}",
+                style="info",
+            )
+
+        async for result in handler(params, ctx):
+            yield result
 
     def _resolve_branch(self, branch: Branch | UUID | str | None) -> Branch:
         """Resolve to Branch, falling back to default. Raises if neither available."""
