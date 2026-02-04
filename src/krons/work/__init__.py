@@ -32,7 +32,6 @@ Two complementary patterns at different abstraction levels:
             return await self.llm.chat(**kwargs)
 
 Core concepts:
-- Phrase: Typed operation signature (inputs -> outputs)
 - Form: Data binding + scheduling (stateful artifact)
 - Report: Multi-step workflow declaration (stateful artifact)
 - Worker: Execution capability (stateless station)
@@ -53,11 +52,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ParsedAssignment": ("krons.work.form", "ParsedAssignment"),
     "parse_assignment": ("krons.work.form", "parse_assignment"),
     "parse_full_assignment": ("krons.work.form", "parse_full_assignment"),
-    # phrase
-    "CrudOperation": ("krons.work.phrase", "CrudOperation"),
-    "CrudPattern": ("krons.work.phrase", "CrudPattern"),
-    "Phrase": ("krons.work.phrase", "Phrase"),
-    "phrase": ("krons.work.phrase", "phrase"),
     # report
     "Report": ("krons.work.report", "Report"),
     # worker
@@ -102,16 +96,12 @@ if TYPE_CHECKING:
         parse_assignment,
         parse_full_assignment,
     )
-    from krons.work.phrase import CrudOperation, CrudPattern, Phrase, phrase
     from krons.work.report import Report
     from krons.work.worker import WorkConfig, Worker, WorkLink, work, worklink
 
 __all__ = (
-    "CrudOperation",
-    "CrudPattern",
     "Form",
     "ParsedAssignment",
-    "Phrase",
     "Report",
     "WorkConfig",
     "WorkLink",
@@ -120,7 +110,6 @@ __all__ = (
     "WorkerTask",
     "parse_assignment",
     "parse_full_assignment",
-    "phrase",
     "work",
     "worklink",
 )

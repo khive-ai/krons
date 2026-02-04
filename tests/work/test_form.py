@@ -9,9 +9,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from krons.core.specs import Operable, Spec
 from krons.work.form import Form, parse_assignment
-from krons.work.phrase import Phrase
 
 # =============================================================================
 # Tests: parse_assignment
@@ -150,85 +148,6 @@ class TestFormCreation:
         """Form should default output to None."""
         form = Form(assignment="a -> b")
         assert form.output is None
-
-
-# =============================================================================
-# Tests: Form.from_phrase
-# =============================================================================
-
-
-class TestFormFromPhrase:
-    """Tests for Form.from_phrase factory."""
-
-    def test_from_phrase_basic(self):
-        """Form.from_phrase should create form bound to phrase."""
-        spec1 = Spec(str, name="name")
-        spec2 = Spec(int, name="count")
-        op = Operable([spec1, spec2])
-
-        async def handler(options, ctx):
-            return {"count": len(options.name)}
-
-        p = Phrase(
-            name="count_chars",
-            operable=op,
-            inputs={"name"},
-            outputs={"count"},
-            handler=handler,
-        )
-
-        form = Form.from_phrase(p)
-
-        assert form.phrase is p
-        assert "name" in form.input_fields
-        assert "count" in form.output_fields
-        assert "name -> count" in form.assignment or "name" in form.assignment
-
-    def test_from_phrase_with_initial_data(self):
-        """Form.from_phrase should accept initial data."""
-        spec1 = Spec(str, name="name")
-        spec2 = Spec(int, name="count")
-        op = Operable([spec1, spec2])
-
-        async def handler(options, ctx):
-            return {"count": len(options.name)}
-
-        p = Phrase(
-            name="count_chars",
-            operable=op,
-            inputs={"name"},
-            outputs={"count"},
-            handler=handler,
-        )
-
-        form = Form.from_phrase(p, name="hello")
-
-        assert form.available_data["name"] == "hello"
-
-    def test_from_phrase_phrase_property(self):
-        """Form.phrase property should return bound phrase."""
-        spec1 = Spec(str, name="name")
-        spec2 = Spec(int, name="count")
-        op = Operable([spec1, spec2])
-
-        async def handler(options, ctx):
-            return {"count": 0}
-
-        p = Phrase(
-            name="test",
-            operable=op,
-            inputs={"name"},
-            outputs={"count"},
-            handler=handler,
-        )
-
-        form = Form.from_phrase(p)
-        assert form.phrase is p
-
-    def test_form_without_phrase(self):
-        """Form without phrase should have phrase=None."""
-        form = Form(assignment="a -> b")
-        assert form.phrase is None
 
 
 # =============================================================================
@@ -468,70 +387,6 @@ class TestFormGetOutputData:
 # =============================================================================
 
 
-class TestFormExecute:
-    """Tests for Form.execute async execution."""
-
-    @pytest.mark.anyio
-    async def test_execute_with_phrase(self):
-        """execute should invoke bound phrase and set output."""
-        spec1 = Spec(str, name="name")
-        spec2 = Spec(int, name="length")
-        op = Operable([spec1, spec2])
-
-        async def handler(options, ctx):
-            return {"length": len(options.name)}
-
-        p = Phrase(
-            name="get_length",
-            operable=op,
-            inputs={"name"},
-            outputs={"length"},
-            handler=handler,
-        )
-
-        form = Form.from_phrase(p, name="hello")
-
-        result = await form.execute(ctx=None)
-
-        assert form.filled is True
-        assert form.available_data["length"] == 5
-        assert result.length == 5
-
-    @pytest.mark.anyio
-    async def test_execute_no_phrase_raises(self):
-        """execute without bound phrase should raise RuntimeError."""
-        form = Form(
-            assignment="a -> b",
-            available_data={"a": 1},
-        )
-
-        with pytest.raises(RuntimeError, match="no bound phrase"):
-            await form.execute(ctx=None)
-
-    @pytest.mark.anyio
-    async def test_execute_not_workable_raises(self):
-        """execute when not workable should raise RuntimeError."""
-        spec1 = Spec(str, name="name")
-        spec2 = Spec(int, name="length")
-        op = Operable([spec1, spec2])
-
-        async def handler(options, ctx):
-            return {"length": 0}
-
-        p = Phrase(
-            name="get_length",
-            operable=op,
-            inputs={"name"},
-            outputs={"length"},
-            handler=handler,
-        )
-
-        form = Form.from_phrase(p)  # No data provided
-
-        with pytest.raises(RuntimeError, match="not workable"):
-            await form.execute(ctx=None)
-
-
 # =============================================================================
 # Tests: Form.__repr__
 # =============================================================================
@@ -567,28 +422,6 @@ class TestFormRepr:
         repr_str = repr(form)
 
         assert "filled" in repr_str
-
-    def test_repr_with_phrase(self):
-        """repr should include phrase name when bound."""
-        spec1 = Spec(str, name="a")
-        spec2 = Spec(int, name="b")
-        op = Operable([spec1, spec2])
-
-        async def handler(options, ctx):
-            return {"b": 0}
-
-        p = Phrase(
-            name="test_phrase",
-            operable=op,
-            inputs={"a"},
-            outputs={"b"},
-            handler=handler,
-        )
-
-        form = Form.from_phrase(p)
-        repr_str = repr(form)
-
-        assert "test_phrase" in repr_str
 
 
 # =============================================================================

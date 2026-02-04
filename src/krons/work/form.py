@@ -6,22 +6,18 @@
 A Form represents an instantiated work unit with:
 - Data binding (input values)
 - Execution state tracking (filled, workable)
-- Optional Phrase reference for typed I/O
 
-Forms are the stateful layer between Phrase (definition) and Operation (execution).
+Forms are the stateful scheduling layer for Operations.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import Field
 
 from krons.core import Element
-
-if TYPE_CHECKING:
-    from .phrase import Phrase
 
 __all__ = ("Form", "ParsedAssignment", "parse_assignment", "parse_full_assignment")
 
@@ -123,9 +119,7 @@ def parse_full_assignment(assignment: str) -> ParsedAssignment:
 class Form(Element):
     """Data binding container for work units.
 
-    A Form binds input data and tracks execution state. It can be created:
-    1. From a Phrase (typed I/O)
-    2. From an assignment string (dynamic fields)
+    A Form binds input data and tracks execution state.
 
     Assignment DSL supports full format:
         "branch: inputs -> outputs | resource"
@@ -144,7 +138,6 @@ class Form(Element):
         available_data: Current data values
         output: Execution result
         filled: Whether form has been executed
-        phrase: Optional Phrase reference for typed execution
     """
 
     assignment: str = Field(
@@ -165,9 +158,6 @@ class Form(Element):
     output: Any = Field(default=None)
     filled: bool = Field(default=False)
 
-    # Optional phrase reference (set via from_phrase())
-    _phrase: "Phrase | None" = None
-
     def model_post_init(self, _: Any) -> None:
         """Parse assignment to derive fields if not already set."""
         if self.assignment and not self.input_fields and not self.output_fields:
@@ -178,35 +168,6 @@ class Form(Element):
                 self.branch = parsed.branch
             if parsed.resource and self.resource is None:
                 self.resource = parsed.resource
-
-    @classmethod
-    def from_phrase(
-        cls,
-        phrase: "Phrase",
-        **initial_data: Any,
-    ) -> "Form":
-        """Create Form from a Phrase with optional initial data.
-
-        Args:
-            phrase: Phrase defining typed I/O
-            **initial_data: Initial input values
-
-        Returns:
-            Form bound to the phrase
-        """
-        form = cls(
-            assignment=f"{', '.join(phrase.inputs)} -> {', '.join(phrase.outputs)}",
-            input_fields=list(phrase.inputs),
-            output_fields=list(phrase.outputs),
-            available_data=dict(initial_data),
-        )
-        form._phrase = phrase
-        return form
-
-    @property
-    def phrase(self) -> "Phrase | None":
-        """Get bound phrase if any."""
-        return self._phrase
 
     def is_workable(self) -> bool:
         """Check if form is ready for execution.
@@ -274,32 +235,8 @@ class Form(Element):
                 result[field] = self.available_data[field]
         return result
 
-    async def execute(self, ctx: Any = None) -> Any:
-        """Execute the form if it has a bound phrase.
-
-        Args:
-            ctx: Execution context
-
-        Returns:
-            Execution result
-
-        Raises:
-            RuntimeError: If no phrase bound or form not workable
-        """
-        if self._phrase is None:
-            raise RuntimeError("Form has no bound phrase - cannot execute")
-
-        if not self.is_workable():
-            missing = [f for f in self.input_fields if f not in self.available_data]
-            raise RuntimeError(f"Form not workable - missing inputs: {missing}")
-
-        result = await self._phrase(self.get_inputs(), ctx)
-        self.set_output(result)
-        return result
-
     def __repr__(self) -> str:
         status = (
             "filled" if self.filled else ("ready" if self.is_workable() else "pending")
         )
-        phrase_info = f", phrase={self._phrase.name}" if self._phrase else ""
-        return f"Form('{self.assignment}', {status}{phrase_info})"
+        return f"Form('{self.assignment}', {status})"
