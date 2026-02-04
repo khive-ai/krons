@@ -301,6 +301,7 @@ class Session(Element):
             operation_type=operation_type,
             parameters=params,
         )
+        op._verbose = verbose
         op.bind(self, resolved)
 
         if verbose:

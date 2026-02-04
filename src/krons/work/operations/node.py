@@ -44,6 +44,7 @@ class Operation(Node, Event):
 
     _session: Any = PrivateAttr(default=None)
     _branch: Any = PrivateAttr(default=None)
+    _verbose: bool = PrivateAttr(default=False)
 
     def bind(self, session: Session, branch: Branch) -> Operation:
         """Bind session and branch for execution.
@@ -92,6 +93,7 @@ class Operation(Node, Event):
             branch=branch.name or str(branch.id),
             _bound_session=session,
             _bound_branch=branch,
+            _verbose=self._verbose,
         )
 
         return await handler(self.parameters, ctx)

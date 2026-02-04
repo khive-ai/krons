@@ -89,13 +89,19 @@ async def generate(params: GenerateParams, ctx: RequestContext) -> Any:
     """Generate operation handler: resolve context and delegate to _generate."""
     session = await ctx.get_session()
     imodel = params.imodel if not params.is_sentinel_field("imodel") else None
+
+    # Propagate verbose from ctx to imodel_kwargs for streaming pretty-print
+    imodel_kwargs = dict(params.imodel_kwargs)
+    if ctx.metadata.get("_verbose"):
+        imodel_kwargs.setdefault("verbose", True)
+
     return await _generate(
         session=session,
         branch=ctx.branch,
         instruction=params.instruction_message,
         imodel=imodel,
         return_as=params.return_as,
-        **params.imodel_kwargs,
+        **imodel_kwargs,
     )
 
 
