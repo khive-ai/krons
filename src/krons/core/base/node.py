@@ -901,10 +901,10 @@ def generate_ddl(node_cls: type[Node]) -> str:
         and issubclass(content_type, BaseModel)
     ):
         include.add("content")
-        
+
     if not config.is_sentinel_field("meta_key") and config.meta_key != "metadata":
         include.add(config.meta_key)
-        
+
     audit_cols = {
         "updated_at": config.track_updated_at,
         "updated_by": config.track_updated_by,

@@ -204,7 +204,11 @@ def _find_in_field_info(field_info: Any, meta_type: type) -> Any | None:
 
 def _is_spec_like(obj: Any) -> bool:
     """Check if object looks like a Spec (duck typing to avoid hard import)."""
-    return hasattr(obj, "get") and hasattr(obj, "__class__") and "Spec" in type(obj).__name__
+    return (
+        hasattr(obj, "get")
+        and hasattr(obj, "__class__")
+        and "Spec" in type(obj).__name__
+    )
 
 
 def _detect_nullable(arg: str) -> bool:

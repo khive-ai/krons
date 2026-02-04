@@ -2,7 +2,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
-from krons.core.types import Enum, MaybeUnset, Unset
+from krons.core.types import Enum
 
 
 @runtime_checkable

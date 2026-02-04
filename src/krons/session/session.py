@@ -84,7 +84,9 @@ class Session(Element):
         default_factory=lambda: Flow(item_type=Message)
     )
     resources: ResourceRegistry = Field(default_factory=ResourceRegistry, exclude=True)
-    operations: OperationRegistry = Field(default_factory=OperationRegistry, exclude=True)
+    operations: OperationRegistry = Field(
+        default_factory=OperationRegistry, exclude=True
+    )
     config: SessionConfig = Field(default_factory=SessionConfig)
     default_branch_id: UUID | None = None
 
