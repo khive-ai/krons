@@ -154,7 +154,9 @@ def as_readable(
     rendered = []
     for item in items:
         if format_curly:
-            rendered.append(format_dict(item) if isinstance(item, (dict, list)) else str(item))
+            rendered.append(
+                format_dict(item) if isinstance(item, (dict, list)) else str(item)
+            )
         else:
             try:
                 rendered.append(json.dumps(item, indent=2, ensure_ascii=False))

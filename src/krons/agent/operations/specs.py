@@ -45,8 +45,7 @@ class Action(HashableModel):
     arguments: dict[str, Any] = Field(
         default_factory=dict,
         description=(
-            "Argument dict for the function. "
-            "Use only names/types from tool_schemas."
+            "Argument dict for the function. Use only names/types from tool_schemas."
         ),
     )
 
@@ -220,7 +219,9 @@ def _normalize_action_keys(d: dict) -> dict | None:
 
     for k, v in d.items():
         # Strip common prefixes: action_name → name, recipient_name → name
-        normalized = k.replace("action_", "").replace("recipient_", "").removesuffix("s")
+        normalized = (
+            k.replace("action_", "").replace("recipient_", "").removesuffix("s")
+        )
         if normalized in ("name", "function", "recipient"):
             result["function"] = v
         elif normalized in ("parameter", "argument", "arg", "param"):

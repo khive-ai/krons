@@ -14,8 +14,9 @@ from .registry import RuleRegistry, get_default_registry
 from .rule import Rule, ValidationError
 
 if TYPE_CHECKING:
-    from krons.core.specs import Operable, Spec
     from pydantic import BaseModel
+
+    from krons.core.specs import Operable, Spec
 
 __all__ = ("Validator",)
 

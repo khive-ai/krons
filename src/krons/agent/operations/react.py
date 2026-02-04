@@ -216,9 +216,7 @@ async def react_stream(
         + ReActAnalysis.FIRST_ROUND_PROMPT.format(max_rounds=max_rounds)
     )
 
-    analysis = await _run_round(
-        params, ctx, instruction_with_prompt, ReActAnalysis
-    )
+    analysis = await _run_round(params, ctx, instruction_with_prompt, ReActAnalysis)
     yield analysis
 
     # --- Extension rounds ---
@@ -231,9 +229,7 @@ async def react_stream(
 
     # --- Final answer ---
     answer_model = params.response_model or Analysis
-    answer_prompt = ReActAnalysis.ANSWER_PROMPT.format(
-        instruction=params.instruction
-    )
+    answer_prompt = ReActAnalysis.ANSWER_PROMPT.format(instruction=params.instruction)
     final = await _run_round(
         params, ctx, answer_prompt, answer_model, invoke_actions=False
     )

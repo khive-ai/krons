@@ -7,16 +7,13 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 from pydantic import JsonValue
 
 from krons.core import Pile, Progression
-
+from krons.session import Message
 
 from .action import ActionResponse
 from .assistant import Assistant
 from .instruction import Instruction
 from .role import RoledContent
 from .system import System
-
-
-from krons.session import Message
 
 __all__ = ("prepare_messages_for_chat",)
 

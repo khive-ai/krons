@@ -12,12 +12,11 @@ from __future__ import annotations
 import anyio
 from pydantic import BaseModel, Field
 
-from krons.agent.operations import (
-    GenerateParams,
-    Instruct,
-    StructureParams,
+from krons.agent.operations import GenerateParams, Instruct, StructureParams
+from krons.agent.providers.claude_code import (
+    ClaudeCodeEndpoint,
+    create_claude_code_config,
 )
-from krons.agent.providers.claude_code import ClaudeCodeEndpoint, create_claude_code_config
 from krons.core.specs import Operable
 from krons.resource import iModel
 from krons.session import Session, SessionConfig

@@ -112,11 +112,7 @@ async def operate(params: OperateParams, ctx: RequestContext) -> Any:
     # Determine if action spec should be injected
     has_tools = not gen_params.is_sentinel_field("tool_schemas")
     branch_caps = getattr(branch, "capabilities", set())
-    inject_actions = (
-        params.invoke_actions
-        and has_tools
-        and "action" in branch_caps
-    )
+    inject_actions = params.invoke_actions and has_tools and "action" in branch_caps
 
     # --- Stage 1: Compose request structure ---
     if inject_actions:
@@ -239,11 +235,13 @@ def _responses_to_results(
                 resp.request_id if not resp._is_sentinel(resp.request_id) else "",
                 "",
             )
-            results.append(ActionResult(
-                function=func,
-                result=resp.result if resp.success else None,
-                error=resp.error if not resp.success else None,
-            ))
+            results.append(
+                ActionResult(
+                    function=func,
+                    result=resp.result if resp.success else None,
+                    error=resp.error if not resp.success else None,
+                )
+            )
         elif isinstance(resp, dict):
             results.append(ActionResult.model_validate(resp))
     return results

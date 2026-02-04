@@ -8,7 +8,6 @@ from krons.resource.backend import NormalizedResponse
 
 from .role import Role, RoledContent
 
-
 __all__ = (
     "Assistant",
     "parse_to_assistant_message",

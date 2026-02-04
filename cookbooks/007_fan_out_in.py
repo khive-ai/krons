@@ -22,7 +22,10 @@ import anyio
 from pydantic import BaseModel, Field
 
 from krons.agent.operations import GenerateParams, Instruct, ReturnAs
-from krons.agent.providers.claude_code import ClaudeCodeEndpoint, create_claude_code_config
+from krons.agent.providers.claude_code import (
+    ClaudeCodeEndpoint,
+    create_claude_code_config,
+)
 from krons.resource import iModel
 from krons.session import Session, SessionConfig
 from krons.utils.display import Timer, as_readable, display, phase, status
@@ -128,7 +131,9 @@ async def main(simple: bool = False):
     session.resources.register(orc_model)
 
     orc_branch = session.default_branch
-    status(f"Session ready: {len(session.resources)} resources, branch={orc_branch.name}")
+    status(
+        f"Session ready: {len(session.resources)} resources, branch={orc_branch.name}"
+    )
 
     # --- 3. Phase 1: Plan (structured output from orchestrator) ---
     phase("Phase 1: Planning")
