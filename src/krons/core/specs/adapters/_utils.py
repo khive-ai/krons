@@ -2,10 +2,52 @@ from __future__ import annotations
 
 import types
 from functools import reduce
-from typing import Any, Union, get_args, get_origin
+from typing import Annotated, Any, ForwardRef, Union, get_args, get_origin
+from uuid import UUID
+
+
+def _resolve_forward_ref(fwd: ForwardRef) -> dict[str, Any]:
+    """Handle ForwardRef annotations (from 'from __future__ import annotations').
+
+    Parses the string representation to extract type info for DDL generation.
+    FK[Model] -> Annotated[UUID, FKMeta(model_name)], Vector[dim] -> list[float], etc.
+
+    Uses parse_forward_ref from db_types as canonical parser.
+    """
+    from krons.core.types.db_types import parse_forward_ref
+
+    fk, vec, nullable = parse_forward_ref(fwd)
+
+    # FK[Model] -> Annotated[UUID, FKMeta]
+    if fk is not None:
+        base_type = Annotated[UUID, fk]
+        return {"base_type": base_type, "nullable": nullable, "listable": False}
+
+    # Vector[dim] -> Annotated[list[float], VectorMeta]
+    if vec is not None:
+        base_type = Annotated[list[float], vec]
+        return {"base_type": base_type, "nullable": nullable, "listable": False}
+
+    # Default: treat as generic type (will map to TEXT in SQL)
+    return {"base_type": str, "nullable": nullable, "listable": False}
 
 
 def resolve_annotation_to_base_types(annotation: Any) -> dict[str, Any]:
+    """Resolve an annotation to its base types, detecting nullable and listable.
+
+    Args:
+        annotation: Type annotation to resolve (may include Optional, list, etc.)
+
+    Returns:
+        Dict with keys:
+            - base_type: The innermost type
+            - nullable: Whether None is allowed
+            - listable: Whether it's a list type
+    """
+    # Handle ForwardRef (from 'from __future__ import annotations')
+    if isinstance(annotation, ForwardRef):
+        return _resolve_forward_ref(annotation)
+
     def resolve_nullable_inner_type(_anno: Any) -> tuple[bool, Any]:
         origin = get_origin(_anno)
 

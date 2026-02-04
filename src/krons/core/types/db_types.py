@@ -14,8 +14,9 @@ Extraction:
 
 from __future__ import annotations
 
+import re
 import types
-from typing import Annotated, Any, Literal, Union, get_args, get_origin
+from typing import Annotated, Any, ForwardRef, Literal, Union, get_args, get_origin
 from uuid import UUID
 
 from krons.core.types._sentinel import Unset, UnsetType, not_sentinel
@@ -32,6 +33,7 @@ __all__ = [
     "Vector",
     "VectorMeta",
     "extract_kron_db_meta",
+    "parse_forward_ref",
 ]
 
 
@@ -200,6 +202,84 @@ def _find_in_field_info(field_info: Any, meta_type: type) -> Any | None:
     return None
 
 
+def _is_spec_like(obj: Any) -> bool:
+    """Check if object looks like a Spec (duck typing to avoid hard import)."""
+    return hasattr(obj, "get") and hasattr(obj, "__class__") and "Spec" in type(obj).__name__
+
+
+def _detect_nullable(arg: str) -> bool:
+    """Detect nullability from annotation string.
+
+    Handles:
+        - X | None, None | X (PEP 604 union)
+        - Optional[X] (typing.Optional)
+        - Union[X, None], Union[None, X] (typing.Union with nested types)
+    """
+    # PEP 604 style: X | None or None | X
+    if re.search(r"\|\s*None\b", arg) or re.search(r"\bNone\s*\|", arg):
+        return True
+    # Optional[X]
+    if re.search(r"\bOptional\s*\[", arg):
+        return True
+    # Union[..., None, ...] - if Union is present and None is anywhere in string
+    # This handles nested types like Union[FK[User], None]
+    if re.search(r"\bUnion\s*\[", arg) and re.search(r"\bNone\b", arg):
+        return True
+    return False
+
+
+def parse_forward_ref(
+    fwd: ForwardRef,
+) -> tuple[FKMeta | None, VectorMeta | None, bool]:
+    """Parse FK/Vector metadata and nullability from a ForwardRef string.
+
+    Canonical parser for ForwardRef annotations from 'from __future__ import annotations'.
+
+    Handles:
+        - FK[Model], FK["Model"], FK['Model'] (bare and string refs)
+        - Vector[1536] (dimension as int literal)
+        - Nullability: X | None, Optional[X], Union[X, None]
+
+    Args:
+        fwd: ForwardRef to parse
+
+    Returns:
+        Tuple of (fk_meta, vector_meta, is_nullable)
+        - fk_meta: FKMeta if FK[...] found, else None
+        - vector_meta: VectorMeta if Vector[dim] found, else None
+        - is_nullable: True if nullable pattern detected
+    """
+    arg = fwd.__forward_arg__
+    fk: FKMeta | None = None
+    vec: VectorMeta | None = None
+    nullable = _detect_nullable(arg)
+
+    # Match FK[ModelName] or FK["ModelName"] or FK['ModelName']
+    fk_match = re.search(r"FK\[(['\"]?)(\w+)\1\]", arg)
+    if fk_match:
+        model_name = fk_match.group(2)
+        fk = FKMeta(model_name)
+
+    # Match Vector[dim]
+    vec_match = re.search(r"Vector\[(\d+)\]", arg)
+    if vec_match:
+        dim = int(vec_match.group(1))
+        vec = VectorMeta(dim)
+
+    return fk, vec, nullable
+
+
+def _extract_from_forward_ref(
+    fwd: ForwardRef,
+) -> tuple[FKMeta | UnsetType, VectorMeta | UnsetType]:
+    """Extract FK/Vector metadata from a ForwardRef (returns Unset for missing).
+
+    Wrapper around parse_forward_ref for extract_kron_db_meta compatibility.
+    """
+    fk, vec, _ = parse_forward_ref(fwd)
+    return (fk if fk is not None else Unset, vec if vec is not None else Unset)
+
+
 def extract_kron_db_meta(
     from_: Any,
     metas: Literal["FK", "Vector", "BOTH"] = "BOTH",
@@ -209,7 +289,7 @@ def extract_kron_db_meta(
     Unified extraction dispatching on source type:
     - FieldInfo: searches Pydantic metadata and annotation
     - type/annotation: searches Annotated/Union structure
-    - Spec: reads spec metadata directly
+    - Spec: reads spec metadata directly (if available)
 
     Args:
         from_: FieldInfo, type annotation, or Spec instance
@@ -228,6 +308,10 @@ def extract_kron_db_meta(
         if metas in ("Vector", "BOTH"):
             vec = _find_in_field_info(from_, VectorMeta) or Unset
 
+    elif isinstance(from_, ForwardRef):
+        # Handle ForwardRef from 'from __future__ import annotations'
+        fk, vec = _extract_from_forward_ref(from_)
+
     elif get_origin(from_) is not None or isinstance(from_, type):
         # Raw type annotation
         if metas in ("FK", "BOTH"):
@@ -235,23 +319,20 @@ def extract_kron_db_meta(
         if metas in ("Vector", "BOTH"):
             vec = _find_in_annotation(from_, VectorMeta) or Unset
 
+    elif _is_spec_like(from_):
+        # Spec-like object (duck typed to avoid circular imports)
+        if metas in ("FK", "BOTH"):
+            fk_val = from_.get("as_fk", Unset)
+            if not_sentinel(fk_val, {"none"}) and isinstance(fk_val, FKMeta):
+                fk = fk_val
+        if metas in ("Vector", "BOTH"):
+            vec_val = from_.get("embedding", Unset)
+            if not_sentinel(vec_val, {"none"}) and isinstance(vec_val, VectorMeta):
+                vec = vec_val
     else:
-        # Try Spec (lazy import to avoid circular)
-        from krons.core.specs.spec import Spec
-
-        if isinstance(from_, Spec):
-            if metas in ("FK", "BOTH"):
-                fk_val = from_.get("as_fk", Unset)
-                if not_sentinel(fk_val, {"none"}) and isinstance(fk_val, FKMeta):
-                    fk = fk_val
-            if metas in ("Vector", "BOTH"):
-                vec_val = from_.get("embedding", Unset)
-                if not_sentinel(vec_val, {"none"}) and isinstance(vec_val, VectorMeta):
-                    vec = vec_val
-        else:
-            raise TypeError(
-                f"from_ must be FieldInfo, type annotation, or Spec, got {type(from_).__name__}"
-            )
+        raise TypeError(
+            f"from_ must be FieldInfo, type annotation, or Spec, got {type(from_).__name__}"
+        )
 
     if metas == "FK":
         return fk

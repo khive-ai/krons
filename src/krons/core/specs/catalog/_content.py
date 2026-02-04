@@ -33,12 +33,14 @@ class ContentSpecs(BaseModel):
         *,
         content_type: type | UnsetType = Unset,
         dim: int | UnsetType = Unset,
+        meta_key: str | UnsetType = Unset,
     ) -> list[Spec]:
         """Get list of content Specs.
 
         Args:
             content_type: Type for content/metadata fields (default: dict).
             dim: Embedding dimension. Unset = list[float], int = Vector[dim].
+            meta_key: DB alias for metadata field (e.g., "node_metadata").
         """
         operable = Operable.from_structure(cls)
         specs = {spec.name: spec for spec in operable.get_specs()}
@@ -47,6 +49,10 @@ class ContentSpecs(BaseModel):
         if content_type is not Unset:
             specs["content"] = Spec(content_type, name="content").as_nullable()
             specs["metadata"] = Spec(content_type, name="metadata").as_nullable()
+
+        # Add meta_key alias if specified (DB mode uses this to avoid SQL reserved word)
+        if meta_key is not Unset and isinstance(meta_key, str):
+            specs[meta_key] = Spec(dict[str, Any], name=meta_key).as_nullable()
 
         # Override embedding with vector dimension if specified
         if dim is not Unset and isinstance(dim, int):

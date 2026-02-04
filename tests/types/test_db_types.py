@@ -3,13 +3,14 @@
 
 """Tests for database type annotations (FK, Vector)."""
 
-from typing import Annotated, get_args, get_origin
+from typing import Annotated, ForwardRef, get_args, get_origin
 from uuid import UUID
 
 import pytest
 from pydantic import BaseModel, Field
 
 from krons.core.types import FK, FKMeta, Unset, Vector, VectorMeta, extract_kron_db_meta
+from krons.core.types.db_types import parse_forward_ref
 
 
 class MockTenant:
@@ -236,3 +237,118 @@ class TestVectorMetaExtraction:
         meta = extract_kron_db_meta(field_info, metas="Vector")
 
         assert meta is Unset
+
+
+class TestParseForwardRef:
+    """Tests for parse_forward_ref canonical parser."""
+
+    # --- FK patterns ---
+
+    def test_fk_bare_model(self):
+        """Should parse FK[Model]."""
+        fwd = ForwardRef("FK[User]")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert fk.model == "User"
+        assert vec is None
+        assert not nullable
+
+    def test_fk_string_double_quotes(self):
+        """Should parse FK["Model"] with double quotes."""
+        fwd = ForwardRef('FK["User"]')
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert fk.model == "User"
+
+    def test_fk_string_single_quotes(self):
+        """Should parse FK['Model'] with single quotes."""
+        fwd = ForwardRef("FK['User']")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert fk.model == "User"
+
+    # --- Vector patterns ---
+
+    def test_vector_dimension(self):
+        """Should parse Vector[1536]."""
+        fwd = ForwardRef("Vector[1536]")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is None
+        assert vec is not None
+        assert vec.dim == 1536
+        assert not nullable
+
+    # --- Nullability: PEP 604 style ---
+
+    def test_nullable_pipe_none_suffix(self):
+        """Should detect X | None."""
+        fwd = ForwardRef("FK[User] | None")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert nullable
+
+    def test_nullable_none_pipe_prefix(self):
+        """Should detect None | X."""
+        fwd = ForwardRef("None | FK[User]")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert nullable
+
+    # --- Nullability: Optional style ---
+
+    def test_nullable_optional(self):
+        """Should detect Optional[X]."""
+        fwd = ForwardRef("Optional[FK[User]]")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert nullable
+
+    # --- Nullability: Union style ---
+
+    def test_nullable_union_none_last(self):
+        """Should detect Union[X, None]."""
+        fwd = ForwardRef("Union[FK[User], None]")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert nullable
+
+    def test_nullable_union_none_first(self):
+        """Should detect Union[None, X]."""
+        fwd = ForwardRef("Union[None, FK[User]]")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is not None
+        assert nullable
+
+    # --- Non-nullable cases ---
+
+    def test_not_nullable_plain(self):
+        """Plain type should not be nullable."""
+        fwd = ForwardRef("FK[User]")
+        _, _, nullable = parse_forward_ref(fwd)
+        assert not nullable
+
+    def test_not_nullable_union_without_none(self):
+        """Union without None should not be nullable."""
+        fwd = ForwardRef("Union[FK[User], FK[Tenant]]")
+        _, _, nullable = parse_forward_ref(fwd)
+        assert not nullable
+
+    # --- Unknown patterns ---
+
+    def test_unknown_type_returns_none(self):
+        """Unknown type should return None for FK and Vector."""
+        fwd = ForwardRef("SomeRandomType")
+        fk, vec, nullable = parse_forward_ref(fwd)
+
+        assert fk is None
+        assert vec is None
+        assert not nullable
