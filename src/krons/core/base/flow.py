@@ -321,6 +321,13 @@ class Flow(Element, Generic[E, P]):
 
         return self.items.remove(uid)
 
+    @synchronized
+    def clear(self) -> None:
+        """Clear all items and progressions."""
+        self.items.clear()
+        self.progressions.clear()
+        self._progression_names.clear()
+
     def __repr__(self) -> str:
         name_str = f", name='{self.name}'" if self.name else ""
         return f"Flow(items={len(self.items)}, progressions={len(self.progressions)}{name_str})"

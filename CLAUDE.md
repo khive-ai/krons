@@ -4,7 +4,7 @@
 
 ```text
 krons/
-├── core/           # Element, Node, Flow, Graph, Pile, Event, DataLoggerConfig
+├── core/           # Element, Node, Flow, Graph, Pile, Event
 ├── session/        # Session, Branch, Message (conversation orchestration)
 ├── resource/       # iModel, Endpoint, HookRegistry (API backends)
 ├── agent/          # Operations pipeline (generate → parse → structure → operate → react)
@@ -59,15 +59,12 @@ MyNode = create_node("MyNode", content=MyContent, flatten_content=True)
 
 ```python
 from krons.session import Session, SessionConfig
-from krons.core.base.log import DataLoggerConfig
 
 session = Session(config=SessionConfig(
     default_branch_name="main",
     default_gen_model="gpt-4",
-    log_config=DataLoggerConfig(  # Auto-persist messages
-        persist_dir="./logs",
-        auto_save_on_exit=True,
-    ),
+    log_persist_dir="./logs",      # Enable persistence (None = disabled)
+    log_auto_save_on_exit=True,    # atexit handler
 ))
 
 # Register model
@@ -79,8 +76,11 @@ op = await session.conduct("structure", params=StructureParams(...))
 
 # Access messages
 session.messages              # Pile[Message]
-session.dump_messages()       # Sync dump to file
-await session.adump_messages()  # Async dump
+session.dump()                # Sync dump full session to JSON
+await session.adump()         # Async dump
+
+# Restore from dump
+restored = Session.from_dict(data)  # Then re-register resources
 ```
 
 ## Resource — API Backends

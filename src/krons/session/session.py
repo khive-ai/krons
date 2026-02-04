@@ -16,10 +16,9 @@ from pathlib import Path
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import Field, PrivateAttr, model_validator
+from pydantic import Field, PrivateAttr, field_serializer, model_validator
 
 from krons.core import Element, Flow, Pile, Progression
-from krons.core.base.log import DataLoggerConfig
 from krons.core.types import HashableModel, Unset, UnsetType, not_sentinel
 from krons.errors import NotFoundError
 from krons.resource import Calling, ResourceRegistry, iModel
@@ -62,10 +61,21 @@ class SessionConfig(HashableModel):
     default_gen_model: str | None = None
     default_parse_model: str | None = None
     auto_create_default_branch: bool = True
-    log_config: DataLoggerConfig | None = Field(
+
+    # Logging configuration
+    log_persist_dir: str | Path | None = Field(
         default=None,
-        description="DataLoggerConfig for auto-logging (None = disabled)",
+        description="Directory for session dumps. None disables logging.",
     )
+    log_auto_save_on_exit: bool = Field(
+        default=True,
+        description="Register atexit handler on Session creation.",
+    )
+
+    @property
+    def logging_enabled(self) -> bool:
+        """True if logging is configured (log_persist_dir is set)."""
+        return self.log_persist_dir is not None
 
 
 class Session(Element):
@@ -73,13 +83,18 @@ class Session(Element):
     communications: Flow[Message, Branch] = Field(
         default_factory=lambda: Flow(item_type=Message)
     )
-    resources: ResourceRegistry = Field(default_factory=ResourceRegistry)
-    operations: OperationRegistry = Field(default_factory=OperationRegistry)
+    resources: ResourceRegistry = Field(default_factory=ResourceRegistry, exclude=True)
+    operations: OperationRegistry = Field(default_factory=OperationRegistry, exclude=True)
     config: SessionConfig = Field(default_factory=SessionConfig)
     default_branch_id: UUID | None = None
 
     _registered_atexit: bool = PrivateAttr(default=False)
     _dump_count: int = PrivateAttr(default=0)
+
+    @field_serializer("communications")
+    def _serialize_communications(self, flow: Flow) -> dict:
+        """Use Flow's custom to_dict for proper nested serialization."""
+        return flow.to_dict(mode="json")
 
     @model_validator(mode="after")
     def _validate_default_branch(self) -> Session:
@@ -95,8 +110,8 @@ class Session(Element):
 
         # Register atexit handler if configured
         if (
-            self.config.log_config is not None
-            and self.config.log_config.auto_save_on_exit
+            self.config.logging_enabled
+            and self.config.log_auto_save_on_exit
             and not self._registered_atexit
         ):
             atexit.register(self._save_at_exit)
@@ -405,96 +420,87 @@ class Session(Element):
         async for result in handler(params, ctx):
             yield result
 
-    def dump_messages(self, clear: bool = False) -> Path | None:
-        """Sync dump all session messages to file.
+    def dump(self, clear: bool = False) -> Path | None:
+        """Sync dump entire session state for replay.
+
+        Serializes session (messages, branches, config) to JSON.
+        Resources and operations are excluded (re-register on restore).
+        To restore: Session.from_dict(data), then re-register resources.
 
         Args:
-            clear: Clear messages after dump (default False).
+            clear: Clear communications after dump (default False).
 
         Returns:
-            Path to written file, or None if no log_config or no messages.
+            Path to session file, or None if logging disabled or empty.
         """
-        from krons.utils import create_path, json_dumpb, json_lines_iter
+        from krons.utils import create_path, json_dumpb
         from krons.utils.concurrency import run_async
 
-        if self.config.log_config is None or len(self.messages) == 0:
+        if not self.config.logging_enabled or len(self.messages) == 0:
             return None
 
-        cfg = self.config.log_config
         self._dump_count += 1
 
         filepath = run_async(
             create_path(
-                directory=cfg.persist_dir,
+                directory=self.config.log_persist_dir,
                 filename=f"session_{str(self.id)[:8]}_{self._dump_count}",
-                extension=cfg.extension,
+                extension=".json",
                 timestamp=True,
                 file_exist_ok=True,
             )
         )
 
-        items = [msg.to_dict(mode="json") for msg in self.messages]
-
+        data = json_dumpb(self.to_dict(mode="json"), safe_fallback=True)
         std_path = Path(filepath)
-        if cfg.extension == ".jsonl":
-            with std_path.open("wb") as f:
-                for chunk in json_lines_iter(items, safe_fallback=True):
-                    f.write(chunk)
-        else:
-            data = json_dumpb(items, safe_fallback=True)
-            std_path.write_bytes(data)
+        std_path.write_bytes(data)
 
         if clear:
-            self.communications.items.clear()
+            self.communications.clear()
 
         return std_path
 
-    async def adump_messages(self, clear: bool = False) -> Path | None:
-        """Async dump all session messages to file with lock protection.
+    async def adump(self, clear: bool = False) -> Path | None:
+        """Async dump entire session state for replay.
+
+        Serializes the full session (messages, branches, config) to JSON.
+        To restore: Session.from_dict(data), then re-register resources.
 
         Args:
-            clear: Clear messages after dump (default False).
+            clear: Clear communications after dump (default False).
 
         Returns:
-            Path to written file, or None if no log_config or no messages.
+            Path to session file, or None if logging disabled or empty.
         """
-        from krons.utils import create_path, json_dumpb, json_lines_iter
+        from krons.utils import create_path, json_dumpb
 
-        if self.config.log_config is None or len(self.messages) == 0:
+        if not self.config.logging_enabled or len(self.messages) == 0:
             return None
-
-        cfg = self.config.log_config
 
         async with self.messages:
             self._dump_count += 1
 
             filepath = await create_path(
-                directory=cfg.persist_dir,
+                directory=self.config.log_persist_dir,
                 filename=f"session_{str(self.id)[:8]}_{self._dump_count}",
-                extension=cfg.extension,
+                extension=".json",
                 timestamp=True,
                 file_exist_ok=True,
             )
 
-            items = [msg.to_dict(mode="json") for msg in self.messages]
-
-            if cfg.extension == ".jsonl":
-                content = b"".join(json_lines_iter(items, safe_fallback=True))
-                await filepath.write_bytes(content)
-            else:
-                data = json_dumpb(items, safe_fallback=True)
-                await filepath.write_bytes(data)
+            data = json_dumpb(self.to_dict(mode="json"), safe_fallback=True)
+            await filepath.write_bytes(data)
 
             if clear:
-                self.communications.items.clear()
+                self.communications.clear()
 
         return Path(filepath)
 
     def _save_at_exit(self) -> None:
-        """atexit callback. Dumps messages synchronously. Errors are suppressed."""
+        """atexit callback. Dumps session synchronously. Errors are suppressed."""
         if len(self.messages) > 0:
             try:
-                self.dump_messages(clear=False)
+                self.dump(clear=False)
             except Exception:
                 pass  # Silent failure during interpreter shutdown
 
