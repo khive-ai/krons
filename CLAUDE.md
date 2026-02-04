@@ -1,137 +1,92 @@
 # krons - Spec-Based Composable Framework
 
-## Overview
+## Quick Reference
 
-**krons** is a Python framework for building spec-based, composable systems. It provides:
-
-- **Spec/Operable**: Type-safe field definitions with validation, defaults, and DB metadata
-- **Node**: Polymorphic content containers with DB serialization
-- **Services**: Unified service interfaces (iModel, KronService) with hooks and rate limiting
-- **Work**: Declarative workflow orchestration with Report/Worker pattern
-- **Rules**: Validation rules and enforcement
-
-## Architecture
-
-```
+```text
 krons/
-├── core/           # Foundation: Element, Node, Event, Flow, Graph, Pile
-├── specs/          # Spec definitions, Operable composition, adapters
-│   ├── catalog/    # Pre-built specs (Content, Audit, Common, Enforcement)
-│   └── adapters/   # Pydantic, SQL DDL, Dataclass adapters
-├── work/           # Workflow orchestration (Report, Worker, Form, Phrase)
-├── services/       # Service backends, iModel, hooks, rate limiting
-├── operations/     # Operation builders, context, registry
-├── rules/          # Validation rules, registry, common validators
-├── types/          # Base types, sentinels, DB types (FK, Vector)
-├── protocols.py    # Runtime-checkable protocols with @implements
-└── utils/          # Fuzzy matching, SQL utilities, helpers
+├── core/           # Element, Node, Flow, Graph, Pile, Event, DataLoggerConfig
+├── session/        # Session, Branch, Message (conversation orchestration)
+├── resource/       # iModel, Endpoint, HookRegistry (API backends)
+├── agent/          # Operations pipeline (generate → parse → structure → operate → react)
+├── work/           # Report, Worker, Form (workflow orchestration)
+└── utils/          # JSON, concurrency, display helpers
 ```
 
-## Key Patterns
+## Core Primitives
 
-### 1. Spec & Operable
-
-**Spec** defines a single field with type, name, default, validation, and DB metadata:
+### Element — Base identity class
 
 ```python
-from krons.specs import Spec, Operable
-from krons.types.db_types import FK, VectorMeta
+from krons.core import Element
 
-# Basic specs
-name_spec = Spec(str, name="name")
-count_spec = Spec(int, name="count", default=0, ge=0)
+class MyEntity(Element):
+    name: str
 
-# With DB metadata
-user_id = Spec(UUID, name="user_id", as_fk=FK[User])
-embedding = Spec(list[float], name="embedding", embedding=VectorMeta(1536))
-
-# Nullable
-email = Spec(str, name="email").as_nullable()
+e = MyEntity(name="test")
+e.id          # UUID (frozen)
+e.created_at  # datetime (frozen)
+e.to_dict(mode="json")  # Serialization with kron_class for polymorphic restore
+Element.from_dict(data)  # Polymorphic deserialization
 ```
 
-**Operable** composes multiple Specs into structures:
+### Pile — Thread-safe typed collection
 
 ```python
-# From specs
-operable = Operable([name_spec, count_spec, email])
+from krons.core import Pile
 
-# From Pydantic BaseModel
-operable = Operable.from_structure(MyModel)
-
-# Generate typed structures
-MyDataclass = operable.compose_structure("MyDataclass")
-specs_list = operable.get_specs()
+pile = Pile[MyEntity](item_type={MyEntity})
+pile.add(entity)
+pile.get(uuid_or_str)
+pile[0]                    # By index
+pile[lambda x: x.name]     # Filter
+async with pile:           # Async lock
+    ...
 ```
 
-### 2. Catalog Specs (BaseModel Pattern)
-
-Pre-built specs use BaseModel for field definitions:
+### Node — Polymorphic content container
 
 ```python
-from krons.specs.catalog import ContentSpecs, AuditSpecs, CommonSpecs
+from krons.core import Node, create_node
 
-# Get specs with customization
-content_specs = ContentSpecs.get_specs(dim=1536)  # With vector dimension
-audit_specs = AuditSpecs.get_specs(use_uuid=True)  # UUID actor IDs
-common_specs = CommonSpecs.get_specs(status_default="pending")
-```
-
-**Pattern for catalog specs:**
-
-```python
-class MySpecs(BaseModel):
-    field1: str
-    field2: int = 0
-    field3: datetime = Field(default_factory=now_utc)
-
-    @classmethod
-    def get_specs(cls, **overrides) -> list[Spec]:
-        operable = Operable.from_structure(cls)
-        specs = {s.name: s for s in operable.get_specs()}
-        # Apply overrides...
-        return list(specs.values())
-```
-
-### 3. Node (Polymorphic Content)
-
-**Node** stores polymorphic content with DB serialization:
-
-```python
-from krons.core import Node
-from krons.core.node import create_node, NodeConfig
-
-# Basic usage
+# Dynamic node
 node = Node(content={"key": "value"})
-data = node.to_dict(mode="json")  # For JSON serialization
-db_data = node.to_dict(mode="db")  # For database (renames metadata)
 
-# Custom node with typed content
-class JobContent(BaseModel):
-    title: str
-    salary: int
-
-JobNode = create_node(
-    "JobNode",
-    content=JobContent,
-    flatten_content=True,  # Spreads content fields in DB mode
-    embedding_enabled=True,
-    embedding_dim=1536,
-    soft_delete=True,
-    versioning=True,
-)
-
-# DB roundtrip
-job = JobNode(content=JobContent(title="Engineer", salary=100000))
-db_data = job.to_dict(mode="db")  # {"title": "Engineer", "salary": 100000, ...}
-restored = JobNode.from_dict(db_data, from_row=True)  # Reconstructs content
+# Typed node with DB features
+MyNode = create_node("MyNode", content=MyContent, flatten_content=True)
 ```
 
-### 4. Services (iModel, KronService)
-
-**iModel** - Unified service interface with rate limiting:
+## Session — Conversation Orchestration
 
 ```python
-from krons.services import Endpoint, EndpointConfig, iModel
+from krons.session import Session, SessionConfig
+from krons.core.base.log import DataLoggerConfig
+
+session = Session(config=SessionConfig(
+    default_branch_name="main",
+    default_gen_model="gpt-4",
+    log_config=DataLoggerConfig(  # Auto-persist messages
+        persist_dir="./logs",
+        auto_save_on_exit=True,
+    ),
+))
+
+# Register model
+session.resources.register(imodel)
+
+# Execute operations
+op = await session.conduct("generate", params=GenerateParams(...))
+op = await session.conduct("structure", params=StructureParams(...))
+
+# Access messages
+session.messages              # Pile[Message]
+session.dump_messages()       # Sync dump to file
+await session.adump_messages()  # Async dump
+```
+
+## Resource — API Backends
+
+```python
+from krons.resource import iModel, Endpoint, EndpointConfig
 
 config = EndpointConfig(
     name="gpt-4",
@@ -140,260 +95,89 @@ config = EndpointConfig(
     base_url="https://api.openai.com/v1",
     api_key="...",
 )
-endpoint = Endpoint(config=config)
-model = iModel(backend=endpoint)
-
-response = await model.invoke({"messages": [...]})
+model = iModel(backend=Endpoint(config=config))
+calling = await model.invoke(messages=[...])
 ```
 
-**KronService** - Action handlers with policy evaluation:
+## Agent Operations
+
+Pipeline: `generate → parse → structure → operate → react`
 
 ```python
-from krons.enforcement import KronService, KronConfig, action, RequestContext
+from krons.agent.operations import GenerateParams, StructureParams
 
-class MyService(KronService):
-    @property
-    def event_type(self):
-        return Calling  # Required abstract property
+# Generate raw LLM response
+op = await session.conduct("generate", params=GenerateParams(
+    primary="Your prompt",
+    imodel="gpt-4",
+))
 
-    @action(name="user.create", inputs={"name", "email"}, outputs={"user_id"})
-    async def _handle_create(self, options, ctx):
-        return {"user_id": uuid4()}
-
-service = MyService(config=KronConfig(provider="my", name="service"))
-result = await service.call("user.create", {"name": "John"}, RequestContext(name="user.create"))
+# Structured output with validation
+op = await session.conduct("structure", params=StructureParams(
+    generate_params=GenerateParams(primary="...", request_model=MyModel),
+    validator=Validator(),
+    operable=Operable.from_structure(MyModel),
+))
 ```
 
-### 5. Protocols with @implements
+## Work — Workflow Orchestration
 
-Runtime-checkable protocols with signature validation:
-
-```python
-from krons.protocols import implements, Serializable, SignatureMismatchError
-
-@implements(Serializable, signature_check="error")  # "error", "warn", "skip"
-class MyClass:
-    def to_dict(self, **kwargs):  # Must match protocol signature
-        return {"data": ...}
-```
-
-### 6. DB Types (FK, Vector)
-
-Foreign keys and vector embeddings for SQL DDL:
-
-```python
-from krons.types.db_types import FK, Vector, FKMeta, VectorMeta, extract_kron_db_meta
-
-# In type annotations
-class Post(BaseModel):
-    author_id: FK[User]  # Expands to Annotated[UUID, FKMeta(User)]
-    embedding: Vector[1536]  # Expands to Annotated[list[float], VectorMeta(1536)]
-
-# Extract metadata
-fk_meta = extract_kron_db_meta(field_info, metas="FK")
-vec_meta = extract_kron_db_meta(field_info, metas="Vector")
-```
-
-### 7. Work (Workflow Orchestration)
-
-Two complementary patterns at different abstraction levels:
-
-**Report** (artifact state) - Declarative workflow definition:
+### Report (declarative workflow)
 
 ```python
 from krons.work import Report
 
-class HiringBriefReport(Report):
-    """Multi-step workflow with typed outputs as class attributes."""
-
-    # Typed output fields
-    role_classification: RoleClassification | None = None
-    strategic_context: StrategicContext | None = None
-    executive_summary: ExecutiveSummary | None = None
-
-    # Overall contract
-    assignment: str = "job_input, market_context -> executive_summary"
-
-    # Form assignments with branch/resource hints
-    # DSL: "branch: inputs -> outputs | resource"
+class MyReport(Report):
+    result: str | None = None
+    assignment: str = "input -> result"
     form_assignments: list[str] = [
-        # Same branch = sequential execution
-        "classifier: job_input -> role_classification | api:fast",
-        "classifier: role_classification -> extracted_skills | api:fast",
-
-        # Different branches = parallel execution
-        "strategist: job_input, role_classification -> strategic_context | api:synthesis",
-        "writer: strategic_context -> executive_summary | api:reasoning",
+        "step1: input -> intermediate",
+        "step2: intermediate -> result",
     ]
-
-# Execute workflow
-report = HiringBriefReport()
-report.initialize(job_input="...", market_context="...")
-
-while not report.is_complete():
-    for form in report.next_forms():  # Data-driven scheduling
-        result = await execute_form(form)  # Route to Worker via form.resource
-        form.set_output(result)
-        report.complete_form(form)
-
-output = report.get_deliverable()
 ```
 
-**Worker** (execution capability) - Functional station with @work methods:
+### Worker (execution capability)
 
 ```python
-from krons.work import Worker, WorkerEngine, work, worklink
+from krons.work import Worker, work
 
-class ClassifierWorker(Worker):
-    """Execution capability with internal DAG for retries."""
+class MyWorker(Worker):
+    name = "processor"
 
-    name = "classifier"
-
-    @work(assignment="job_input -> role_classification", capacity=2)
-    async def classify_role(self, job_input, **kwargs):
-        result = await self.llm.chat(**kwargs)
-        return result.role_classification
-
-    @work(assignment="code -> execution_result")
-    async def execute_code(self, code):
-        error = run_code(code)
-        return code, error
-
-    # Conditional edge for retry loops
-    @worklink(from_="execute_code", to_="debug_code")
-    async def maybe_debug(self, result):
-        code, error = result
-        if error:  # Only follow if error
-            return {"code": code, "error": error}
-        return None  # Skip edge
-
-# Execute with engine
-engine = WorkerEngine(worker=ClassifierWorker())
-task = await engine.add_task(task_function="classify_role", job_input="...")
-await engine.execute()
+    @work(assignment="input -> output")
+    async def process(self, input, **kwargs):
+        return transform(input)
 ```
 
-**Key concepts:**
+## Protocols
 
-| Component | Role | State |
-|-----------|------|-------|
-| **Report** | Work order / artifact | Stateful (tracks one job) |
-| **Worker** | Station / capability | Stateless (handles many jobs) |
-| **Form** | Unit of work | Stateful (one assignment) |
-| **Phrase** | Typed I/O signature | Definition only |
+```python
+from krons.protocols import implements, Serializable
 
-**Form assignment DSL:**
-
-```
-"branch: inputs -> outputs | resource"
-
-Examples:
-  "a, b -> c"                           # Simple (no branch, no resource)
-  "classifier: job -> role | api:fast"  # Full (branch + resource)
-  "writer: context -> summary"          # Branch only
+@implements(Serializable, signature_check="error")
+class MyClass:
+    def to_dict(self, **kwargs): ...
 ```
 
-- **branch**: Groups forms for sequential execution (same branch = sequential)
-- **resource**: Hint for routing to Worker capabilities (e.g., `api:fast`, `api:reasoning`)
-- Forms without branch execute in parallel based on data availability
+## Testing
 
-## Testing Patterns
-
-### Test Structure
-
+```bash
+uv run pytest tests/ -q              # All tests
+uv run pytest tests/core/ -xvs       # Core module verbose
+uv run pytest -k "test_session" -v   # Pattern match
 ```
-tests/
-├── core/           # Node, Element, Event tests
-├── specs/          # Spec, Operable, Catalog tests
-├── work/           # Report, Worker, Form, Phrase, Engine tests
-├── services/       # iModel, hook tests
-├── operations/     # Operation, context tests
-├── rules/          # Validation rule tests
-└── utils/          # Utility function tests
-```
-
-### Key Test Utilities
 
 ```python
 import pytest
 
-# Async tests
 @pytest.mark.anyio
-async def test_async_operation():
-    result = await some_async_call()
-    assert result == expected
-
-# Testing abstract classes (provide required implementations)
-class TestService(KronService):
-    @property
-    def event_type(self):
-        return Calling  # Satisfy abstract property
-
-# Mock policy engine/resolver (they're Protocols)
-class MockPolicyEngine:
-    async def evaluate(self, policy_id, input_data, **options):
-        return {}
-    async def evaluate_batch(self, policy_ids, input_data, **options):
-        return []
-```
-
-## Common Gotchas
-
-1. **Circular imports in catalog**: Use direct imports from submodules:
-   ```python
-   # Wrong
-   from krons.specs import Operable, Spec
-
-   # Right (in catalog files)
-   from krons.specs.operable import Operable
-   from krons.specs.spec import Spec
-   ```
-
-2. **PolicyEngine/PolicyResolver are Protocols**: Can't instantiate directly, create mock classes.
-
-3. **Node content flattening**: Only works with typed BaseModel content, not generic dicts.
-
-4. **Spec base_type for lists**: `list[float]` becomes `float` with `is_listable=True`.
-
-5. **compose_structure frozen param**: Currently broken in PydanticSpecAdapter (doesn't accept
-   `frozen` kwarg).
-
-6. **Report vs Worker**: They operate at different levels:
-   - Report = declarative workflow (WHAT to do) - subclass and define `form_assignments`
-   - Worker = execution capability (HOW to do it) - has `@work` methods
-   - Forms without explicit branch run in parallel; same branch = sequential
-
-7. **Form assignment DSL**: The full format is `"branch: inputs -> outputs | resource"`.
-   All parts except `inputs -> outputs` are optional.
-
-## Running Tests
-
-```bash
-# All tests
-uv run pytest tests/ -q
-
-# With coverage
-uv run pytest tests/ --cov=krons --cov-report=term-missing
-
-# Specific module
-uv run pytest tests/work/test_report.py -v
-uv run pytest tests/specs/test_catalog.py -v
-
-# Single test
-uv run pytest tests/core/test_node.py::TestNodeCreation::test_node_with_dict -v
+async def test_async():
+    result = await some_call()
+    assert result
 ```
 
 ## Code Style
 
-- Python 3.11+ with type hints
-- Pydantic v2 for models
-- anyio for async (not asyncio directly)
-- ruff for linting (line-length=100)
-- pytest with anyio plugin for async tests
-
-## File Naming Conventions
-
-- `_internal.py` - Private module internals
-- `catalog/_*.py` - Catalog spec definitions
-- `adapters/*.py` - Framework adapters (Pydantic, SQL, etc.)
-- `test_*.py` - Test files mirror source structure
+- Python 3.11+, Pydantic v2, anyio
+- `uv run ruff check src/ --fix && uv run ruff format src/`
+- Type hints required on public APIs
