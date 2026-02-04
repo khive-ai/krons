@@ -54,13 +54,17 @@ class Argument(BaseModel):
 
     claim: str = Field(description="The main claim being made")
     evidence: list[str] = Field(description="Supporting evidence or examples")
-    counterpoint: str | None = Field(default=None, description="Preemptive counter to opposing view")
+    counterpoint: str | None = Field(
+        default=None, description="Preemptive counter to opposing view"
+    )
 
 
 class DebatePosition(BaseModel):
     """A debater's complete position."""
 
-    stance: str = Field(description="The debater's stance (advocate/skeptic/pragmatist)")
+    stance: str = Field(
+        description="The debater's stance (advocate/skeptic/pragmatist)"
+    )
     thesis: str = Field(description="Core thesis statement")
     arguments: list[Argument] = Field(description="Supporting arguments")
     conclusion: str = Field(description="Final summary")
@@ -79,7 +83,9 @@ class JudgeVerdict(BaseModel):
     """The judge's final verdict."""
 
     topic_summary: str = Field(description="Summary of the debate topic")
-    strongest_position: str = Field(description="Which position had strongest arguments")
+    strongest_position: str = Field(
+        description="Which position had strongest arguments"
+    )
     key_insights: list[str] = Field(description="Most valuable insights from debate")
     verdict: str = Field(description="Final recommendation")
     reasoning: str = Field(description="Explanation of the verdict")
@@ -91,14 +97,12 @@ class JudgeVerdict(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def create_cc(name: str, subdir: str, system_prompt: str | None = None, **kwargs) -> iModel:
+def create_cc(
+    name: str, subdir: str, system_prompt: str | None = None, **kwargs
+) -> iModel:
     """Create a Claude Code iModel."""
     config = create_claude_code_config(name=name)
-    config.update({
-        "ws": f"{CC_WORKSPACE}/{subdir}",
-        "max_turns": 3,
-        **kwargs
-    })
+    config.update({"ws": f"{CC_WORKSPACE}/{subdir}", "max_turns": 3, **kwargs})
     if system_prompt:
         config["system_prompt"] = system_prompt
     endpoint = ClaudeCodeEndpoint(config=config)
@@ -415,7 +419,8 @@ async def main(topic: str | None = None):
     positions_text = "\n\n".join(
         f"=== {s.upper()} ===\n"
         f"Thesis: {p.thesis}\n"
-        f"Arguments:\n" + "\n".join(f"- {a.claim}" for a in p.arguments)
+        f"Arguments:\n"
+        + "\n".join(f"- {a.claim}" for a in p.arguments)
         + f"\nConclusion: {p.conclusion}"
         for s, p in positions.items()
     )

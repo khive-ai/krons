@@ -84,7 +84,7 @@ def extract_gaps(text: str) -> list[str]:
 
     # Look for explicit gap sections
     if "GAPS:" in text.upper():
-        gap_section = text[text.upper().find("GAPS:") + 5:]
+        gap_section = text[text.upper().find("GAPS:") + 5 :]
         gap_section = gap_section.split("\n\n")[0]
         for line in gap_section.split("\n"):
             line = line.strip().lstrip("-•*")
@@ -95,7 +95,7 @@ def extract_gaps(text: str) -> list[str]:
     for marker in ["missing", "unclear", "need more", "further research"]:
         if marker in text.lower():
             idx = text.lower().find(marker)
-            section = text[idx:idx + 300]
+            section = text[idx : idx + 300]
             for line in section.split("\n")[1:4]:
                 line = line.strip().lstrip("-•*")
                 if line and len(line) > 5:
@@ -162,7 +162,9 @@ Provide your findings in a structured format."""
         )
 
         findings = session.result or "No findings"
-        print(f"[search] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})")
+        print(
+            f"[search] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})"
+        )
 
         return {
             "query": query,
@@ -173,11 +175,7 @@ Provide your findings in a structured format."""
 
     @work(assignment="query, findings, depth -> analysis", timeout=90.0)
     async def analyze(
-        self,
-        query: str,
-        findings: str,
-        depth: int = 0,
-        **kwargs
+        self, query: str, findings: str, depth: int = 0, **kwargs
     ) -> ResearchResult:
         """Analyze findings and assess confidence.
 
@@ -257,7 +255,9 @@ Focus on addressing the missing information."""
         )
 
         findings = session.result or "No additional findings"
-        print(f"[deep_dive] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})")
+        print(
+            f"[deep_dive] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})"
+        )
 
         return {
             "query": query,
@@ -268,11 +268,7 @@ Focus on addressing the missing information."""
 
     @work(assignment="query, findings, deep_findings -> report", timeout=90.0)
     async def synthesize(
-        self,
-        query: str,
-        findings: str,
-        deep_findings: str | None = None,
-        **kwargs
+        self, query: str, findings: str, deep_findings: str | None = None, **kwargs
     ) -> dict:
         """Synthesize all findings into a final report.
 
@@ -307,7 +303,9 @@ Create a well-structured report with:
         )
 
         report = session.result or "Report generation failed"
-        print(f"[synthesize] Report: {len(report)} chars (cost: ${session.total_cost_usd or 0:.4f})")
+        print(
+            f"[synthesize] Report: {len(report)} chars (cost: ${session.total_cost_usd or 0:.4f})"
+        )
 
         return {
             "query": query,
@@ -329,14 +327,18 @@ Create a well-structured report with:
     async def analyze_to_dive(self, result: ResearchResult) -> dict | None:
         """Route to deep_dive if confidence is low."""
         if result.confidence >= self.confidence_threshold:
-            print(f"[analyze->deep_dive] SKIP: confidence {result.confidence:.0%} >= {self.confidence_threshold:.0%}")
+            print(
+                f"[analyze->deep_dive] SKIP: confidence {result.confidence:.0%} >= {self.confidence_threshold:.0%}"
+            )
             return None
 
         if not result.gaps:
             print("[analyze->deep_dive] SKIP: no gaps identified")
             return None
 
-        print(f"[analyze->deep_dive] ROUTE: confidence {result.confidence:.0%} < threshold")
+        print(
+            f"[analyze->deep_dive] ROUTE: confidence {result.confidence:.0%} < threshold"
+        )
         return {
             "query": result.query,
             "gaps": result.gaps,

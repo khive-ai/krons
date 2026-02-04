@@ -14,13 +14,12 @@ import contextlib
 from collections.abc import AsyncGenerator, Iterable
 from pathlib import Path
 from typing import Any, Literal
-
-from krons.core.base.log import DataLoggerConfig
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr, model_validator
 
 from krons.core import Element, Flow, Pile, Progression
+from krons.core.base.log import DataLoggerConfig
 from krons.core.types import HashableModel, Unset, UnsetType, not_sentinel
 from krons.errors import NotFoundError
 from krons.resource import Calling, ResourceRegistry, iModel

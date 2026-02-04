@@ -139,17 +139,13 @@ class TestSessionMessageDump:
 
     def test_atexit_registration(self):
         """Session should register atexit when configured."""
-        config = SessionConfig(
-            log_config=DataLoggerConfig(auto_save_on_exit=True)
-        )
+        config = SessionConfig(log_config=DataLoggerConfig(auto_save_on_exit=True))
         session = Session(config=config)
         assert session._registered_atexit is True
 
     def test_no_atexit_when_disabled(self):
         """Session should not register atexit when disabled."""
-        config = SessionConfig(
-            log_config=DataLoggerConfig(auto_save_on_exit=False)
-        )
+        config = SessionConfig(log_config=DataLoggerConfig(auto_save_on_exit=False))
         session = Session(config=config)
         assert session._registered_atexit is False
 

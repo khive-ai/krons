@@ -224,7 +224,11 @@ class WorkerAgent(Element):
                 task_id=spec.task_id,
                 worker_id=self.worker.worker_id,
                 success=True,
-                output=str(output.get("explanation") or output.get("analysis") or output.get("summary", "")),
+                output=str(
+                    output.get("explanation")
+                    or output.get("analysis")
+                    or output.get("summary", "")
+                ),
                 duration_ms=(time.time() - start) * 1000,
                 cost=output.get("cost", 0),
             )
@@ -248,7 +252,9 @@ class WorkerAgent(Element):
         await self._exchange.sync()
 
         status = "SUCCESS" if result.success else "FAILED"
-        print(f"[{self.worker.worker_id}] {spec.task_id} {status} ({result.duration_ms:.0f}ms)")
+        print(
+            f"[{self.worker.worker_id}] {spec.task_id} {status} ({result.duration_ms:.0f}ms)"
+        )
 
     def stop(self) -> None:
         """Stop the worker."""
@@ -360,8 +366,16 @@ async def main():
     # Define tasks
     tasks = [
         TaskSpec("task-1", "explain", {"topic": "async/await in Python"}),
-        TaskSpec("task-2", "explain", {"topic": "the actor model in distributed systems"}),
-        TaskSpec("task-3", "summarize", {"content": "Python's asyncio library provides infrastructure for writing single-threaded concurrent code using coroutines, multiplexing I/O access over sockets and other resources, running network clients and servers, and other related primitives."}),
+        TaskSpec(
+            "task-2", "explain", {"topic": "the actor model in distributed systems"}
+        ),
+        TaskSpec(
+            "task-3",
+            "summarize",
+            {
+                "content": "Python's asyncio library provides infrastructure for writing single-threaded concurrent code using coroutines, multiplexing I/O access over sockets and other resources, running network clients and servers, and other related primitives."
+            },
+        ),
     ]
 
     print(f"Tasks: {len(tasks)}")

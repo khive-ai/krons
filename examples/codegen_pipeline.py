@@ -103,10 +103,7 @@ class CodeGenWorker(Worker):
 
     @work(assignment="instruction, context -> code", timeout=120.0)
     async def write_code(
-        self,
-        instruction: str,
-        context: dict | None = None,
-        **kwargs
+        self, instruction: str, context: dict | None = None, **kwargs
     ) -> dict:
         """Generate code via Claude Code.
 
@@ -140,7 +137,9 @@ Respond with ONLY the Python code."""
         )
 
         code = extract_code(session.result or "print('Error generating code')")
-        print(f"[write_code] Generated {len(code)} chars (cost: ${session.total_cost_usd or 0:.4f})")
+        print(
+            f"[write_code] Generated {len(code)} chars (cost: ${session.total_cost_usd or 0:.4f})"
+        )
 
         return {
             "code": code,
@@ -149,7 +148,9 @@ Respond with ONLY the Python code."""
         }
 
     @work(assignment="code -> execution_result", timeout=30.0)
-    async def execute_code(self, code: str, attempt: int = 1, **kwargs) -> ExecutionResult:
+    async def execute_code(
+        self, code: str, attempt: int = 1, **kwargs
+    ) -> ExecutionResult:
         """Execute code in a sandboxed environment.
 
         Args:
@@ -173,8 +174,7 @@ Respond with ONLY the Python code."""
                 exec(code, exec_globals)
 
             await asyncio.wait_for(
-                asyncio.get_event_loop().run_in_executor(None, run_code),
-                timeout=10.0
+                asyncio.get_event_loop().run_in_executor(None, run_code), timeout=10.0
             )
 
             output = captured.getvalue()
@@ -203,7 +203,9 @@ Respond with ONLY the Python code."""
             sys.stdout = old_stdout
 
     @work(assignment="code, error -> fixed_code", timeout=120.0)
-    async def debug_code(self, code: str, error: str, attempt: int = 1, **kwargs) -> dict:
+    async def debug_code(
+        self, code: str, error: str, attempt: int = 1, **kwargs
+    ) -> dict:
         """Debug and fix code via Claude Code.
 
         Args:
@@ -238,7 +240,9 @@ Requirements:
         )
 
         fixed = extract_code(session.result or code)
-        print(f"[debug_code] Fixed code: {len(fixed)} chars (cost: ${session.total_cost_usd or 0:.4f})")
+        print(
+            f"[debug_code] Fixed code: {len(fixed)} chars (cost: ${session.total_cost_usd or 0:.4f})"
+        )
 
         return {
             "code": fixed,
@@ -262,7 +266,9 @@ Requirements:
             return None
 
         if result.attempt >= self.max_debug_attempts:
-            print(f"[execute->debug] Max debug attempts ({self.max_debug_attempts}) reached")
+            print(
+                f"[execute->debug] Max debug attempts ({self.max_debug_attempts}) reached"
+            )
             return None
 
         print(f"[execute->debug] Routing to debug (attempt {result.attempt})")

@@ -67,13 +67,17 @@ class ReviewFinding(BaseModel):
     severity: Severity = Field(description="Severity level")
     description: str = Field(description="Detailed description of the issue")
     suggestion: str = Field(description="How to fix or improve")
-    line_hint: str | None = Field(default=None, description="Relevant code location hint")
+    line_hint: str | None = Field(
+        default=None, description="Relevant code location hint"
+    )
 
 
 class SpecialistReview(BaseModel):
     """Complete review from a specialist."""
 
-    perspective: str = Field(description="The review perspective (security/performance/architecture)")
+    perspective: str = Field(
+        description="The review perspective (security/performance/architecture)"
+    )
     summary: str = Field(description="Executive summary of findings")
     findings: list[ReviewFinding] = Field(description="List of specific findings")
     score: int = Field(ge=0, le=100, description="Overall score 0-100")
@@ -94,14 +98,12 @@ class PanelVerdict(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def create_cc(name: str, subdir: str, system_prompt: str | None = None, **kwargs) -> iModel:
+def create_cc(
+    name: str, subdir: str, system_prompt: str | None = None, **kwargs
+) -> iModel:
     """Create a Claude Code iModel with optional system prompt."""
     config = create_claude_code_config(name=name)
-    config.update({
-        "ws": f"{CC_WORKSPACE}/{subdir}",
-        "max_turns": 3,
-        **kwargs
-    })
+    config.update({"ws": f"{CC_WORKSPACE}/{subdir}", "max_turns": 3, **kwargs})
     if system_prompt:
         config["system_prompt"] = system_prompt
     endpoint = ClaudeCodeEndpoint(config=config)
@@ -221,7 +223,7 @@ def parse_verdict(text: str) -> PanelVerdict:
 # Sample Code for Review
 # ---------------------------------------------------------------------------
 
-SAMPLE_CODE = '''\
+SAMPLE_CODE = """\
 import sqlite3
 import hashlib
 from flask import Flask, request, jsonify
@@ -262,7 +264,7 @@ def process_data(items):
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
-'''
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -365,9 +367,9 @@ async def main(code: str | None = None):
     reviews_text = "\n\n".join(
         f"=== {p.upper()} REVIEWER (Score: {r.score}/100) ===\n"
         f"Summary: {r.summary}\n"
-        f"Findings:\n" + "\n".join(
-            f"- [{f.severity.value}] {f.title}: {f.description}"
-            for f in r.findings
+        f"Findings:\n"
+        + "\n".join(
+            f"- [{f.severity.value}] {f.title}: {f.description}" for f in r.findings
         )
         for p, r in reviews.items()
     )
@@ -426,8 +428,10 @@ async def main(code: str | None = None):
     avg_score = sum(r.score for r in reviews.values()) / len(reviews)
     total_findings = sum(len(r.findings) for r in reviews.values())
     critical_count = sum(
-        1 for r in reviews.values()
-        for f in r.findings if f.severity == Severity.CRITICAL
+        1
+        for r in reviews.values()
+        for f in r.findings
+        if f.severity == Severity.CRITICAL
     )
 
     print("─" * 70)

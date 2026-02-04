@@ -113,7 +113,9 @@ Requirements:
         )
 
         draft = session.result or "Generation failed"
-        print(f"[generate] Generated {len(draft)} chars (cost: ${session.total_cost_usd or 0:.4f})")
+        print(
+            f"[generate] Generated {len(draft)} chars (cost: ${session.total_cost_usd or 0:.4f})"
+        )
 
         return {
             "prompt": prompt,
@@ -167,14 +169,22 @@ FEEDBACK: <specific feedback for improvement or confirmation of quality>"""
 
         # Check for explicit pass indicators
         pass_patterns = [
-            "PASSED: YES", "PASSED:YES", "PASSED = YES",
-            "PASS: YES", "PASS:YES",
-            "**PASSED**: YES", "**PASSED:**YES",
+            "PASSED: YES",
+            "PASSED:YES",
+            "PASSED = YES",
+            "PASS: YES",
+            "PASS:YES",
+            "**PASSED**: YES",
+            "**PASSED:**YES",
         ]
         fail_patterns = [
-            "PASSED: NO", "PASSED:NO", "PASSED = NO",
-            "PASS: NO", "PASS:NO",
-            "**PASSED**: NO", "**PASSED:**NO",
+            "PASSED: NO",
+            "PASSED:NO",
+            "PASSED = NO",
+            "PASS: NO",
+            "PASS:NO",
+            "**PASSED**: NO",
+            "**PASSED:**NO",
         ]
 
         # Check fail first (if explicitly failed, don't pass)
@@ -183,7 +193,9 @@ FEEDBACK: <specific feedback for improvement or confirmation of quality>"""
             passed = any(p in result_upper for p in pass_patterns)
 
         feedback_start = result_upper.find("FEEDBACK:")
-        feedback = result[feedback_start + 9:].strip() if feedback_start > 0 else result
+        feedback = (
+            result[feedback_start + 9 :].strip() if feedback_start > 0 else result
+        )
 
         print(f"[validate] {'PASSED' if passed else 'FAILED'}: {feedback[:60]}...")
 
@@ -264,9 +276,7 @@ async def main():
 
     # Calculate total cost
     total_cost = sum(
-        result.get("cost", 0)
-        for _, result in task.history
-        if isinstance(result, dict)
+        result.get("cost", 0) for _, result in task.history if isinstance(result, dict)
     )
     print(f"Total cost: ${total_cost:.4f}")
     print()
