@@ -26,8 +26,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "Edge": ("krons.core.base.graph", "Edge"),
     "EdgeCondition": ("krons.core.base.graph", "EdgeCondition"),
     "Graph": ("krons.core.base.graph", "Graph"),
-    # log
-    "DataLoggerConfig": ("krons.core.base.log", "DataLoggerConfig"),
     # node
     "NODE_REGISTRY": ("krons.core.base.node", "NODE_REGISTRY"),
     "PERSISTABLE_NODE_REGISTRY": ("krons.core.base.node", "PERSISTABLE_NODE_REGISTRY"),
@@ -79,7 +77,6 @@ if TYPE_CHECKING:
     from .eventbus import EventBus, Handler
     from .flow import Flow
     from .graph import Edge, EdgeCondition, Graph
-    from .log import DataLoggerConfig
     from .node import (
         NODE_REGISTRY,
         PERSISTABLE_NODE_REGISTRY,
@@ -100,7 +97,6 @@ __all__ = [
     "PERSISTABLE_NODE_REGISTRY",
     # classes
     "Broadcaster",
-    "DataLoggerConfig",
     "Edge",
     "EdgeCondition",
     "Element",
