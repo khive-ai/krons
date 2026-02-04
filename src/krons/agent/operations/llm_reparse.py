@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel
 
 from krons.agent.message import Instruction
-from krons.core.types import MaybeUnset, Unset
+from krons.core.types import MaybeUnset, Unset, is_sentinel
 from krons.utils.fuzzy import HandleUnmatched, fuzzy_validate_mapping
 
 from ..message.common import CustomParser, CustomRenderer
@@ -74,6 +74,8 @@ async def _llm_reparse(
         **imodel_kwargs,
     )
 
+    if is_sentinel(request_model, {"none", "empty"}):
+        raise ValueError("request_model is required for LLM reparse")
     target_keys = list(request_model.model_fields.keys())
 
     if custom_parser is not None:

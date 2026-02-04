@@ -114,6 +114,7 @@ async def _parse(
         raise ValidationError("No text provided for parse operation")
 
     # Stage 1: direct parse (no LLM call)
+    direct_error: Exception | None = None
     try:
         return _direct_parse(
             text=text,
@@ -128,34 +129,37 @@ async def _parse(
     except KronsError as e:
         if e.retryable is False:
             raise
+        direct_error = e
     except Exception as e:
-        # Stage 2: LLM reparse fallback
-        if is_sentinel(max_retries, _sentinel_check) or max_retries < 1:
-            raise ExecutionError(
-                "Direct parse failed and max_retries not enabled, no reparse attempted",
-                retryable=False,
-                cause=e,
+        direct_error = e
+
+    # Stage 2: LLM reparse fallback
+    if is_sentinel(max_retries, _sentinel_check) or max_retries < 1:
+        raise ExecutionError(
+            "Direct parse failed and max_retries not enabled, no reparse attempted",
+            retryable=False,
+            cause=direct_error,
+        )
+
+    from .llm_reparse import _llm_reparse
+
+    for _ in range(max_retries):
+        try:
+            return await _llm_reparse(
+                session=session,
+                branch=branch,
+                text=text,
+                imodel=imodel,
+                tool_schemas=tool_schemas,
+                request_model=request_model,
+                structure_format=structure_format,
+                custom_renderer=custom_renderer,
+                custom_parser=custom_parser,
+                **imodel_kwargs,
             )
-
-        from .llm_reparse import _llm_reparse
-
-        for _ in range(max_retries):
-            try:
-                return await _llm_reparse(
-                    session=session,
-                    branch=branch,
-                    text=text,
-                    imodel=imodel,
-                    tool_schemas=tool_schemas,
-                    request_model=request_model,
-                    structure_format=structure_format,
-                    custom_renderer=custom_renderer,
-                    custom_parser=custom_parser,
-                    **imodel_kwargs,
-                )
-            except KronsError as e:
-                if e.retryable is False:
-                    raise
+        except KronsError as e:
+            if e.retryable is False:
+                raise
 
     raise ExecutionError(
         "All parse attempts (direct and LLM reparse) failed",

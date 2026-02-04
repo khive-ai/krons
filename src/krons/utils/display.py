@@ -17,7 +17,7 @@ from typing import Any
 
 try:
     from rich.align import Align
-    from rich.box import MINIMAL, ROUNDED
+    from rich.box import ROUNDED
     from rich.console import Console
     from rich.padding import Padding
     from rich.panel import Panel
@@ -117,22 +117,14 @@ def as_readable(
     md: bool = False,
     format_curly: bool = True,
     max_chars: int | None = None,
-    use_rich: bool = True,
-    panel: bool = True,
-    border: bool = True,
-    max_panel_width: int = 140,
 ) -> str:
-    """Convert data to human-readable string with optional Rich display.
+    """Convert data to human-readable string.
 
     Args:
         input_: Data to format (dict, model, list, etc.).
         md: Wrap in code fences for markdown.
         format_curly: YAML-like (True) or JSON (False).
         max_chars: Truncate output.
-        use_rich: Use Rich for console display.
-        panel: Wrap in Rich panel.
-        border: Panel border style.
-        max_panel_width: Max panel width.
 
     Returns:
         Formatted string.

@@ -74,7 +74,6 @@ class OperateParams(Params):
     generate_params: GenerateParams
 
     # Structure composition
-    request_model: type | None = None
     capabilities: set[str] | None = None
     persist: bool = True
 

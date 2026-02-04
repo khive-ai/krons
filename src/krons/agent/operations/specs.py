@@ -13,9 +13,7 @@ from __future__ import annotations
 
 import re
 from functools import cache
-from typing import Any
-
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, JsonValue, field_validator
 
@@ -222,7 +220,7 @@ def _normalize_action_keys(d: dict) -> dict | None:
 
     for k, v in d.items():
         # Strip common prefixes: action_name → name, recipient_name → name
-        normalized = k.replace("action_", "").replace("recipient_", "").replace("s", "")
+        normalized = k.replace("action_", "").replace("recipient_", "").removesuffix("s")
         if normalized in ("name", "function", "recipient"):
             result["function"] = v
         elif normalized in ("parameter", "argument", "arg", "param"):
@@ -230,6 +228,7 @@ def _normalize_action_keys(d: dict) -> dict | None:
                 v, str_type="json", fuzzy_parse=True, suppress=True
             )
 
-    if "function" in result and "arguments" in result and result["arguments"]:
+    if "function" in result:
+        result.setdefault("arguments", {})
         return result
     return None

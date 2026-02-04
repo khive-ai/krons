@@ -61,18 +61,11 @@ class TestSessionNoDefaultBranch:
             await session.conduct("operate", branch=None)
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(
-        reason="BUG: Session.conduct() passes timeout=None to Operation, "
-        "but Operation expects float or Unset, not None. This test documents "
-        "that branch resolution works but Operation creation fails."
-    )
     async def test_conduct_with_explicit_branch_succeeds_without_default(self):
         """conduct() with explicit branch should work even without default branch.
 
         Edge case: Session created without default, but explicit branch passed to conduct.
         The operation binding should succeed (branch resolution works).
-
-        NOTE: Currently fails due to timeout=None validation error in Session.conduct.
         """
         session = Session(config=SessionConfig(auto_create_default_branch=False))
         branch = session.create_branch(name="explicit")

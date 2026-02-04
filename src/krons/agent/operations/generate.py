@@ -17,6 +17,7 @@ from pydantic import BaseModel, JsonValue
 
 from krons.agent.message import Instruction, prepare_messages_for_chat
 from krons.core.types import ID, MaybeUnset, ModelConfig, Params, Unset
+from krons.errors import ConfigurationError
 from krons.session import Message, resource_must_be_accessible
 
 from ..message.common import CustomRenderer
@@ -127,7 +128,7 @@ async def _generate(
         imodel = session.resources.get(imodel, None)
     # else: already an iModel instance
     if imodel is None:
-        raise ValueError(
+        raise ConfigurationError(
             "Provided imodel could not be resolved, or no default model is set."
         )
 
