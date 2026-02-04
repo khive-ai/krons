@@ -1,16 +1,18 @@
 # Copyright (c) 2025 - 2026, HaiyangLi <quantocean.li at gmail dot com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Structured field models for agent operations.
+"""Specs for agent operations.
 
-ActionRequestModel: Pydantic model for parsing LLM tool-call output into
-validated (function, arguments) pairs. Handles fuzzy/malformed JSON from
-various providers.
+Action: validated tool-call request model (function + arguments).
+ActionResult: validated tool-call result model (function, result, error).
+get_action_spec / get_action_result_spec: Spec factories for
+runtime operable composition in operate.
 """
 
 from __future__ import annotations
 
 import re
+from functools import cache
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
@@ -18,35 +20,33 @@ from pydantic import BaseModel, Field, field_validator
 from krons.core.types import HashableModel
 from krons.utils import extract_json, to_dict, to_list
 
+__all__ = ("Action", "ActionResult", "get_action_spec", "get_action_result_spec")
 
-class ActionRequestModel(HashableModel):
-    """Validated tool/action request extracted from LLM output.
 
-    Attributes:
-        function: Function name from tool_schemas (never invented).
-        arguments: Argument dict matching the function's schema.
+class Action(HashableModel):
+    """Validated tool/action request: (function, arguments) pair.
+
+    Parsed from LLM output via fuzzy JSON extraction.
     """
 
     function: str = Field(
         description=(
-            "Name of the function to call from the provided `tool_schemas`. "
-            "If no `tool_schemas` exist, set to None or leave blank. "
-            "Never invent new function names outside what's given."
+            "Function name from tool_schemas. "
+            "Never invent names outside provided schemas."
         ),
     )
     arguments: dict[str, Any] = Field(
         default_factory=dict,
         description=(
-            "Dictionary of arguments for the chosen function. "
-            "Use only argument names/types defined in `tool_schemas`. "
-            "Never introduce extra argument names."
+            "Argument dict for the function. "
+            "Use only names/types from tool_schemas."
         ),
     )
 
     @field_validator("arguments", mode="before")
     @classmethod
     def _coerce_arguments(cls, value: Any) -> dict[str, Any]:
-        """Coerce arguments into a dict, handling JSON strings and nested structures."""
+        """Coerce arguments into a dict, handling JSON strings."""
         if isinstance(value, dict):
             return value
         return to_dict(
@@ -57,21 +57,49 @@ class ActionRequestModel(HashableModel):
         )
 
     @classmethod
-    def create(cls, content: str | dict | BaseModel) -> list[ActionRequestModel]:
-        """Parse raw LLM output into validated ActionRequestModel instances.
-
-        Handles:
-        - JSON objects/arrays with function/arguments keys
-        - Python code blocks containing JSON
-        - Aliased key names (name→function, parameters→arguments, etc.)
-
-        Returns empty list on parse failure (never raises).
-        """
+    def create(cls, content: str | dict | BaseModel) -> list[Action]:
+        """Parse raw LLM output into Action instances. Returns [] on failure."""
         try:
             parsed = _parse_action_blocks(content)
             return [cls.model_validate(item) for item in parsed] if parsed else []
         except Exception:
             return []
+
+
+class ActionResult(HashableModel):
+    """Validated tool-call result: (function, result, error) triple.
+
+    Produced by act stage after executing Action requests.
+    """
+
+    function: str = Field(description="Function name that was called.")
+    result: Any = Field(default=None, description="Return value on success.")
+    error: str | None = Field(default=None, description="Error message on failure.")
+
+    @property
+    def success(self) -> bool:
+        return self.error is None
+
+
+@cache
+def get_action_spec():
+    """Spec for action_requests: list[Action] | None."""
+    from krons.core.specs import Spec
+
+    return Spec(Action, name="action_requests").as_listable().as_nullable()
+
+
+@cache
+def get_action_result_spec():
+    """Spec for action_results: list[ActionResult] | None."""
+    from krons.core.specs import Spec
+
+    return Spec(ActionResult, name="action_results").as_listable().as_nullable()
+
+
+# ---------------------------------------------------------------------------
+# Parsing helpers
+# ---------------------------------------------------------------------------
 
 
 def _parse_action_blocks(content: str | dict | BaseModel) -> list[dict]:
