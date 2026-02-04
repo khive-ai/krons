@@ -5,7 +5,7 @@
 
 Core types:
     Operation: Node + Event hybrid for graph-based execution.
-    OperationRegistry: Per-session factory mapping.
+    OperationRegistry: Per-session handler mapping.
     OperationGraphBuilder (Builder): Fluent DAG construction.
 
 Execution:
@@ -19,13 +19,14 @@ from .builder import Builder, OperationGraphBuilder
 from .context import QueryFn, RequestContext
 from .flow import DependencyAwareExecutor, flow, flow_stream
 from .node import Operation
-from .registry import OperationRegistry
+from .registry import OperationHandler, OperationRegistry
 
 __all__ = (
     "Builder",
     "DependencyAwareExecutor",
     "Operation",
     "OperationGraphBuilder",
+    "OperationHandler",
     "OperationRegistry",
     "QueryFn",
     "RequestContext",

@@ -60,7 +60,13 @@ def __dir__() -> list[str]:
 
 # TYPE_CHECKING block for static analysis
 if TYPE_CHECKING:
-    from .backend import Calling, NormalizedResponse, NormalizedResponseModel, ResourceBackend, ResourceConfig
+    from .backend import (
+        Calling,
+        NormalizedResponse,
+        NormalizedResponseModel,
+        ResourceBackend,
+        ResourceConfig,
+    )
     from .endpoint import APICalling, Endpoint, EndpointConfig
     from .hook import HookEvent, HookPhase, HookRegistry
     from .imodel import iModel

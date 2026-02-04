@@ -198,11 +198,12 @@ class iModel(Element):  # noqa: N801
                 )
 
         payload = self.backend.create_payload(request=arguments)
+        # Handle backends that return (payload, headers) tuple
+        if isinstance(payload, tuple):
+            payload, _ = payload
         calling: Calling = calling_type(
             backend=self.backend,
             payload=payload,
-            timeout=timeout,
-            streaming=streaming,
         )
 
         if self.hook_registry is not None and self.hook_registry._can_handle(

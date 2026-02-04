@@ -317,4 +317,4 @@ class Operable:
         Returns:
             Dict representation of the instance
         """
-        return self.adapter.dump_instance(instance, self)
+        return self.adapter.dump_instance(instance)

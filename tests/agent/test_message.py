@@ -136,10 +136,12 @@ class TestActionRequest:
 
     def test_action_request_from_dict(self):
         """Test ActionRequest from_dict."""
-        action = ActionRequest.from_dict({
-            "function": "test_func",
-            "arguments": {"arg1": "val1"},
-        })
+        action = ActionRequest.from_dict(
+            {
+                "function": "test_func",
+                "arguments": {"arg1": "val1"},
+            }
+        )
         assert action.function == "test_func"
         assert action.arguments == {"arg1": "val1"}
 

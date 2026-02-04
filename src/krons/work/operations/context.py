@@ -129,23 +129,31 @@ class RequestContext(DataClass):
             ) from None
 
     async def get_session(self) -> Session | None:
-        """Fetch the Session object for session_id, if set.
+        """Get the Session object.
 
-        Returns None if session_id is not set.
-        Raises ValueError if session_id is not found.
+        Checks bound reference first (set by Operation.invoke),
+        then falls back to global registry lookup via session_id.
+
+        Returns None if no session available.
         """
-        from krons.session.registry import get_session
-
+        if "_bound_session" in self.metadata:
+            return self.metadata["_bound_session"]
         if self.session_id is None:
             return None
+        from krons.session.registry import get_session
+
         return await get_session(self.session_id)
 
     async def get_branch(self) -> Branch | None:
-        """Fetch the Branch object for branch, if set.
+        """Get the Branch object.
 
-        Returns None if branch is not set.
-        Raises ValueError if branch is not found.
+        Checks bound reference first (set by Operation.invoke),
+        then falls back to session lookup via branch identifier.
+
+        Returns None if no branch available.
         """
+        if "_bound_branch" in self.metadata:
+            return self.metadata["_bound_branch"]
         session = await self.get_session()
         if session is None or self.branch is None:
             return None

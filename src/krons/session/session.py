@@ -269,6 +269,7 @@ class Session(Element):
         operation_type: str,
         branch: Branch | UUID | str | None = None,
         params: Any | None = None,
+        verbose: bool = False,
     ) -> Operation:
         """Execute operation via registry.
 
@@ -276,6 +277,7 @@ class Session(Element):
             operation_type: Registry key.
             branch: Target branch (default if None).
             params: Operation parameters.
+            verbose: Print real-time status updates.
 
         Returns:
             Invoked Operation (result in op.execution.response).
@@ -285,14 +287,36 @@ class Session(Element):
             KeyError: Operation not registered.
         """
         resolved = self._resolve_branch(branch)
+
+        if verbose:
+            from krons.utils.display import Timer, status
+
+            branch_name = resolved.name or str(resolved.id)[:8]
+            status(
+                f"conduct({operation_type}) on branch={branch_name}",
+                style="info",
+            )
+
         op = Operation(
             operation_type=operation_type,
             parameters=params,
-            timeout=None,
-            streaming=False,
         )
         op.bind(self, resolved)
-        await op.invoke()
+
+        if verbose:
+            with Timer(f"{operation_type} completed"):
+                await op.invoke()
+
+            resp = op.execution.response
+            if op.execution.error:
+                status(f"ERROR: {op.execution.error}", style="error")
+            elif isinstance(resp, str):
+                status(f"response: {len(resp)} chars", style="success")
+            else:
+                status(f"response: {type(resp).__name__}", style="success")
+        else:
+            await op.invoke()
+
         return op
 
     def _resolve_branch(self, branch: Branch | UUID | str | None) -> Branch:

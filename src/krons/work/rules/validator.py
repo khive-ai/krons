@@ -7,7 +7,7 @@ from collections import deque
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from krons.core.types import is_sentinel
+from krons.core.types import is_sentinel, not_sentinel
 from krons.utils.concurrency import is_coro_func
 
 from .registry import RuleRegistry, get_default_registry
@@ -15,6 +15,7 @@ from .rule import Rule, ValidationError
 
 if TYPE_CHECKING:
     from krons.core.specs import Operable, Spec
+    from pydantic import BaseModel
 
 __all__ = ("Validator",)
 
@@ -175,14 +176,20 @@ class Validator:
 
         return value
 
-    async def validate_operable(
+    async def validate(
         self,
         data: dict[str, Any],
         operable: Operable,
         capabilities: set[str] | None = None,
         auto_fix: bool = True,
         strict: bool = True,
+        structure: type[BaseModel] | None = None,
     ) -> dict[str, Any]:
+        if not_sentinel(capabilities, {"none"}) and not capabilities.issubset(
+            operable.allowed()
+        ):
+            raise ValidationError("Capabilities exceed operable's allowed set")
+
         capabilities = capabilities or operable.allowed()
         validated: dict[str, Any] = {}
 
@@ -198,5 +205,8 @@ class Validator:
             validated[field_name] = await self.validate_spec(
                 spec, value, auto_fix=auto_fix, strict=strict
             )
+
+        if structure is not None:
+            validated = operable.validate_instance(structure, validated)
 
         return validated

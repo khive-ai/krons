@@ -225,7 +225,9 @@ class GeminiCodeEndpoint(Endpoint):
             "session": to_dict(session, recursive=True),
         }
 
-    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponseModel:
+    def normalize_response(
+        self, raw_response: dict[str, Any]
+    ) -> NormalizedResponseModel:
         """Normalize Gemini CLI response to standard format.
 
         Args:

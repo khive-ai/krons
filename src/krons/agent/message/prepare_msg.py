@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 from pydantic import JsonValue
 
 from krons.core import Pile, Progression
-from krons.core.types import not_sentinel
+
 
 from .action import ActionResponse
 from .assistant import Assistant
@@ -77,7 +77,7 @@ def prepare_messages_for_chat(
                         new_content.structure_format, new_content.custom_renderer
                     ),
                 }
-                if not_sentinel(chat_msg, True, True):
+                if chat_msg and chat_msg.get("content"):
                     return [chat_msg]
                 return []
             return [new_content]

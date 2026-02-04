@@ -88,11 +88,12 @@ class GenerateParams(Params):
 async def generate(params: GenerateParams, ctx: RequestContext) -> Any:
     """Generate operation handler: resolve context and delegate to _generate."""
     session = await ctx.get_session()
+    imodel = params.imodel if not params.is_sentinel_field("imodel") else None
     return await _generate(
         session=session,
         branch=ctx.branch,
         instruction=params.instruction_message,
-        imodel=params.imodel,
+        imodel=imodel,
         return_as=params.return_as,
         **params.imodel_kwargs,
     )
@@ -116,8 +117,9 @@ async def _generate(
     """
     if imodel is None:
         imodel = session.default_gen_model
-    else:
+    elif isinstance(imodel, str):
         imodel = session.resources.get(imodel, None)
+    # else: already an iModel instance
     if imodel is None:
         raise ValueError(
             "Provided imodel could not be resolved, or no default model is set."

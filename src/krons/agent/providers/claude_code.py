@@ -227,7 +227,9 @@ class ClaudeCodeEndpoint(Endpoint):
             "session": to_dict(session, recursive=True),
         }
 
-    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponseModel:
+    def normalize_response(
+        self, raw_response: dict[str, Any]
+    ) -> NormalizedResponseModel:
         """Normalize Claude Code response to standard format.
 
         Args:

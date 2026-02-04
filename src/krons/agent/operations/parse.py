@@ -71,7 +71,7 @@ async def parse(params: ParseParams, ctx: RequestContext) -> dict[str, Any]:
             )
         target_keys = list(params.request_model.model_fields.keys())
 
-    session = ctx.get_session()
+    session = await ctx.get_session()
     data = params.to_dict(exclude={"target_keys", "imodel_kwargs"})
 
     return await _parse(

@@ -10,7 +10,12 @@ from pydantic import BaseModel, ValidationError
 
 from krons.core import EventStatus
 from krons.core.types import Unset, is_sentinel
-from krons.resource import Calling, NormalizedResponseModel, ResourceBackend, ResourceConfig
+from krons.resource import (
+    Calling,
+    NormalizedResponseModel,
+    ResourceBackend,
+    ResourceConfig,
+)
 
 # =============================================================================
 # Mock Components

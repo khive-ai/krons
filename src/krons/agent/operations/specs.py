@@ -15,12 +15,21 @@ import re
 from functools import cache
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from typing import Literal
+
+from pydantic import BaseModel, Field, JsonValue, field_validator
 
 from krons.core.types import HashableModel
 from krons.utils import extract_json, to_dict, to_list
 
-__all__ = ("Action", "ActionResult", "get_action_spec", "get_action_result_spec")
+__all__ = (
+    "Action",
+    "ActionResult",
+    "Instruct",
+    "get_action_spec",
+    "get_action_result_spec",
+    "get_instruct_spec",
+)
 
 
 class Action(HashableModel):
@@ -79,6 +88,70 @@ class ActionResult(HashableModel):
     @property
     def success(self) -> bool:
         return self.error is None
+
+
+class Instruct(HashableModel):
+    """Instruction bundle for orchestrated task handoff.
+
+    Encapsulates everything needed to hand off a task: what to do,
+    strategic guidance, background context, and execution preferences.
+    Used as a structured handoff between orchestrator and workers.
+    """
+
+    instruction: str | None = Field(
+        default=None,
+        description=(
+            "Clear, actionable task definition. Specify the primary goal, "
+            "key constraints, and success criteria."
+        ),
+    )
+    guidance: JsonValue | None = Field(
+        default=None,
+        description=(
+            "Strategic direction: preferred methods, quality benchmarks, "
+            "resource constraints, or compliance requirements."
+        ),
+    )
+    context: JsonValue | None = Field(
+        default=None,
+        description=(
+            "Background information directly relevant to the task: "
+            "environment, prior outcomes, system states, or dependencies."
+        ),
+    )
+    reason: bool = Field(
+        default=False,
+        description=(
+            "Include reasoning: explanations of decisions, trade-offs, "
+            "alternatives considered, and confidence assessment."
+        ),
+    )
+    actions: bool = Field(
+        default=False,
+        description=(
+            "Enable action execution via tool_schemas. "
+            "True: execute tool calls. False: analysis only."
+        ),
+    )
+    action_strategy: Literal["sequential", "concurrent"] = Field(
+        default="concurrent",
+        description="How to execute actions: sequential or concurrent.",
+    )
+
+    @field_validator("action_strategy", mode="before")
+    @classmethod
+    def _validate_action_strategy(cls, v: Any) -> str:
+        if v not in ("sequential", "concurrent"):
+            return "concurrent"
+        return v
+
+
+@cache
+def get_instruct_spec():
+    """Spec for instruct_model: Instruct | None."""
+    from krons.core.specs import Spec
+
+    return Spec(Instruct, name="instruct_model").as_nullable()
 
 
 @cache
