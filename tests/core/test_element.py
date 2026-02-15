@@ -47,7 +47,7 @@ class TestElementCreation:
         """Element created_at should be immutable after creation."""
         elem = Element()
         with pytest.raises(Exception):  # ValidationError for frozen field
-            elem.created_at = dt.datetime.now(dt.timezone.utc)
+            elem.created_at = dt.datetime.now(dt.UTC)
 
     def test_element_with_custom_id(self):
         """Element should accept custom UUID id."""

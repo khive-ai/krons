@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import pytest
 
@@ -78,9 +78,7 @@ class TestParseAssignment:
 
     def test_underscored_field_names(self):
         """Parse assignment with underscore field names."""
-        inputs, outputs = parse_assignment(
-            "user_id, consent_scope -> has_consent, token_id"
-        )
+        inputs, outputs = parse_assignment("user_id, consent_scope -> has_consent, token_id")
         assert inputs == ["user_id", "consent_scope"]
         assert outputs == ["has_consent", "token_id"]
 

@@ -165,9 +165,7 @@ class TestMessageRouting:
 
         exchange.register(sender_id)
 
-        msg = exchange.send(
-            sender_id, None, content={"text": "test"}, channel="updates"
-        )
+        msg = exchange.send(sender_id, None, content={"text": "test"}, channel="updates")
 
         assert msg.channel == "updates"
 
@@ -380,7 +378,7 @@ class TestExchangeAsync:
         # Wait for task to complete
         try:
             await asyncio.wait_for(task, timeout=0.5)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             task.cancel()
             pytest.fail("run() did not stop after stop() was called")
 

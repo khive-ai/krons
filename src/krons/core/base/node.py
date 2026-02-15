@@ -56,13 +56,9 @@ def _enable_embedding_requires_dim(config: NodeConfig) -> None:
     """Validate: embedding_enabled requires positive embedding_dim."""
     if config.embedding_enabled:
         if config.is_sentinel_field("embedding_dim"):
-            raise ValueError(
-                "embedding_dim must be specified when embedding is enabled"
-            )
+            raise ValueError("embedding_dim must be specified when embedding is enabled")
         if config.embedding_dim <= 0:
-            raise ValueError(
-                f"embedding_dim must be positive, got {config.embedding_dim}"
-            )
+            raise ValueError(f"embedding_dim must be positive, got {config.embedding_dim}")
 
 
 def _only_typed_content_can_flatten(config: NodeConfig) -> None:
@@ -235,9 +231,7 @@ class Node(Element):
                 cls._resolved_content_type = None
         else:
             cls._resolved_content_type = (
-                None
-                if config.is_sentinel_field("content_type")
-                else config.content_type
+                None if config.is_sentinel_field("content_type") else config.content_type
             )
 
     @field_serializer("content")
@@ -269,10 +263,7 @@ class Node(Element):
             metadata = value.get("metadata", {})
             kron_class = metadata.get("kron_class")
             if kron_class:
-                if (
-                    kron_class in NODE_REGISTRY
-                    or kron_class.split(".")[-1] in NODE_REGISTRY
-                ):
+                if kron_class in NODE_REGISTRY or kron_class.split(".")[-1] in NODE_REGISTRY:
                     return Node.from_dict(value)
                 return Element.from_dict(value)
         return value
@@ -280,9 +271,7 @@ class Node(Element):
     def to_dict(
         self,
         mode: Literal["python", "json", "db"] = "python",
-        created_at_format: (
-            Literal["datetime", "isoformat", "timestamp"] | UnsetType
-        ) = Unset,
+        created_at_format: (Literal["datetime", "isoformat", "timestamp"] | UnsetType) = Unset,
         meta_key: str | UnsetType = Unset,
         content_serializer: Callable[[Any], Any] | None = None,
         **kwargs: Any,
@@ -432,18 +421,14 @@ class Node(Element):
                 and issubclass(content_type, BaseModel)
             ):
                 content_field_names = set(content_type.model_fields.keys())
-                content_data = {
-                    k: v for k, v in data.items() if k in content_field_names
-                }
+                content_data = {k: v for k, v in data.items() if k in content_field_names}
                 for k in content_field_names:
                     data.pop(k, None)
                 data["content"] = content_type(**content_data)
 
         # Handle meta_key for DB rows
         effective_meta_key = (
-            meta_key
-            if not is_unset(meta_key)
-            else (config.meta_key if from_row else Unset)
+            meta_key if not is_unset(meta_key) else (config.meta_key if from_row else Unset)
         )
 
         if content_deserializer is not None:
@@ -738,9 +723,7 @@ def create_node(
             )
     elif embedding_enabled:
         if embedding_dim is None or embedding_dim <= 0:
-            raise ValueError(
-                "embedding_dim must be positive when embedding_enabled=True"
-            )
+            raise ValueError("embedding_dim must be positive when embedding_enabled=True")
         resolved_embedding_dim = embedding_dim
         has_embedding = True
 
@@ -762,11 +745,7 @@ def create_node(
         include.append("embedding")
 
     needs_update_tracking = (
-        track_updated_at
-        or content_hashing
-        or integrity_hashing
-        or soft_delete
-        or versioning
+        track_updated_at or content_hashing or integrity_hashing or soft_delete or versioning
     )
     if needs_update_tracking:
         include.append("updated_at")
@@ -829,9 +808,7 @@ def _extract_base_type(annotation: Any) -> Any:
     if annotation is None:
         return None
 
-    if isinstance(annotation, types.UnionType) or get_origin(annotation) is type(
-        int | str
-    ):
+    if isinstance(annotation, types.UnionType) or get_origin(annotation) is type(int | str):
         args = get_args(annotation)
         non_none_args = [a for a in args if a is not type(None)]
         if non_none_args:
@@ -864,9 +841,7 @@ def generate_ddl(node_cls: type[Node]) -> str:
 
     config = node_cls.get_config()
     if not config.is_persisted:
-        raise ValueError(
-            f"{node_cls.__name__} is not persistable (no table_name configured)"
-        )
+        raise ValueError(f"{node_cls.__name__} is not persistable (no table_name configured)")
 
     # 1. Build all possible specs for this node
     content_type = (

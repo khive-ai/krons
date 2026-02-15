@@ -31,9 +31,7 @@ class TestRuleRegistryDuplicateRegistration:
         registry.register("username", rule1)
 
         # Attempt to register another rule for same field name
-        with pytest.raises(
-            ValueError, match="Rule already registered for field 'username'"
-        ):
+        with pytest.raises(ValueError, match="Rule already registered for field 'username'"):
             registry.register("username", rule2)
 
     def test_register_duplicate_field_name_with_replace(self):

@@ -94,12 +94,8 @@ class DependencyAwareExecutor:
         """
         self.session = session
         self.graph = graph
-        resolved_max_concurrent = (
-            None if is_sentinel(max_concurrent) else max_concurrent
-        )
-        resolved_default_branch = (
-            None if is_sentinel(default_branch) else default_branch
-        )
+        resolved_max_concurrent = None if is_sentinel(max_concurrent) else max_concurrent
+        resolved_default_branch = None if is_sentinel(default_branch) else default_branch
         self.max_concurrent = resolved_max_concurrent
         self.stop_on_error = stop_on_error
         self.verbose = verbose
@@ -111,9 +107,7 @@ class DependencyAwareExecutor:
         self.operation_branches: dict[UUID, Branch | None] = {}
 
         self._limiter: CapacityLimiter | None = (
-            CapacityLimiter(resolved_max_concurrent)
-            if resolved_max_concurrent
-            else None
+            CapacityLimiter(resolved_max_concurrent) if resolved_max_concurrent else None
         )
 
         for node in graph.nodes:
@@ -264,9 +258,7 @@ class DependencyAwareExecutor:
                     self.operation_branches[node.id] = default_branch
 
         if self.verbose:
-            logger.debug(
-                "Pre-allocated branches for %d operations", len(self.operation_branches)
-            )
+            logger.debug("Pre-allocated branches for %d operations", len(self.operation_branches))
 
     async def _execute_operation(self, operation: Operation) -> Operation:
         """Execute single operation: wait deps -> acquire slot -> invoke -> signal."""

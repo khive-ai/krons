@@ -80,13 +80,9 @@ class SessionConfig(HashableModel):
 
 class Session(Element):
     user: str | None = None
-    communications: Flow[Message, Branch] = Field(
-        default_factory=lambda: Flow(item_type=Message)
-    )
+    communications: Flow[Message, Branch] = Field(default_factory=lambda: Flow(item_type=Message))
     resources: ResourceRegistry = Field(default_factory=ResourceRegistry, exclude=True)
-    operations: OperationRegistry = Field(
-        default_factory=OperationRegistry, exclude=True
-    )
+    operations: OperationRegistry = Field(default_factory=OperationRegistry, exclude=True)
     config: SessionConfig = Field(default_factory=SessionConfig)
     default_branch_id: UUID | None = None
 
@@ -272,13 +268,9 @@ class Session(Element):
             name=name or f"{source.name}_fork",
             messages=source.order,
             capabilities=(
-                {*source.capabilities}
-                if capabilities is True
-                else (capabilities or set())
+                {*source.capabilities} if capabilities is True else (capabilities or set())
             ),
-            resources=(
-                {*source.resources} if resources is True else (resources or set())
-            ),
+            resources=({*source.resources} if resources is True else (resources or set())),
         )
 
         forked.metadata["forked_from"] = {

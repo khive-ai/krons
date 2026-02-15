@@ -428,9 +428,7 @@ class TestFlowStream:
         graph.add_node(op)
 
         results = []
-        async for result in flow_stream(
-            session, graph, branch=branch, stop_on_error=False
-        ):
+        async for result in flow_stream(session, graph, branch=branch, stop_on_error=False):
             results.append(result)
 
         assert len(results) == 1

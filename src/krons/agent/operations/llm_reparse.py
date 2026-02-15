@@ -28,8 +28,7 @@ if TYPE_CHECKING:
 __all__ = ("_llm_reparse",)
 
 PARSE_PROMPT = (
-    "Reformat text into specified model or structure, "
-    "using the provided schema format as a guide"
+    "Reformat text into specified model or structure, using the provided schema format as a guide"
 )
 
 

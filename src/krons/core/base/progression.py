@@ -177,9 +177,7 @@ class Progression(Element):
         """Set item(s) at index. Slice assignment requires list value."""
         if isinstance(index, slice):
             if not isinstance(value, list):
-                raise TypeError(
-                    f"Cannot assign {type(value).__name__} to slice, expected list"
-                )
+                raise TypeError(f"Cannot assign {type(value).__name__} to slice, expected list")
             new_uids = [self._coerce_id(v) for v in value]
             self.order[index] = new_uids
             self._rebuild_members()

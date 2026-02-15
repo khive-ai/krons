@@ -50,9 +50,7 @@ class BooleanRule(Rule):
             ValueError: If not a boolean
         """
         if not isinstance(v, bool):
-            raise ValueError(
-                f"Invalid boolean value: expected bool, got {type(v).__name__}"
-            )
+            raise ValueError(f"Invalid boolean value: expected bool, got {type(v).__name__}")
 
     async def perform_fix(self, v: Any, _t: type) -> Any:
         """Attempt to convert value to boolean.

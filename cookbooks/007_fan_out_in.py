@@ -28,7 +28,7 @@ from krons.agent.providers.claude_code import (
 )
 from krons.resource import iModel
 from krons.session import Session, SessionConfig
-from krons.utils.display import Timer, as_readable, display, phase, status
+from krons.utils.display import as_readable, display, phase, status
 from krons.utils.fuzzy import extract_json, fuzzy_validate_mapping
 
 CC_WORKSPACE = ".khive/workspace"
@@ -131,9 +131,7 @@ async def main(simple: bool = False):
     session.resources.register(orc_model)
 
     orc_branch = session.default_branch
-    status(
-        f"Session ready: {len(session.resources)} resources, branch={orc_branch.name}"
-    )
+    status(f"Session ready: {len(session.resources)} resources, branch={orc_branch.name}")
 
     # --- 3. Phase 1: Plan (structured output from orchestrator) ---
     phase("Phase 1: Planning")
@@ -201,9 +199,7 @@ async def main(simple: bool = False):
     # --- 5. Phase 3: Fan-in (synthesis) ---
     phase("Phase 3: Synthesis")
     research_context = [
-        f"--- Researcher {i + 1} ---\n{r}"
-        for i, r in enumerate(results)
-        if r is not None
+        f"--- Researcher {i + 1} ---\n{r}" for i, r in enumerate(results) if r is not None
     ]
 
     synth_op = await session.conduct(

@@ -12,7 +12,7 @@ Key behaviors:
 """
 
 import pytest
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from krons.core.specs import Spec
 from krons.core.specs.spec import CommonMeta
@@ -44,9 +44,7 @@ class TestCommonMeta:
     def test_validate_rejects_both_default_and_factory(self):
         """Validation rejects conflicting default + default_factory."""
         with pytest.raises(ExceptionGroup, match="Metadata validation failed"):
-            CommonMeta._validate_common_metas(
-                default="value", default_factory=lambda: "value"
-            )
+            CommonMeta._validate_common_metas(default="value", default_factory=lambda: "value")
 
     def test_validate_rejects_non_callable_factory(self):
         """Validation rejects non-callable default_factory."""
@@ -536,7 +534,7 @@ class TestSpecForeignKey:
 
     def test_as_fk_nullable(self):
         """as_fk combined with nullable produces UUID | None with FKMeta."""
-        from typing import get_args, get_origin
+        from typing import get_args
         from uuid import UUID
 
         from krons.core.types.db_types import FKMeta

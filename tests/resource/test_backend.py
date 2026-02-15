@@ -100,15 +100,11 @@ class TestResourceConfig:
     def test_config_required_fields_validation(self):
         """ResourceConfig should validate min length for provider and name."""
         # Provider too short
-        with pytest.raises(
-            ValidationError, match="String should have at least 4 characters"
-        ):
+        with pytest.raises(ValidationError, match="String should have at least 4 characters"):
             ResourceConfig(provider="abc", name="test_service")
 
         # Name too short
-        with pytest.raises(
-            ValidationError, match="String should have at least 4 characters"
-        ):
+        with pytest.raises(ValidationError, match="String should have at least 4 characters"):
             ResourceConfig(provider="test_provider", name="abc")
 
     def test_config_kwargs_handling(self):
@@ -323,9 +319,7 @@ class TestResourceBackend:
 
     def test_version_property(self):
         """Test version property."""
-        config = ResourceConfig(
-            provider="test_provider", name="test_name", version="1.0.0"
-        )
+        config = ResourceConfig(provider="test_provider", name="test_name", version="1.0.0")
         backend = MockResourceBackend(config=config)
         assert backend.version == "1.0.0"
 
@@ -337,9 +331,7 @@ class TestResourceBackend:
 
     def test_tags_property(self):
         """Test tags property."""
-        config = ResourceConfig(
-            provider="test_provider", name="test_name", tags=["tag1", "tag2"]
-        )
+        config = ResourceConfig(provider="test_provider", name="test_name", tags=["tag1", "tag2"])
         backend = MockResourceBackend(config=config)
         assert backend.tags == {"tag1", "tag2"}
 
@@ -383,7 +375,5 @@ class TestResourceBackend:
         config = ResourceConfig(provider="test_provider", name="test_name")
         backend = MockResourceBackend(config=config)
 
-        with pytest.raises(
-            NotImplementedError, match="does not support streaming calls"
-        ):
+        with pytest.raises(NotImplementedError, match="does not support streaming calls"):
             await backend.stream()

@@ -310,9 +310,7 @@ def _preprocess_recursive(
 
     if recursive_custom_types:
         with contextlib.suppress(Exception):
-            mapped = _object_to_mapping_like(
-                obj, prioritize_model_dump=prioritize_model_dump
-            )
+            mapped = _object_to_mapping_like(obj, prioritize_model_dump=prioritize_model_dump)
             return _preprocess_recursive(
                 mapped,
                 depth=depth + 1,
@@ -359,16 +357,16 @@ def _convert_top_level_to_dict(
         Dictionary with str or int keys.
     """
     if isinstance(obj, set):
-        return cast(dict[str | int, Any], {v: v for v in obj})
+        return cast("dict[str | int, Any]", {v: v for v in obj})
 
     if isinstance(obj, type) and issubclass(obj, _Enum):
-        return cast(dict[str | int, Any], _enum_class_to_dict(obj, use_enum_values))
+        return cast("dict[str | int, Any]", _enum_class_to_dict(obj, use_enum_values))
 
     if isinstance(obj, Mapping):
-        return cast(dict[str | int, Any], dict(obj))
+        return cast("dict[str | int, Any]", dict(obj))
 
     if _is_na(obj):
-        return cast(dict[str | int, Any], {})
+        return cast("dict[str | int, Any]", {})
 
     if isinstance(obj, str):
         return _parse_str(obj, fuzzy_parse=fuzzy_parse, parser=parser, **kwargs)
@@ -385,14 +383,14 @@ def _convert_top_level_to_dict(
             if isinstance(converted, Iterable) and not isinstance(
                 converted, str | bytes | bytearray
             ):
-                return cast(dict[str | int, Any], _enumerate_iterable(converted))
+                return cast("dict[str | int, Any]", _enumerate_iterable(converted))
             return dict(converted)
 
     if isinstance(obj, Iterable) and not isinstance(obj, str | bytes | bytearray):
-        return cast(dict[str | int, Any], _enumerate_iterable(obj))
+        return cast("dict[str | int, Any]", _enumerate_iterable(obj))
 
     with contextlib.suppress(Exception):
         if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
-            return cast(dict[str | int, Any], dataclasses.asdict(obj))
+            return cast("dict[str | int, Any]", dataclasses.asdict(obj))
 
     return dict(obj)

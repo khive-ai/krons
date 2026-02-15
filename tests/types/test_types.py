@@ -518,9 +518,7 @@ def test_params_with_updates_shallow():
     original_list = [1, 2, 3]
     original_dict = {"key": "value"}
     original_set = {1, 2, 3}
-    params = MyParamsWithContainers(
-        items=original_list, config=original_dict, tags=original_set
-    )
+    params = MyParamsWithContainers(items=original_list, config=original_dict, tags=original_set)
 
     # Shallow copy containers
     updated = params.with_updates(copy_containers="shallow", items=[4, 5, 6])
@@ -562,9 +560,7 @@ def test_params_with_updates_deep_copy_nested():
     params = MyParamsWithContainers(config=nested_dict)
 
     # Shallow copy - inner structures shared
-    shallow = params.with_updates(
-        copy_containers="shallow", config={"outer": {"inner": [1, 2]}}
-    )
+    shallow = params.with_updates(copy_containers="shallow", config={"outer": {"inner": [1, 2]}})
     shallow.config["outer"]["inner"].append(3)
     # Original should be unchanged (top-level dict was copied)
     assert params.config == {"outer": {"inner": [1, 2]}}

@@ -126,9 +126,7 @@ class SpecAdapter(ABC, Generic[F]):
         Raises:
             NotImplementedError: If adapter doesn't support instance creation
         """
-        raise NotImplementedError(
-            f"{cls.__name__} does not support instance validation"
-        )
+        raise NotImplementedError(f"{cls.__name__} does not support instance validation")
 
     @classmethod
     def dump_instance(cls, instance: Any, **kwargs) -> dict[str, Any]:

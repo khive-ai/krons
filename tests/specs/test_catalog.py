@@ -134,7 +134,7 @@ class TestContentSpecs:
 
     def test_get_specs_content_type_default_dict(self):
         """Content/metadata should default to dict type."""
-        from typing import Any, get_origin
+        from typing import get_origin
 
         specs = ContentSpecs.get_specs()
         by_name = {s.name: s for s in specs}

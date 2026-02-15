@@ -5,7 +5,7 @@
 
 import pytest
 
-from krons.core import Event, EventStatus, Execution
+from krons.core import EventStatus, Execution
 from krons.core.types import is_unset
 
 

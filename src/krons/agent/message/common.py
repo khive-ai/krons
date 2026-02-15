@@ -37,9 +37,7 @@ class CustomParser(Protocol):
         Dict mapping field names to extracted values
     """
 
-    def __call__(
-        self, text: str, target_keys: list[str], **kwargs: Any
-    ) -> dict[str, Any]: ...
+    def __call__(self, text: str, target_keys: list[str], **kwargs: Any) -> dict[str, Any]: ...
 
 
 class StructureFormat(Enum):

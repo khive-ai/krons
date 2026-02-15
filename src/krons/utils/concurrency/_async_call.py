@@ -66,9 +66,7 @@ def _validate_func(func: Any) -> Callable:
     try:
         func_list = list(func)
     except TypeError:
-        raise ValueError(
-            "func must be callable or an iterable containing one callable."
-        )
+        raise ValueError("func must be callable or an iterable containing one callable.")
 
     if len(func_list) != 1 or not callable(func_list[0]):
         raise ValueError("Only one callable function is allowed.")

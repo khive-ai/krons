@@ -420,7 +420,9 @@ class UniqueConstraintSpec:
         for col in self.columns:
             validate_identifier(col, "column name")
         cols = ", ".join(f'"{c}"' for c in self.columns)
-        return f'ALTER TABLE "{schema}"."{table_name}" ADD CONSTRAINT "{self.name}" UNIQUE ({cols});'
+        return (
+            f'ALTER TABLE "{schema}"."{table_name}" ADD CONSTRAINT "{self.name}" UNIQUE ({cols});'
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -472,9 +474,7 @@ class TableSpec:
         col_lines = col_separator.join(col_defs)
 
         exists_clause = "IF NOT EXISTS " if if_not_exists else ""
-        return (
-            f"CREATE TABLE {exists_clause}{self.qualified_name} (\n    {col_lines}\n);"
-        )
+        return f"CREATE TABLE {exists_clause}{self.qualified_name} (\n    {col_lines}\n);"
 
     def to_full_ddl(self) -> list[str]:
         """Generate all DDL statements for this table.

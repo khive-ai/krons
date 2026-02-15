@@ -5,7 +5,7 @@
 
 import pytest
 
-from krons.core import Event, EventStatus, Pile, Processor
+from krons.core import Event, EventStatus, Pile
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ class TestProcessorCreation:
 
     def test_processor_queue_capacity(self):
         """Processor should accept queue_capacity parameter."""
-        from tests.conftest import SimpleTestEvent, TestProcessor
+        from tests.conftest import TestProcessor
 
         pile = Pile[Event]()
         processor = TestProcessor(

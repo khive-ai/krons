@@ -95,13 +95,11 @@ class Flow(Element, Generic[E, P]):
         elif items is not None or item_type is not None or strict_type:
             # Normalize to list
             if isinstance(items, Element):
-                items = cast(list[E], [items])
+                items = cast("list[E]", [items])
 
             # Create Pile with items and type validation (item_type/strict_type are frozen)
             # Even if items=None, create Pile if item_type/strict_type specified
-            data["items"] = Pile(
-                items=items, item_type=item_type, strict_type=strict_type
-            )
+            data["items"] = Pile(items=items, item_type=item_type, strict_type=strict_type)
 
         # Handle progressions - let field validator convert dict/list to Pile
         if progressions is not None:
@@ -219,10 +217,7 @@ class Flow(Element, Generic[E, P]):
             NotFoundError: If progression not found.
         """
         name_to_delete: str | None
-        if (
-            isinstance(progression_id, str)
-            and progression_id in self._progression_names
-        ):
+        if isinstance(progression_id, str) and progression_id in self._progression_names:
             uid = self._progression_names[progression_id]
             name_to_delete = progression_id
         else:
@@ -335,9 +330,7 @@ class Flow(Element, Generic[E, P]):
     def to_dict(
         self,
         mode: Literal["python", "json", "db"] = "python",
-        created_at_format: (
-            Literal["datetime", "isoformat", "timestamp"] | UnsetType
-        ) = Unset,
+        created_at_format: (Literal["datetime", "isoformat", "timestamp"] | UnsetType) = Unset,
         meta_key: str | UnsetType = Unset,
         **kwargs: Any,
     ) -> dict[str, Any]:

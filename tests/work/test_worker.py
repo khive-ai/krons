@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -655,7 +655,7 @@ class TestCompleteWorkerExample:
         assert result == 10
 
         # Link handler invocation
-        handler = getattr(w, "loop_link")
+        handler = w.loop_link
         next_kwargs = await handler(10)
 
         assert next_kwargs == {"value": 10}

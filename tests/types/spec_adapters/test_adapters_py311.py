@@ -118,9 +118,7 @@ def test_pydantic_field_validator_executes():
 
 def test_validate_instance_pipeline():
     """validate_instance: dict -> validated Pydantic instance."""
-    op = Operable(
-        (create_spec(str, name="name"), create_spec(int, name="age")), name="User"
-    )
+    op = Operable((create_spec(str, name="name"), create_spec(int, name="age")), name="User")
     Model = PydanticSpecAdapter.compose_structure(op, "UserModel2")
 
     inst = PydanticSpecAdapter.validate_instance(Model, {"name": "bob", "age": 33})
@@ -228,9 +226,7 @@ def test_validate_instance_returns_instance():
 
 def test_dump_instance_returns_dict():
     """Test that dump_instance returns a dictionary."""
-    op = Operable(
-        (create_spec(str, name="name"), create_spec(int, name="age")), name="Test"
-    )
+    op = Operable((create_spec(str, name="name"), create_spec(int, name="age")), name="Test")
     Model = PydanticSpecAdapter.compose_structure(op, "TestModel3")
 
     inst = PydanticSpecAdapter.validate_instance(Model, {"name": "alice", "age": 30})
@@ -266,9 +262,7 @@ def test_create_field_callable_default():
 
     # Should use default_factory for callable
     assert field_info.default_factory is get_default
-    assert (
-        field_info.default is PydanticUndefined
-    )  # Pydantic's sentinel for "use default_factory"
+    assert field_info.default is PydanticUndefined  # Pydantic's sentinel for "use default_factory"
 
 
 def test_create_field_custom_pydantic_params():

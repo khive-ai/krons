@@ -64,9 +64,7 @@ class LeakTracker:
             name: Identifier (defaults to "obj-{id}").
             kind: Optional category label.
         """
-        info = LeakInfo(
-            name=name or f"obj-{id(obj)}", kind=kind, created_at=time.time()
-        )
+        info = LeakInfo(name=name or f"obj-{id(obj)}", kind=kind, created_at=time.time())
         key = id(obj)
 
         def _finalizer(_key: int = key) -> None:
@@ -96,9 +94,7 @@ class LeakTracker:
 _TRACKER = LeakTracker()
 
 
-def track_resource(
-    obj: object, name: str | None = None, kind: str | None = None
-) -> None:
+def track_resource(obj: object, name: str | None = None, kind: str | None = None) -> None:
     """Track an object using the global leak tracker.
 
     Args:

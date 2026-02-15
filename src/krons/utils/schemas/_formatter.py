@@ -52,11 +52,7 @@ def format_clean_multiline_strings(data: dict) -> dict:
             cleaned[k] = lines if lines.endswith("\n") else lines + "\n"
         elif isinstance(v, list):
             cleaned[k] = [
-                (
-                    _clean_multiline(item)
-                    if isinstance(item, str) and "\n" in item
-                    else item
-                )
+                (_clean_multiline(item) if isinstance(item, str) and "\n" in item else item)
                 for item in v
             ]
         elif isinstance(v, dict):

@@ -112,9 +112,7 @@ class TestClaudeCodeEndpoint:
         assert response.status == "success"
         assert response.metadata is not None
         # Should have usage info
-        assert (
-            "usage" in response.metadata or response.metadata.get("usage") is not None
-        )
+        assert "usage" in response.metadata or response.metadata.get("usage") is not None
 
 
 class TestGeminiCodeEndpoint:
@@ -208,7 +206,7 @@ Return ONLY the JSON object, no markdown code blocks, no explanation."""
             assert person.name == "Alice"
             assert person.age == 30
             assert person.occupation == "Engineer"
-        except Exception as e:
+        except Exception:
             # Allow flexible matching - just verify structure
             assert "name" in data
             assert "age" in data
@@ -328,9 +326,7 @@ if __name__ == "__main__":
                     print("\nStructured output test PASSED!")
                 except Exception as e:
                     print(f"Validation warning: {e}")
-                    print(
-                        "\nBasic test PASSED (JSON extracted but validation flexible)"
-                    )
+                    print("\nBasic test PASSED (JSON extracted but validation flexible)")
             else:
                 print("\nTest PASSED (response received, JSON extraction optional)")
         else:

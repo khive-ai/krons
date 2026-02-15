@@ -67,9 +67,7 @@ class ClaudeCodeEndpoint(Endpoint):
         elif isinstance(config, EndpointConfig):
             config = config.model_dump()
         if not isinstance(config, dict):
-            raise ValueError(
-                "Provided config must be a dict or EndpointConfig instance"
-            )
+            raise ValueError("Provided config must be a dict or EndpointConfig instance")
 
         super().__init__(config=config, circuit_breaker=circuit_breaker, **kwargs)
 
@@ -136,14 +134,10 @@ class ClaudeCodeEndpoint(Endpoint):
                 payload = request
             else:
                 # Assume it's a raw dict that needs to be converted
-                req_dict = (
-                    request if isinstance(request, dict) else request.model_dump()
-                )
+                req_dict = request if isinstance(request, dict) else request.model_dump()
                 messages = req_dict.pop("messages", None)
                 if messages:
-                    payload = {
-                        "request": ClaudeCodeRequest(messages=messages, **req_dict)
-                    }
+                    payload = {"request": ClaudeCodeRequest(messages=messages, **req_dict)}
                 else:
                     raise ValueError("'messages' required for Claude Code endpoint")
         else:
@@ -227,9 +221,7 @@ class ClaudeCodeEndpoint(Endpoint):
             "session": to_dict(session, recursive=True),
         }
 
-    def normalize_response(
-        self, raw_response: dict[str, Any]
-    ) -> NormalizedResponseModel:
+    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponseModel:
         """Normalize Claude Code response to standard format.
 
         Args:
