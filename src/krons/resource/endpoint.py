@@ -175,9 +175,7 @@ class EndpointConfig(ResourceConfig):
                     object.__setattr__(self, "_api_key", SecretStr(resolved.strip()))
                 else:
                     object.__setattr__(self, "api_key_is_env", False)
-                    object.__setattr__(
-                        self, "_api_key", SecretStr(self.api_key.strip())
-                    )
+                    object.__setattr__(self, "_api_key", SecretStr(self.api_key.strip()))
                     object.__setattr__(self, "api_key", None)
             else:
                 object.__setattr__(self, "api_key_is_env", False)
@@ -254,9 +252,7 @@ class Endpoint(ResourceBackend):
         secret_api_key = None
         if isinstance(config, dict):
             config_dict = {**config, **kwargs}
-            if "api_key" in config_dict and isinstance(
-                config_dict["api_key"], SecretStr
-            ):
+            if "api_key" in config_dict and isinstance(config_dict["api_key"], SecretStr):
                 secret_api_key = config_dict.pop("api_key")
             _config = EndpointConfig(**config_dict)
         elif isinstance(config, EndpointConfig):
@@ -325,11 +321,7 @@ class Endpoint(ResourceBackend):
         Raises:
             ValueError: If request_options not defined or validation fails.
         """
-        request = (
-            request
-            if isinstance(request, dict)
-            else request.model_dump(exclude_none=True)
-        )
+        request = request if isinstance(request, dict) else request.model_dump(exclude_none=True)
 
         payload = self.config.kwargs.copy()
         payload.update(request)
@@ -405,9 +397,7 @@ class Endpoint(ResourceBackend):
 
         if self.circuit_breaker:
 
-            async def cb_wrapped_call(
-                p: dict[Any, Any], h: dict[Any, Any], **kw: Any
-            ) -> Any:
+            async def cb_wrapped_call(p: dict[Any, Any], h: dict[Any, Any], **kw: Any) -> Any:
                 return await self.circuit_breaker.execute(base_call, p, h, **kw)  # type: ignore[union-attr]
 
             inner_call = cb_wrapped_call
@@ -445,7 +435,9 @@ class Endpoint(ResourceBackend):
             elif response.status_code != 200:
                 try:
                     error_body = response.json()
-                    error_message = f"Request failed with status {response.status_code}: {error_body}"
+                    error_message = (
+                        f"Request failed with status {response.status_code}: {error_body}"
+                    )
                 except Exception:
                     error_message = f"Request failed with status {response.status_code}"
 
@@ -475,9 +467,7 @@ class Endpoint(ResourceBackend):
         """
         payload, headers = self.create_payload(request, extra_headers, **kwargs)
 
-        async for chunk in self._stream_http(
-            payload=payload, headers=headers, **kwargs
-        ):
+        async for chunk in self._stream_http(payload=payload, headers=headers, **kwargs):
             yield chunk
 
     async def _stream_http(self, payload: dict, headers: dict, **kwargs):
@@ -517,9 +507,7 @@ class Endpoint(ResourceBackend):
         return circuit_breaker.to_dict()
 
     @field_serializer("retry_config")
-    def _serialize_retry_config(
-        self, retry_config: RetryConfig | None
-    ) -> dict[str, Any] | None:
+    def _serialize_retry_config(self, retry_config: RetryConfig | None) -> dict[str, Any] | None:
         """Serialize RetryConfig to dict for transport."""
         if retry_config is None:
             return None
@@ -534,9 +522,7 @@ class Endpoint(ResourceBackend):
         if isinstance(v, CircuitBreaker):
             return v
         if not isinstance(v, dict):
-            raise ValueError(
-                "circuit_breaker must be a dict or CircuitBreaker instance"
-            )
+            raise ValueError("circuit_breaker must be a dict or CircuitBreaker instance")
         return CircuitBreaker(**v)
 
     @field_validator("retry_config", mode="before")

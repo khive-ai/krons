@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import os
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
@@ -90,9 +89,7 @@ class TestEndpointConfig:
                 "request_options": SimpleRequest,
             }
         )
-        assert (
-            endpoint.config.api_key is None
-        )  # Cleared (was raw credential via SecretStr)
+        assert endpoint.config.api_key is None  # Cleared (was raw credential via SecretStr)
         assert endpoint.config._api_key.get_secret_value() == "secret_key_123"
 
     def test_validate_api_key_from_string_literal(self):
@@ -125,9 +122,7 @@ class TestEndpointConfig:
 
     def test_validate_provider_empty_raises(self):
         """Test that empty provider raises ValidationError."""
-        with pytest.raises(
-            ValidationError, match="String should have at least 4 characters"
-        ):
+        with pytest.raises(ValidationError, match="String should have at least 4 characters"):
             EndpointConfig(
                 name="test_endpoint",
                 provider="",

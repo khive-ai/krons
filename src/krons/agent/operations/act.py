@@ -81,9 +81,7 @@ async def _act(
         try:
             calling.assert_is_normalized()
         except Exception as e:
-            return ActionResponse(
-                request_id=str(req_msg.id), error=f"ExecutionError: {e}"
-            )
+            return ActionResponse(request_id=str(req_msg.id), error=f"ExecutionError: {e}")
         return ActionResponse(request_id=str(req_msg.id), result=calling.response.data)
 
     if strategy == "sequential":

@@ -79,9 +79,7 @@ class AnthropicMessagesEndpoint(Endpoint):
         elif isinstance(config, EndpointConfig):
             config = config.model_dump()
         if not isinstance(config, dict):
-            raise ValueError(
-                "Provided config must be a dict or EndpointConfig instance"
-            )
+            raise ValueError("Provided config must be a dict or EndpointConfig instance")
 
         # Ensure request_options is set
         if config.get("request_options") is None:
@@ -131,9 +129,7 @@ class AnthropicMessagesEndpoint(Endpoint):
 
         # Add tool use blocks if present
         tool_uses = [
-            block
-            for block in response.get("content", [])
-            if block.get("type") == "tool_use"
+            block for block in response.get("content", []) if block.get("type") == "tool_use"
         ]
         if tool_uses:
             metadata["tool_uses"] = tool_uses

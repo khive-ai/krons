@@ -62,8 +62,7 @@ class OperationRegistry:
         """
         if operation_name in self._handlers and not override:
             raise ValueError(
-                f"Operation '{operation_name}' already registered. "
-                "Use override=True to replace."
+                f"Operation '{operation_name}' already registered. Use override=True to replace."
             )
         self._handlers[operation_name] = handler
 
@@ -71,8 +70,7 @@ class OperationRegistry:
         """Get handler by name. Raises KeyError with available names if not found."""
         if operation_name not in self._handlers:
             raise KeyError(
-                f"Operation '{operation_name}' not registered. "
-                f"Available: {self.list_names()}"
+                f"Operation '{operation_name}' not registered. Available: {self.list_names()}"
             )
         return self._handlers[operation_name]
 

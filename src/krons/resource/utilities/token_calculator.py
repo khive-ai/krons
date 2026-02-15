@@ -37,9 +37,7 @@ def get_encoding_name(value: str | None) -> str:
             tiktoken.get_encoding(value)
             return value
         except Exception as e:
-            logger.warning(
-                f"Unknown model/encoding '{value}', falling back to o200k_base: {e}"
-            )
+            logger.warning(f"Unknown model/encoding '{value}', falling back to o200k_base: {e}")
             return "o200k_base"
 
 
@@ -73,8 +71,7 @@ class TokenCalculator:
             ).encode
 
             return sum(
-                TokenCalculator._calculate_embed_item(i, tokenizer=tokenizer)
-                for i in inputs
+                TokenCalculator._calculate_embed_item(i, tokenizer=tokenizer) for i in inputs
             )
         except TokenCalculationError:
             # Re-raise from nested calls
@@ -126,7 +123,7 @@ class TokenCalculator:
         try:
             if isinstance(i_, str):
                 # tokenize returns int when return_tokens=False (default)
-                return cast(int, TokenCalculator.tokenize(i_, tokenizer=tokenizer))
+                return cast("int", TokenCalculator.tokenize(i_, tokenizer=tokenizer))
 
             if isinstance(i_, dict):
                 if "text" in i_:
@@ -138,9 +135,7 @@ class TokenCalculator:
 
             if isinstance(i_, list):
                 return sum(
-                    TokenCalculator._calculate_chatitem(
-                        x, tokenizer, model_name, image_token_cost
-                    )
+                    TokenCalculator._calculate_chatitem(x, tokenizer, model_name, image_token_cost)
                     for x in i_
                 )
 
@@ -154,21 +149,17 @@ class TokenCalculator:
                 f"Failed to calculate chat item tokens (type={type(i_).__name__}): {e}",
                 exc_info=True,
             )
-            raise TokenCalculationError(
-                f"Chat item token calculation failed: {e}"
-            ) from e
+            raise TokenCalculationError(f"Chat item token calculation failed: {e}") from e
 
     @staticmethod
     def _calculate_embed_item(s_, tokenizer: Callable) -> int:
         try:
             if isinstance(s_, str):
                 # tokenize returns int when return_tokens=False (default)
-                return cast(int, TokenCalculator.tokenize(s_, tokenizer=tokenizer))
+                return cast("int", TokenCalculator.tokenize(s_, tokenizer=tokenizer))
 
             if isinstance(s_, list):
-                return sum(
-                    TokenCalculator._calculate_embed_item(x, tokenizer) for x in s_
-                )
+                return sum(TokenCalculator._calculate_embed_item(x, tokenizer) for x in s_)
 
             # Unknown type - return 0 is valid (no text content)
             return 0
@@ -180,6 +171,4 @@ class TokenCalculator:
                 f"Failed to calculate embed item tokens (type={type(s_).__name__}): {e}",
                 exc_info=True,
             )
-            raise TokenCalculationError(
-                f"Embed item token calculation failed: {e}"
-            ) from e
+            raise TokenCalculationError(f"Embed item token calculation failed: {e}") from e

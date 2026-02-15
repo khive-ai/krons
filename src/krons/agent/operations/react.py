@@ -198,9 +198,7 @@ async def react(params: ReActParams, ctx: RequestContext) -> Any:
     return result
 
 
-async def react_stream(
-    params: ReActParams, ctx: RequestContext
-) -> AsyncGenerator[Any, None]:
+async def react_stream(params: ReActParams, ctx: RequestContext) -> AsyncGenerator[Any, None]:
     """Streaming ReAct: yields each round's structured analysis.
 
     Yields:
@@ -211,9 +209,7 @@ async def react_stream(
 
     # --- Round 1: Initial analysis ---
     instruction_with_prompt = (
-        params.instruction
-        + "\n\n"
-        + ReActAnalysis.FIRST_ROUND_PROMPT.format(max_rounds=max_rounds)
+        params.instruction + "\n\n" + ReActAnalysis.FIRST_ROUND_PROMPT.format(max_rounds=max_rounds)
     )
 
     analysis = await _run_round(params, ctx, instruction_with_prompt, ReActAnalysis)
@@ -230,9 +226,7 @@ async def react_stream(
     # --- Final answer ---
     answer_model = params.response_model or Analysis
     answer_prompt = ReActAnalysis.ANSWER_PROMPT.format(instruction=params.instruction)
-    final = await _run_round(
-        params, ctx, answer_prompt, answer_model, invoke_actions=False
-    )
+    final = await _run_round(params, ctx, answer_prompt, answer_model, invoke_actions=False)
     yield final
 
 
@@ -250,9 +244,7 @@ async def _run_round(
     round_operable = Operable.from_structure(request_model)
 
     # Override instruction in generate params
-    gen_params = params.generate_params.with_updates(
-        copy_containers="deep", primary=instruction
-    )
+    gen_params = params.generate_params.with_updates(copy_containers="deep", primary=instruction)
 
     # Resolve action strategy from previous analysis if available
     should_act = invoke_actions if invoke_actions is not None else params.invoke_actions

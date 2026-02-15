@@ -124,18 +124,14 @@ class OAIChatEndpoint(Endpoint):
         elif isinstance(config, EndpointConfig):
             config = config.model_dump()
         if not isinstance(config, dict):
-            raise ValueError(
-                "Provided config must be a dict or EndpointConfig instance"
-            )
+            raise ValueError("Provided config must be a dict or EndpointConfig instance")
 
         if kwargs.get("request_options") is None:
             config = _ensure_request_options(config)
 
         super().__init__(config=config, circuit_breaker=circuit_breaker, **kwargs)
 
-    def normalize_response(
-        self, raw_response: dict[str, Any]
-    ) -> NormalizedResponseModel:
+    def normalize_response(self, raw_response: dict[str, Any]) -> NormalizedResponseModel:
         """Normalize OpenAI response to standard format.
 
         Extracts:

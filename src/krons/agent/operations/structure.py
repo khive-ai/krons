@@ -137,9 +137,7 @@ async def _generate_and_persist(
     The assistant message is added to both session messages and
     the branch progression for conversation continuity.
     """
-    gen_params = generate_params.with_updates(
-        copy_containers="deep", return_as=ReturnAs.MESSAGE
-    )
+    gen_params = generate_params.with_updates(copy_containers="deep", return_as=ReturnAs.MESSAGE)
     message = await generate(gen_params, ctx)
 
     # Persist to branch

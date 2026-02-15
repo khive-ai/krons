@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Literal
+from typing import ClassVar, Literal
 
 from krons.core.types import MaybeUnset, Unset
 from krons.utils import now_utc
@@ -42,9 +43,7 @@ class System(RoledContent):
         system_datetime: str | Literal[True] | None = None,
         datetime_factory: Callable[[], str] | None = None,
     ) -> "System":
-        if not cls._is_sentinel(system_datetime) and not cls._is_sentinel(
-            datetime_factory
-        ):
+        if not cls._is_sentinel(system_datetime) and not cls._is_sentinel(datetime_factory):
             raise ValueError("Cannot set both system_datetime and datetime_factory")
         return cls(
             system_message=Unset if system_message is None else system_message,

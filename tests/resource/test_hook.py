@@ -314,9 +314,7 @@ async def test_registry_pre_event_create_when_hook_raises_and_exit_true():
 
     registry = HookRegistry(hooks={HookPhase.PreEventCreate: hook})
 
-    result, should_exit, status = await registry.pre_event_create(
-        SimpleTestEvent, exit=True
-    )
+    result, should_exit, status = await registry.pre_event_create(SimpleTestEvent, exit=True)
 
     assert isinstance(result, ValueError)
     assert should_exit is True  # exit parameter passed through
@@ -421,9 +419,7 @@ async def test_registry_handle_streaming_chunk_when_success():
 
     registry = HookRegistry(stream_handlers={"text": handler})
 
-    result, should_exit, status = await registry.handle_streaming_chunk(
-        "text", "chunk_data"
-    )
+    result, should_exit, status = await registry.handle_streaming_chunk("text", "chunk_data")
 
     assert result == "processed"
     assert should_exit is False
@@ -441,9 +437,7 @@ async def test_registry_handle_streaming_chunk_when_raises_then_aborted():
 
     registry = HookRegistry(stream_handlers={"text": handler})
 
-    result, should_exit, status = await registry.handle_streaming_chunk(
-        "text", "data", exit=True
-    )
+    result, should_exit, status = await registry.handle_streaming_chunk("text", "data", exit=True)
 
     assert isinstance(result, RuntimeError)
     assert should_exit is True
@@ -460,9 +454,7 @@ async def test_registry_call_when_no_method_and_no_chunk_then_raises():
     """Test registry.call() raises when neither hook_phase nor chunk_type provided."""
     registry = HookRegistry()
 
-    with pytest.raises(
-        ValueError, match="Either method or chunk_type must be provided"
-    ):
+    with pytest.raises(ValueError, match="Either method or chunk_type must be provided"):
         await registry.call(SimpleTestEvent())
 
 
@@ -475,9 +467,7 @@ async def test_registry_call_when_pre_event_create_then_delegates():
 
     registry = HookRegistry(hooks={HookPhase.PreEventCreate: hook})
 
-    result_tuple, meta = await registry.call(
-        SimpleTestEvent, hook_phase=HookPhase.PreEventCreate
-    )
+    result_tuple, meta = await registry.call(SimpleTestEvent, hook_phase=HookPhase.PreEventCreate)
 
     _result, _should_exit, status = result_tuple
     assert status == EventStatus.COMPLETED
@@ -528,9 +518,7 @@ async def test_registry_call_when_chunk_type_then_delegates():
 
     registry = HookRegistry(stream_handlers={"text": handler})
 
-    result_tuple = await registry.call(
-        None, hook_phase=None, chunk_type="text", chunk="data"
-    )
+    result_tuple = await registry.call(None, hook_phase=None, chunk_type="text", chunk="data")
 
     # Note: call() with chunk_type returns different structure
     result, _should_exit, _status = result_tuple
@@ -549,9 +537,7 @@ async def test_registry_call_when_phase_value_string_then_matches():
         return "matched"
 
     # Test PreEventCreate.value (was broken before fix)
-    registry_pre_create = HookRegistry(
-        hooks={HookPhase.PreEventCreate: pre_create_hook}
-    )
+    registry_pre_create = HookRegistry(hooks={HookPhase.PreEventCreate: pre_create_hook})
     result_tuple, meta = await registry_pre_create.call(
         SimpleTestEvent, hook_phase=HookPhase.PreEventCreate.value
     )
@@ -561,18 +547,14 @@ async def test_registry_call_when_phase_value_string_then_matches():
 
     # Test PreInvocation.value
     registry_pre = HookRegistry(hooks={HookPhase.PreInvocation: hook})
-    result_tuple, meta = await registry_pre.call(
-        event, hook_phase=HookPhase.PreInvocation.value
-    )
+    result_tuple, meta = await registry_pre.call(event, hook_phase=HookPhase.PreInvocation.value)
     result, _should_exit, _status = result_tuple
     assert result == "matched"
     assert "event_id" in meta
 
     # Test PostInvocation.value
     registry_post = HookRegistry(hooks={HookPhase.PostInvocation: hook})
-    result_tuple, meta = await registry_post.call(
-        event, hook_phase=HookPhase.PostInvocation.value
-    )
+    result_tuple, meta = await registry_post.call(event, hook_phase=HookPhase.PostInvocation.value)
     result, _should_exit, _status = result_tuple
     assert result == "matched"
     assert "event_id" in meta
@@ -854,9 +836,7 @@ async def test_registry_internal_call_when_no_hook_phase_and_no_chunk_then_raise
     """Test HookRegistry._call() raises when neither hp_ nor ct_ provided."""
     registry = HookRegistry()
 
-    with pytest.raises(
-        RuntimeError, match="Either hook_type or chunk_type must be provided"
-    ):
+    with pytest.raises(RuntimeError, match="Either hook_type or chunk_type must be provided"):
         await registry._call(None, None, None, SimpleTestEvent)
 
 

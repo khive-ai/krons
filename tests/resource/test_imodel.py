@@ -5,8 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from pydantic import BaseModel
@@ -272,9 +271,7 @@ class TestIModelRateLimiting:
     async def test_invoke_rate_limit_timeout(self, mock_endpoint):
         """Test invoke raises TimeoutError when rate limit cannot be acquired."""
         # Create rate limiter with 0 initial tokens and slow refill
-        rate_limiter = TokenBucket(
-            RateLimitConfig(capacity=10, refill_rate=0.01, initial_tokens=0)
-        )
+        rate_limiter = TokenBucket(RateLimitConfig(capacity=10, refill_rate=0.01, initial_tokens=0))
         model = iModel(backend=mock_endpoint, rate_limiter=rate_limiter)
 
         # Mock acquire to return False (timeout)

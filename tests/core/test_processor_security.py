@@ -330,9 +330,7 @@ async def test_cleanup_events_uses_pile_locks():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     # Create and complete an event
@@ -394,9 +392,7 @@ async def test_stop_clears_denial_counts():
     # M1 FIX VERIFICATION: stop() should clear denial tracking
     await proc.stop()
 
-    assert len(proc._denial_counts) == 0, (
-        "Memory leak: stop() did not clear _denial_counts"
-    )
+    assert len(proc._denial_counts) == 0, "Memory leak: stop() did not clear _denial_counts"
 
 
 @pytest.mark.asyncio
@@ -438,9 +434,7 @@ async def test_bounded_denial_tracking():
         )
 
     for i in range(5, 15):
-        assert events[i].id in proc._denial_counts, (
-            f"Event {i} should be tracked (newest entries)"
-        )
+        assert events[i].id in proc._denial_counts, f"Event {i} should be tracked (newest entries)"
 
 
 # ==================== Additional Validation Tests ====================
@@ -515,9 +509,7 @@ async def test_executor_event_type_property():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
 
     assert executor.event_type == SecTestEvent
 
@@ -529,9 +521,7 @@ async def test_executor_strict_event_type_property():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
 
     # Default should be False (Pile's default)
     assert isinstance(executor.strict_event_type, bool)
@@ -547,9 +537,7 @@ async def test_executor_forward_method():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     event = SecTestEvent(return_value="test")
@@ -568,9 +556,7 @@ async def test_executor_start_backfills_pending_events():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
 
     # Add events with PENDING status using the proper Flow API
     events = [SecTestEvent(return_value=f"event_{i}") for i in range(3)]
@@ -600,9 +586,7 @@ async def test_executor_stop_method():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     event = SecTestEvent(return_value="test")
@@ -625,9 +609,7 @@ async def test_executor_completed_events_property():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     # Add and process events
@@ -659,9 +641,7 @@ async def test_executor_failed_events_property():
     class TestExecutor(Executor):
         processor_type = FailingTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     # Add failing event
@@ -682,9 +662,7 @@ async def test_executor_processing_events_property():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
 
     # Add event but don't process
     event = SecTestEvent(return_value="test")
@@ -705,9 +683,7 @@ async def test_executor_status_counts_method():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     # Add events
@@ -738,9 +714,7 @@ async def test_executor_cleanup_events_default_statuses():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     # Add and process events
@@ -766,9 +740,7 @@ async def test_executor_inspect_state_method():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
     await executor.start()
 
     # Add events
@@ -791,9 +763,7 @@ async def test_executor_contains_method():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
 
     event = SecTestEvent(return_value="test")
     executor.states.add_item(event)
@@ -825,9 +795,7 @@ async def test_executor_update_progression_missing_status():
     class TestExecutor(Executor):
         processor_type = SecTestProcessor
 
-    executor = TestExecutor(
-        processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1}
-    )
+    executor = TestExecutor(processor_config={"queue_capacity": 10, "capacity_refresh_time": 0.1})
 
     # Find and remove the "pending" progression
     pending_prog = executor.states.get_progression("pending")

@@ -14,8 +14,6 @@ for robustness across multiprocessing and serialization scenarios.
 
 import pickle
 
-import pytest
-
 from krons.core.types import (
     Undefined,
     UndefinedType,

@@ -29,22 +29,20 @@ Usage:
 
 from __future__ import annotations
 
-import asyncio
 import sys
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
 
 import anyio
 from pydantic import BaseModel, Field
 
-from krons.session import Session, SessionConfig
 from krons.agent.operations import GenerateParams, ReturnAs
 from krons.agent.providers.claude_code import (
     ClaudeCodeEndpoint,
     create_claude_code_config,
 )
 from krons.resource import iModel
+from krons.session import Session, SessionConfig
 
 # Configuration
 WORKSPACE = ".khive/examples/research_critique"
@@ -59,6 +57,7 @@ CONFIDENCE_THRESHOLD = 0.7  # Quality gate threshold
 
 class Severity(str, Enum):
     """Finding severity levels."""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -67,6 +66,7 @@ class Severity(str, Enum):
 
 class ResearchFinding(BaseModel):
     """A single research finding."""
+
     title: str = Field(description="Short title of the finding")
     description: str = Field(description="Detailed description")
     evidence: str = Field(description="Supporting evidence or sources")
@@ -75,6 +75,7 @@ class ResearchFinding(BaseModel):
 
 class ResearchOutput(BaseModel):
     """Output from a research agent."""
+
     perspective: str = Field(description="Research perspective (broad/technical/practical)")
     summary: str = Field(description="Executive summary of research")
     findings: list[ResearchFinding] = Field(description="List of findings")
@@ -84,6 +85,7 @@ class ResearchOutput(BaseModel):
 
 class CriticEvaluation(BaseModel):
     """Evaluation from a critic."""
+
     perspective: str = Field(description="Critic's evaluation perspective")
     strengths: list[str] = Field(description="Strengths of the research")
     weaknesses: list[str] = Field(description="Weaknesses or gaps")
@@ -94,6 +96,7 @@ class CriticEvaluation(BaseModel):
 
 class SynthesisReport(BaseModel):
     """Final synthesized report."""
+
     topic: str = Field(description="Research topic")
     executive_summary: str = Field(description="High-level summary")
     key_findings: list[str] = Field(description="Most important findings")
@@ -105,6 +108,7 @@ class SynthesisReport(BaseModel):
 @dataclass
 class FlowResult:
     """Result of the research critique flow."""
+
     topic: str
     research_outputs: list[ResearchOutput]
     critic_evaluations: list[CriticEvaluation]
@@ -122,11 +126,13 @@ class FlowResult:
 def create_cc(name: str, subdir: str, system_prompt: str | None = None) -> iModel:
     """Create a Claude Code iModel with workspace isolation."""
     config = create_claude_code_config(name=name)
-    config.update({
-        "ws": f"{WORKSPACE}/{subdir}",
-        "max_turns": 3,
-        "model": "sonnet",
-    })
+    config.update(
+        {
+            "ws": f"{WORKSPACE}/{subdir}",
+            "max_turns": 3,
+            "model": "sonnet",
+        }
+    )
     if system_prompt:
         config["system_prompt"] = system_prompt
     endpoint = ClaudeCodeEndpoint(config=config)
@@ -295,9 +301,9 @@ def extract_json(text: str) -> dict | None:
 
     # Try extracting from code blocks
     patterns = [
-        r'```json\s*(.*?)\s*```',
-        r'```\s*(.*?)\s*```',
-        r'\{[^{}]*\}',
+        r"```json\s*(.*?)\s*```",
+        r"```\s*(.*?)\s*```",
+        r"\{[^{}]*\}",
     ]
 
     for pattern in patterns:
@@ -410,11 +416,13 @@ async def research_critique_flow(topic: str) -> FlowResult:
     # --- Setup Session ---
     print("[Setup] Creating session and registering resources...")
 
-    session = Session(config=SessionConfig(
-        default_branch_name="main",
-        log_persist_dir=f"{WORKSPACE}/logs",
-        log_auto_save_on_exit=True,
-    ))
+    session = Session(
+        config=SessionConfig(
+            default_branch_name="main",
+            log_persist_dir=f"{WORKSPACE}/logs",
+            log_auto_save_on_exit=True,
+        )
+    )
 
     # Register resources
     researchers = [
@@ -468,7 +476,9 @@ async def research_critique_flow(topic: str) -> FlowResult:
         )
 
         result = parse_research(op.execution.response or "", perspective)
-        print(f"  [{perspective.upper()}] Done - {len(result.findings)} findings, confidence: {result.overall_confidence:.0%}")
+        print(
+            f"  [{perspective.upper()}] Done - {len(result.findings)} findings, confidence: {result.overall_confidence:.0%}"
+        )
 
         return result
 
@@ -622,7 +632,11 @@ async def research_critique_flow(topic: str) -> FlowResult:
 
 async def main():
     """Run the research critique flow."""
-    topic = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "Best practices for building multi-agent AI systems"
+    topic = (
+        " ".join(sys.argv[1:])
+        if len(sys.argv) > 1
+        else "Best practices for building multi-agent AI systems"
+    )
 
     result = await research_critique_flow(topic)
 

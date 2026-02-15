@@ -62,9 +62,7 @@ class Argument(BaseModel):
 class DebatePosition(BaseModel):
     """A debater's complete position."""
 
-    stance: str = Field(
-        description="The debater's stance (advocate/skeptic/pragmatist)"
-    )
+    stance: str = Field(description="The debater's stance (advocate/skeptic/pragmatist)")
     thesis: str = Field(description="Core thesis statement")
     arguments: list[Argument] = Field(description="Supporting arguments")
     conclusion: str = Field(description="Final summary")
@@ -83,9 +81,7 @@ class JudgeVerdict(BaseModel):
     """The judge's final verdict."""
 
     topic_summary: str = Field(description="Summary of the debate topic")
-    strongest_position: str = Field(
-        description="Which position had strongest arguments"
-    )
+    strongest_position: str = Field(description="Which position had strongest arguments")
     key_insights: list[str] = Field(description="Most valuable insights from debate")
     verdict: str = Field(description="Final recommendation")
     reasoning: str = Field(description="Explanation of the verdict")
@@ -97,9 +93,7 @@ class JudgeVerdict(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def create_cc(
-    name: str, subdir: str, system_prompt: str | None = None, **kwargs
-) -> iModel:
+def create_cc(name: str, subdir: str, system_prompt: str | None = None, **kwargs) -> iModel:
     """Create a Claude Code iModel."""
     config = create_claude_code_config(name=name)
     config.update({"ws": f"{CC_WORKSPACE}/{subdir}", "max_turns": 3, **kwargs})

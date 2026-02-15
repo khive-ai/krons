@@ -49,9 +49,7 @@ class TestRetryConfig:
 
     def test_calculate_delay_without_jitter(self):
         """Test delay calculation without jitter."""
-        config = RetryConfig(
-            initial_delay=1.0, exponential_base=2.0, max_delay=60.0, jitter=False
-        )
+        config = RetryConfig(initial_delay=1.0, exponential_base=2.0, max_delay=60.0, jitter=False)
 
         # Test exponential backoff: delay = initial * base^attempt
         assert config.calculate_delay(0) == 1.0  # 1.0 * 2^0 = 1.0
@@ -61,18 +59,14 @@ class TestRetryConfig:
 
     def test_calculate_delay_with_max_cap(self):
         """Test delay capped at max_delay."""
-        config = RetryConfig(
-            initial_delay=10.0, exponential_base=2.0, max_delay=30.0, jitter=False
-        )
+        config = RetryConfig(initial_delay=10.0, exponential_base=2.0, max_delay=30.0, jitter=False)
 
         # delay = 10 * 2^3 = 80, but capped at 30
         assert config.calculate_delay(3) == 30.0
 
     def test_calculate_delay_with_jitter(self):
         """Test delay calculation with jitter."""
-        config = RetryConfig(
-            initial_delay=10.0, exponential_base=2.0, max_delay=60.0, jitter=True
-        )
+        config = RetryConfig(initial_delay=10.0, exponential_base=2.0, max_delay=60.0, jitter=True)
 
         # With jitter, delay should be in range [0.5 * base_delay, 1.0 * base_delay]
         for attempt in range(5):
@@ -119,9 +113,7 @@ class TestRetryWithBackoff:
     @pytest.mark.asyncio
     async def test_success_after_retries(self):
         """Test function succeeds after N retries."""
-        mock_func = AsyncMock(
-            side_effect=[ValueError("fail1"), ValueError("fail2"), "success"]
-        )
+        mock_func = AsyncMock(side_effect=[ValueError("fail1"), ValueError("fail2"), "success"])
 
         with patch("krons.resource.utilities.resilience.sleep", new_callable=AsyncMock):
             result = await retry_with_backoff(
@@ -247,9 +239,7 @@ class TestRetryWithBackoff:
     async def test_multiple_exception_types(self):
         """Test retrying on multiple exception types."""
         # Create a mock that fails with different exception types
-        mock_func = AsyncMock(
-            side_effect=[ValueError("val"), TypeError("type"), "success"]
-        )
+        mock_func = AsyncMock(side_effect=[ValueError("val"), TypeError("type"), "success"])
 
         with patch("krons.resource.utilities.resilience.sleep", new_callable=AsyncMock):
             result = await retry_with_backoff(

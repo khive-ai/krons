@@ -10,7 +10,6 @@ from uuid import UUID
 import pytest
 
 from krons.core.specs import Spec, get_adapter
-from krons.core.specs.adapters.factory import AdapterType
 from krons.core.specs.factory import (
     create_change_by_spec,
     create_content_spec,
@@ -18,7 +17,6 @@ from krons.core.specs.factory import (
     create_embedding_spec,
     create_uuid_spec,
 )
-from krons.core.types import Unset
 
 
 class TestCreateDatetimeSpec:

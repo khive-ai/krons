@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, ClassVar, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, JsonValue
 
@@ -47,9 +48,7 @@ class Instruction(RoledContent):
             raise ValueError("Either 'primary' or 'request_model' must be provided.")
 
         if not is_unset(request_model) and not is_pydantic_model(request_model):
-            raise ValueError(
-                "'request_model' must be a subclass of pydantic BaseModel."
-            )
+            raise ValueError("'request_model' must be a subclass of pydantic BaseModel.")
 
         if not is_unset(images) and images is not None:
             from krons.utils.validators import validate_image_url
@@ -77,18 +76,14 @@ class Instruction(RoledContent):
         custom_renderer: MaybeUnset[CustomRenderer],
     ) -> str:
         if structure_format == StructureFormat.CUSTOM and not callable(custom_renderer):
-            raise ValueError(
-                "Custom renderer must be provided when structure_format is 'custom'."
-            )
+            raise ValueError("Custom renderer must be provided when structure_format is 'custom'.")
 
         task_data = {
             "Primary Instruction": self.primary,
             "Context": self.context,
             "Tools": self.tool_schemas,
         }
-        text = _format_task(
-            {k: v for k, v in task_data.items() if not self._is_sentinel(v)}
-        )
+        text = _format_task({k: v for k, v in task_data.items() if not self._is_sentinel(v)})
 
         if not self._is_sentinel(self.request_model):
             model = self.request_model
@@ -101,15 +96,9 @@ class Instruction(RoledContent):
 
         return text.strip()
 
-    def render(
-        self, structure_format=Unset, custom_renderer=Unset
-    ) -> str | list[dict[str, Any]]:
-        structure_format = (
-            self.structure_format if is_unset(structure_format) else structure_format
-        )
-        custom_renderer = (
-            self.custom_renderer if is_unset(custom_renderer) else custom_renderer
-        )
+    def render(self, structure_format=Unset, custom_renderer=Unset) -> str | list[dict[str, Any]]:
+        structure_format = self.structure_format if is_unset(structure_format) else structure_format
+        custom_renderer = self.custom_renderer if is_unset(custom_renderer) else custom_renderer
         text = self._format_text_content(structure_format, custom_renderer)
         return text if is_unset(self.images) else self._format_image_content(text)
 

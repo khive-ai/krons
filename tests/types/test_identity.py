@@ -6,8 +6,6 @@
 from typing import Annotated, get_args, get_origin
 from uuid import UUID, uuid4
 
-import pytest
-
 from krons.core.types import ID
 
 

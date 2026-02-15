@@ -102,9 +102,7 @@ class CodeGenWorker(Worker):
         self.max_debug_attempts = max_debug_attempts
 
     @work(assignment="instruction, context -> code", timeout=120.0)
-    async def write_code(
-        self, instruction: str, context: dict | None = None, **kwargs
-    ) -> dict:
+    async def write_code(self, instruction: str, context: dict | None = None, **kwargs) -> dict:
         """Generate code via Claude Code.
 
         Args:
@@ -148,9 +146,7 @@ Respond with ONLY the Python code."""
         }
 
     @work(assignment="code -> execution_result", timeout=30.0)
-    async def execute_code(
-        self, code: str, attempt: int = 1, **kwargs
-    ) -> ExecutionResult:
+    async def execute_code(self, code: str, attempt: int = 1, **kwargs) -> ExecutionResult:
         """Execute code in a sandboxed environment.
 
         Args:
@@ -203,9 +199,7 @@ Respond with ONLY the Python code."""
             sys.stdout = old_stdout
 
     @work(assignment="code, error -> fixed_code", timeout=120.0)
-    async def debug_code(
-        self, code: str, error: str, attempt: int = 1, **kwargs
-    ) -> dict:
+    async def debug_code(self, code: str, error: str, attempt: int = 1, **kwargs) -> dict:
         """Debug and fix code via Claude Code.
 
         Args:
@@ -266,9 +260,7 @@ Requirements:
             return None
 
         if result.attempt >= self.max_debug_attempts:
-            print(
-                f"[execute->debug] Max debug attempts ({self.max_debug_attempts}) reached"
-            )
+            print(f"[execute->debug] Max debug attempts ({self.max_debug_attempts}) reached")
             return None
 
         print(f"[execute->debug] Routing to debug (attempt {result.attempt})")

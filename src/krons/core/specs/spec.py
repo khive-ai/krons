@@ -64,17 +64,13 @@ class CommonMeta(Enum):
         errors: list[Exception] = []
 
         if kw.get("default") and kw.get("default_factory"):
-            errors.append(
-                ValueError("Cannot provide both 'default' and 'default_factory'")
-            )
+            errors.append(ValueError("Cannot provide both 'default' and 'default_factory'"))
         if (_df := kw.get("default_factory")) and not callable(_df):
             errors.append(ValueError("'default_factory' must be callable"))
         if _val := kw.get("validator"):
             _val = [_val] if not isinstance(_val, list) else _val
             if not all(callable(v) for v in _val):
-                errors.append(
-                    ValueError("Validators must be a list of functions or a function")
-                )
+                errors.append(ValueError("Validators must be a list of functions or a function"))
 
         if errors:
             raise ExceptionGroup("Metadata validation failed", errors)
@@ -196,9 +192,7 @@ class Spec:
                 or isinstance(base_type, types.UnionType)
             )
             if not is_valid_type:
-                raise ValueError(
-                    f"base_type must be a type or type annotation, got {base_type}"
-                )
+                raise ValueError(f"base_type must be a type or type annotation, got {base_type}")
 
         if kw.get("default_factory") and is_coro_func(kw["default_factory"]):
             import warnings
@@ -395,9 +389,7 @@ class Spec:
 
         return spec
 
-    def with_validator(
-        self, validator: Callable[..., Any] | list[Callable[..., Any]]
-    ) -> Self:
+    def with_validator(self, validator: Callable[..., Any] | list[Callable[..., Any]]) -> Self:
         """Return new Spec with validator function(s) attached."""
         return self.with_updates(validator=validator)
 
@@ -439,9 +431,7 @@ class Spec:
                 _annotated_cache.move_to_end(cache_key)
                 return _annotated_cache[cache_key]
 
-            actual_type = (
-                Any if is_sentinel(self.base_type, {"none"}) else self.base_type
-            )
+            actual_type = Any if is_sentinel(self.base_type, {"none"}) else self.base_type
             current_metadata = self.metadata
 
             # Resolve FK target (explicit or Observable base_type)
@@ -485,9 +475,7 @@ class Spec:
             exclude = set()
         if exclude_common:
             exclude = exclude | set(CommonMeta.allowed())
-        return {
-            meta.key: meta.value for meta in self.metadata if meta.key not in exclude
-        }
+        return {meta.key: meta.value for meta in self.metadata if meta.key not in exclude}
 
 
 def _is_observable(cls: type) -> bool:

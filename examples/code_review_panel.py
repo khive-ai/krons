@@ -38,7 +38,7 @@ from krons.agent.providers.claude_code import (
 )
 from krons.resource import iModel
 from krons.session import Session, SessionConfig
-from krons.utils.display import Timer, as_readable, display, phase, status
+from krons.utils.display import Timer, phase, status
 from krons.utils.fuzzy import extract_json, fuzzy_validate_mapping
 
 CC_WORKSPACE = ".khive/examples/code_review_panel"
@@ -67,9 +67,7 @@ class ReviewFinding(BaseModel):
     severity: Severity = Field(description="Severity level")
     description: str = Field(description="Detailed description of the issue")
     suggestion: str = Field(description="How to fix or improve")
-    line_hint: str | None = Field(
-        default=None, description="Relevant code location hint"
-    )
+    line_hint: str | None = Field(default=None, description="Relevant code location hint")
 
 
 class SpecialistReview(BaseModel):
@@ -98,9 +96,7 @@ class PanelVerdict(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def create_cc(
-    name: str, subdir: str, system_prompt: str | None = None, **kwargs
-) -> iModel:
+def create_cc(name: str, subdir: str, system_prompt: str | None = None, **kwargs) -> iModel:
     """Create a Claude Code iModel with optional system prompt."""
     config = create_claude_code_config(name=name)
     config.update({"ws": f"{CC_WORKSPACE}/{subdir}", "max_turns": 3, **kwargs})
@@ -368,9 +364,7 @@ async def main(code: str | None = None):
         f"=== {p.upper()} REVIEWER (Score: {r.score}/100) ===\n"
         f"Summary: {r.summary}\n"
         f"Findings:\n"
-        + "\n".join(
-            f"- [{f.severity.value}] {f.title}: {f.description}" for f in r.findings
-        )
+        + "\n".join(f"- [{f.severity.value}] {f.title}: {f.description}" for f in r.findings)
         for p, r in reviews.items()
     )
 
@@ -428,10 +422,7 @@ async def main(code: str | None = None):
     avg_score = sum(r.score for r in reviews.values()) / len(reviews)
     total_findings = sum(len(r.findings) for r in reviews.values())
     critical_count = sum(
-        1
-        for r in reviews.values()
-        for f in r.findings
-        if f.severity == Severity.CRITICAL
+        1 for r in reviews.values() for f in r.findings if f.severity == Severity.CRITICAL
     )
 
     print("─" * 70)

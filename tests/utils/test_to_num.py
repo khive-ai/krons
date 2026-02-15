@@ -253,7 +253,6 @@ class TestToNumNaNInfSecurity:
         Without NaN rejection, bounds checks are bypassed because
         NaN comparisons are always False.
         """
-        import math
 
         # This would bypass bounds if NaN were allowed
         # float("nan") > 100 is False, so upper_bound wouldn't trigger
@@ -266,7 +265,6 @@ class TestToNumNaNInfSecurity:
 
     def test_inf_bounds_work_when_allowed(self):
         """Test that bounds work correctly with infinity when allowed."""
-        import math
 
         # Positive infinity should exceed any finite upper bound
         with pytest.raises(ValueError, match="exceeds upper bound"):

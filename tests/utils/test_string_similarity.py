@@ -32,9 +32,7 @@ def test_hamming_similarity():
     """Test hamming similarity"""
     assert SimilarityAlgo.hamming_similarity("hello", "hello") == 1.0
     assert SimilarityAlgo.hamming_similarity("hello", "hallo") == 0.8
-    assert (
-        SimilarityAlgo.hamming_similarity("hello", "help") == 0.0
-    )  # Different lengths
+    assert SimilarityAlgo.hamming_similarity("hello", "help") == 0.0  # Different lengths
 
 
 def test_jaro_winkler_similarity():
@@ -74,9 +72,7 @@ def test_string_similarity_threshold():
 
 def test_string_similarity_most_similar():
     """Test return_most_similar option"""
-    result = string_similarity(
-        "hello", ["hello", "help", "world"], return_most_similar=True
-    )
+    result = string_similarity("hello", ["hello", "help", "world"], return_most_similar=True)
     assert isinstance(result, str)
 
 
@@ -100,9 +96,7 @@ def test_string_similarity_case_sensitive():
 
 def test_string_similarity_hamming():
     """Test hamming algorithm"""
-    result = string_similarity(
-        "hello", ["hello", "hallo"], algorithm=SimilarityAlgo.HAMMING
-    )
+    result = string_similarity("hello", ["hello", "hallo"], algorithm=SimilarityAlgo.HAMMING)
     assert "hello" in result
 
 
@@ -143,9 +137,7 @@ def test_string_similarity_with_enum():
     assert isinstance(result, list)
 
     # Test with HAMMING enum
-    result = string_similarity(
-        "hello", ["hello", "hallo"], algorithm=SimilarityAlgo.HAMMING
-    )
+    result = string_similarity("hello", ["hello", "hallo"], algorithm=SimilarityAlgo.HAMMING)
     assert "hello" in result
 
 

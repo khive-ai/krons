@@ -243,9 +243,7 @@ class TestNodeDBSerialization:
         )
 
         original = ArticleNode(
-            content=ArticleContent(
-                headline="Breaking News", body="Details here", views=42
-            ),
+            content=ArticleContent(headline="Breaking News", body="Details here", views=42),
             embedding=[0.1, 0.2, 0.3],
             metadata={"source": "test"},
         )

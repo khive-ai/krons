@@ -149,9 +149,7 @@ class Execution:
                 if isinstance(exc, Serializable):
                     exceptions.append(exc.to_dict())
                 elif isinstance(exc, ExceptionGroup):
-                    exceptions.append(
-                        self._serialize_exception_group(exc, depth + 1, _seen)
-                    )
+                    exceptions.append(self._serialize_exception_group(exc, depth + 1, _seen))
                 else:
                     exceptions.append(
                         {
@@ -271,14 +269,11 @@ class Event(Element):
         except Exception as e:
             if isinstance(e, ExceptionGroup):
                 retryable = all(
-                    not isinstance(exc, KronsError) or exc.retryable
-                    for exc in e.exceptions
+                    not isinstance(exc, KronsError) or exc.retryable for exc in e.exceptions
                 )
                 self.execution.retryable = retryable
             else:
-                self.execution.retryable = (
-                    e.retryable if isinstance(e, KronsError) else True
-                )
+                self.execution.retryable = e.retryable if isinstance(e, KronsError) else True
 
             self.execution.response = Unset
             self.execution.error = e
@@ -298,9 +293,7 @@ class Event(Element):
 
     async def stream(self) -> Any:
         """Stream execution results. Override if streaming=True."""
-        raise NotImplementedError(
-            "Subclasses must implement stream() if streaming=True"
-        )
+        raise NotImplementedError("Subclasses must implement stream() if streaming=True")
 
     def as_fresh_event(self, copy_meta: bool = False) -> Event:
         """Clone with reset execution state (new ID, PENDING status).
@@ -331,9 +324,7 @@ class Event(Element):
 
     def assert_completed(self, *, retryable: MaybeUnset[bool] = Unset):
         if self.execution.status != EventStatus.COMPLETED:
-            retryable_value = (
-                self.execution.retryable if is_unset(retryable) else retryable
-            )
+            retryable_value = self.execution.retryable if is_unset(retryable) else retryable
             retryable_value = True if retryable_value is True else False
             exec_dict = self.execution.to_dict()
             exec_dict.pop("response", None)

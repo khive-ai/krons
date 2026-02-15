@@ -14,7 +14,6 @@ import pytest
 
 from krons.core.specs import Operable, Spec
 from krons.core.specs.adapters.sql_ddl import (
-    FK,
     CheckConstraintSpec,
     ColumnSpec,
     ForeignKeySpec,
@@ -188,9 +187,7 @@ class TestIndexSpec:
 
     def test_gin_index(self):
         """GIN index should include USING gin."""
-        idx = IndexSpec(
-            name="idx_posts_tags", columns=("tags",), method=IndexMethod.GIN
-        )
+        idx = IndexSpec(name="idx_posts_tags", columns=("tags",), method=IndexMethod.GIN)
         ddl = idx.to_ddl("posts")
         assert "USING gin" in ddl
 
@@ -289,9 +286,7 @@ class TestUniqueConstraintSpec:
 
     def test_unique_constraint_ddl(self):
         """UNIQUE constraint should generate ALTER TABLE DDL."""
-        uc = UniqueConstraintSpec(
-            name="uq_email_tenant", columns=("tenant_id", "email")
-        )
+        uc = UniqueConstraintSpec(name="uq_email_tenant", columns=("tenant_id", "email"))
         ddl = uc.to_ddl("users")
         assert 'ALTER TABLE "public"."users"' in ddl
         assert 'ADD CONSTRAINT "uq_email_tenant" UNIQUE ("tenant_id", "email")' in ddl
@@ -333,9 +328,7 @@ class TestTableSpec:
                 ),
             ),
             indexes=(IndexSpec(name="idx_orders_user", columns=("user_id",)),),
-            check_constraints=(
-                CheckConstraintSpec(name="chk_positive", expression="amount > 0"),
-            ),
+            check_constraints=(CheckConstraintSpec(name="chk_positive", expression="amount > 0"),),
         )
         statements = table.to_full_ddl()
         assert len(statements) == 4  # CREATE TABLE + FK + INDEX + CHECK

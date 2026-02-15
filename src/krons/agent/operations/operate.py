@@ -198,9 +198,7 @@ def _actions_to_messages(act_requests: list) -> list[Message]:
     messages: list[Message] = []
     for req in act_requests:
         if isinstance(req, Action):
-            content = ActionRequest.create(
-                function=req.function, arguments=req.arguments
-            )
+            content = ActionRequest.create(function=req.function, arguments=req.arguments)
             messages.append(Message(content=content))
         elif isinstance(req, dict):
             content = ActionRequest.create(

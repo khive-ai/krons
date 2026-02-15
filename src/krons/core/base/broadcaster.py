@@ -41,9 +41,7 @@ class Broadcaster:
         return cls._instance
 
     @classmethod
-    def subscribe(
-        cls, callback: Callable[[Any], None] | Callable[[Any], Awaitable[None]]
-    ) -> None:
+    def subscribe(cls, callback: Callable[[Any], None] | Callable[[Any], Awaitable[None]]) -> None:
         """Add subscriber callback (idempotent, stored as weakref).
 
         Args:
@@ -53,9 +51,7 @@ class Broadcaster:
         for weak_ref in cls._subscribers:
             if weak_ref() is callback:
                 return
-        weak_callback: weakref.ref[
-            Callable[[Any], None] | Callable[[Any], Awaitable[None]]
-        ]
+        weak_callback: weakref.ref[Callable[[Any], None] | Callable[[Any], Awaitable[None]]]
         if hasattr(callback, "__self__"):
             weak_callback = weakref.WeakMethod(callback)  # type: ignore[assignment]
         else:

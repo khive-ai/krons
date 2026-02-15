@@ -27,8 +27,8 @@ def _build_context(content: Instruction, action_outputs: list[str]) -> list[Json
     """Build context list by appending action outputs to existing context."""
     existing = content.context
     if content._is_sentinel(existing):
-        return cast(list[JsonValue], list(action_outputs))
-    return cast(list[JsonValue], list(cast(list[JsonValue], existing)) + action_outputs)
+        return cast("list[JsonValue]", list(action_outputs))
+    return cast("list[JsonValue]", list(cast("list[JsonValue]", existing)) + action_outputs)
 
 
 def prepare_messages_for_chat(
@@ -61,9 +61,7 @@ def prepare_messages_for_chat(
     if len(to_use) == 0:
         if new_instruction:
             new_content = (
-                new_instruction.content
-                if isinstance(new_instruction, Message)
-                else new_instruction
+                new_instruction.content if isinstance(new_instruction, Message) else new_instruction
             )
             new_content: Instruction = new_content.with_updates(copy_containers="deep")
             if to_chat:
@@ -144,9 +142,7 @@ def prepare_messages_for_chat(
                     )
                     pending_actions = []
                 _use_msgs.append(
-                    new_instruction.content.with_updates(
-                        copy_containers="deep", **system_updates
-                    )
+                    new_instruction.content.with_updates(copy_containers="deep", **system_updates)
                 )
                 new_instruction = None
         elif _use_msgs and isinstance(_use_msgs[0], Instruction):
@@ -157,13 +153,9 @@ def prepare_messages_for_chat(
     if new_instruction:
         final_updates: dict[str, Any] = {}
         if pending_actions and isinstance(new_instruction.content, Instruction):
-            final_updates["context"] = _build_context(
-                new_instruction.content, pending_actions
-            )
+            final_updates["context"] = _build_context(new_instruction.content, pending_actions)
         _use_msgs.append(
-            new_instruction.content.with_updates(
-                copy_containers="deep", **final_updates
-            )
+            new_instruction.content.with_updates(copy_containers="deep", **final_updates)
         )
 
     if to_chat:

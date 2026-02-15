@@ -45,9 +45,5 @@ class RoledContent(DataClass):
     @classmethod
     def from_dict(cls, data: dict[str, Any], **kwargs: Any) -> RoledContent:
         return cls.create(
-            **{
-                k: v
-                for k in cls.allowed()
-                if (k in data and not cls._is_sentinel(v := data[k]))
-            }
+            **{k: v for k in cls.allowed() if (k in data and not cls._is_sentinel(v := data[k]))}
         )

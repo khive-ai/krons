@@ -162,9 +162,7 @@ Provide your findings in a structured format."""
         )
 
         findings = session.result or "No findings"
-        print(
-            f"[search] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})"
-        )
+        print(f"[search] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})")
 
         return {
             "query": query,
@@ -174,9 +172,7 @@ Provide your findings in a structured format."""
         }
 
     @work(assignment="query, findings, depth -> analysis", timeout=90.0)
-    async def analyze(
-        self, query: str, findings: str, depth: int = 0, **kwargs
-    ) -> ResearchResult:
+    async def analyze(self, query: str, findings: str, depth: int = 0, **kwargs) -> ResearchResult:
         """Analyze findings and assess confidence.
 
         Args:
@@ -255,9 +251,7 @@ Focus on addressing the missing information."""
         )
 
         findings = session.result or "No additional findings"
-        print(
-            f"[deep_dive] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})"
-        )
+        print(f"[deep_dive] Found {len(findings)} chars (cost: ${session.total_cost_usd or 0:.4f})")
 
         return {
             "query": query,
@@ -336,9 +330,7 @@ Create a well-structured report with:
             print("[analyze->deep_dive] SKIP: no gaps identified")
             return None
 
-        print(
-            f"[analyze->deep_dive] ROUTE: confidence {result.confidence:.0%} < threshold"
-        )
+        print(f"[analyze->deep_dive] ROUTE: confidence {result.confidence:.0%} < threshold")
         return {
             "query": result.query,
             "gaps": result.gaps,

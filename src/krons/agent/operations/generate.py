@@ -47,9 +47,7 @@ class GenerateParams(Params):
         imodel_kwargs: Extra kwargs forwarded to imodel.invoke().
     """
 
-    _config = ModelConfig(
-        sentinel_additions=frozenset({"none", "empty", "dataclass", "pydantic"})
-    )
+    _config = ModelConfig(sentinel_additions=frozenset({"none", "empty", "dataclass", "pydantic"}))
 
     instruction: MaybeUnset[Instruction | Message] = Unset
     primary: MaybeUnset[str] = Unset

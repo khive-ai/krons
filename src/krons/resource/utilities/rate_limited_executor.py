@@ -213,12 +213,8 @@ class RateLimitedProcessor(Processor):
             "concurrency_limit": self.concurrency_limit,
             "max_queue_size": self.max_queue_size,
             "max_denial_tracking": self.max_denial_tracking,
-            "request_bucket": (
-                self.request_bucket.to_dict() if self.request_bucket else None
-            ),
-            "token_bucket": (
-                self.token_bucket.to_dict() if self.token_bucket else None
-            ),
+            "request_bucket": (self.request_bucket.to_dict() if self.request_bucket else None),
+            "token_bucket": (self.token_bucket.to_dict() if self.token_bucket else None),
         }
 
 

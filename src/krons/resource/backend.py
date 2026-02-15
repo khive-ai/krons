@@ -92,15 +92,9 @@ class NormalizedResponseModel(HashableModel):
 
     status: str = Field(..., description="Response status: 'success' or 'error'")
     data: Any = None
-    error: str | None = Field(
-        default=None, description="Error message if status='error'"
-    )
-    raw_response: dict[str, Any] = Field(
-        ..., description="Original unmodified response"
-    )
-    metadata: dict[str, Any] | None = Field(
-        default=None, description="Provider-specific metadata"
-    )
+    error: str | None = Field(default=None, description="Error message if status='error'")
+    raw_response: dict[str, Any] = Field(..., description="Original unmodified response")
+    metadata: dict[str, Any] | None = Field(default=None, description="Provider-specific metadata")
 
     def _to_dict(self, **kwargs: Any) -> dict[str, Any]:
         """Convert to dict, excluding None values."""
@@ -118,9 +112,7 @@ class Calling(Event):
         payload: Request payload/arguments for backend call
     """
 
-    backend: ResourceBackend = Field(
-        ..., exclude=True, description="Resource backend instance"
-    )
+    backend: ResourceBackend = Field(..., exclude=True, description="Resource backend instance")
     payload: dict[str, Any] = Field(..., description="Request payload/arguments")
     _pre_invoke_hook_event: HookEvent | None = PrivateAttr(None)
     _post_invoke_hook_event: HookEvent | None = PrivateAttr(None)

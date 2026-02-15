@@ -320,9 +320,7 @@ class TestOperableFromStructure:
         class OriginalName(BaseModel):
             field: str
 
-        op = Operable.from_structure(
-            OriginalName, adapter="pydantic", name="CustomName"
-        )
+        op = Operable.from_structure(OriginalName, adapter="pydantic", name="CustomName")
         assert op.name == "CustomName"
 
     def test_from_structure_type_error_on_non_basemodel(self):
@@ -376,9 +374,7 @@ class TestOperableComposeStructure:
         operable = Operable((spec1, spec2, spec3), name="TestModel")
 
         # Test with include
-        model_include = operable.compose_structure(
-            "IncludeModel", include={"field1", "field3"}
-        )
+        model_include = operable.compose_structure("IncludeModel", include={"field1", "field3"})
         assert model_include is not None
 
         # Test with exclude

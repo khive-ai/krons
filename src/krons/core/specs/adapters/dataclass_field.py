@@ -12,9 +12,8 @@ Supports bidirectional transformation for Python dataclasses:
 from __future__ import annotations
 
 from dataclasses import MISSING as DATACLASS_MISSING
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from dataclasses import field as dc_field
-from dataclasses import fields
 from typing import TYPE_CHECKING, Any
 
 from krons.core.types._sentinel import Unset, UnsetType, is_sentinel
@@ -71,9 +70,7 @@ def _make_validator_method(validators: dict[str, list[Any]], is_frozen: bool) ->
                     errors.append(ValueError(f"Validation failed for '{fname}': {e}"))
 
         if errors:
-            raise ExceptionGroup(
-                f"Field validation failed for {type(self).__name__}", errors
-            )
+            raise ExceptionGroup(f"Field validation failed for {type(self).__name__}", errors)
 
     return _validate_with_field_validators
 
@@ -178,9 +175,7 @@ class DataClassSpecAdapter(SpecAdapter[dict[str, Any]]):
             annotations[field_name] = spec.annotation
 
             if "default_factory" in field_kwargs:
-                class_attrs[field_name] = dc_field(
-                    default_factory=field_kwargs["default_factory"]
-                )
+                class_attrs[field_name] = dc_field(default_factory=field_kwargs["default_factory"])
             elif "default" in field_kwargs:
                 class_attrs[field_name] = field_kwargs["default"]
 
@@ -225,9 +220,7 @@ class DataClassSpecAdapter(SpecAdapter[dict[str, Any]]):
         return instance.to_dict()
 
     @classmethod
-    def extract_specs(
-        cls, structure: type[Params] | type[DataClass]
-    ) -> tuple[Spec, ...]:
+    def extract_specs(cls, structure: type[Params] | type[DataClass]) -> tuple[Spec, ...]:
         """Extract Specs from DataClass/Params, preserving defaults and type modifiers.
 
         Raises:
@@ -235,9 +228,7 @@ class DataClassSpecAdapter(SpecAdapter[dict[str, Any]]):
         """
         from krons.core.types.base import DataClass, Params
 
-        if not isinstance(structure, type) or not issubclass(
-            structure, (DataClass, Params)
-        ):
+        if not isinstance(structure, type) or not issubclass(structure, (DataClass, Params)):
             raise TypeError(
                 f"structure must be a DataClass or Params subclass, got {type(structure)}"
             )

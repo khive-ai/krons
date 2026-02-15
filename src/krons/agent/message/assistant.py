@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, ClassVar
-
-from typing_extensions import Self
+from typing import Any, ClassVar, Self
 
 from krons.core.types import MaybeUnset, Unset
 from krons.resource.backend import NormalizedResponse

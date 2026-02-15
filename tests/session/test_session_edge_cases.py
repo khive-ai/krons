@@ -55,9 +55,7 @@ class TestSessionNoDefaultBranch:
         """
         session = Session(config=SessionConfig(auto_create_default_branch=False))
 
-        with pytest.raises(
-            RuntimeError, match="No branch provided and no default branch set"
-        ):
+        with pytest.raises(RuntimeError, match="No branch provided and no default branch set"):
             await session.conduct("operate", branch=None)
 
     @pytest.mark.asyncio
@@ -112,9 +110,7 @@ class TestBranchForkInheritance:
         Edge case: Verify True means full copy, not just reference.
         """
         session = Session()
-        source = session.create_branch(
-            name="source", capabilities={"cap1", "cap2", "cap3"}
-        )
+        source = session.create_branch(name="source", capabilities={"cap1", "cap2", "cap3"})
 
         forked = session.fork(source, capabilities=True)
 

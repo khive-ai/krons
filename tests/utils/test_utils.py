@@ -26,7 +26,7 @@ class TestNowUtc:
     @pytest.mark.unit
     def test_now_utc_returns_datetime(self):
         """Test now_utc returns datetime object with UTC timezone."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         result = now_utc()
         assert isinstance(result, datetime)
